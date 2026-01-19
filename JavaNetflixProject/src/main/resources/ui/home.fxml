@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml"
+           
+            stylesheets="@../css/netflix.css">
+
+    <!-- TOP BAR -->
+    <top>
+        <HBox spacing="20" alignment="CENTER_LEFT" styleClass="top-bar">
+            <Label text="NETFLIX" styleClass="logo"/>
+            <TextField promptText="Search..." styleClass="search-box"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Profile" styleClass="profile"/>
+        </HBox>
+    </top>
+
+    <!-- CENTER CONTENT -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+            <VBox spacing="30" padding="20">
+
+                <!-- Trending Category -->
+                <VBox spacing="30" padding="20 20 20 20">
+
+                    <Label text="Trending Now" styleClass="category-title"/>
+                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+                        <HBox fx:id="trendingRow" spacing="15"/>
+                    </ScrollPane>
+                </VBox>
+
+                <!-- Action Category -->
+               <VBox spacing="30" padding="20 20 20 20">
+
+                    <Label text="Action Movies" styleClass="category-title"/>
+                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+                        <HBox fx:id="actionRow" spacing="15"/>
+                    </ScrollPane>
+                </VBox>
+
+                <!-- Comedy Category -->
+                <VBox spacing="30" padding="20 20 20 20">
+
+                    <Label text="Comedy" styleClass="category-title"/>
+                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+                        <HBox fx:id="comedyRow" spacing="15"/>
+                    </ScrollPane>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+</BorderPane>
