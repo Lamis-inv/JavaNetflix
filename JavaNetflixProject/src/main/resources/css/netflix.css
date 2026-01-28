@@ -34,7 +34,7 @@
 
 /* Movie card */
 .movie-card {
-    -fx-background-color: #1f1f1f;
+    -fx-background-color: 	#880808;
     -fx-padding: 5;
     -fx-background-radius: 10;
     -fx-cursor: hand;

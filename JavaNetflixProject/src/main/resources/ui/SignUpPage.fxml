@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.JavaProject.JavaNetflixProject.app.SignUpController"
+           style="-fx-background-color: #141414;"
+           prefWidth="400" prefHeight="500">
+
+    <VBox alignment="CENTER" spacing="20">
+
+        <Label text="J-Stream" style="-fx-text-fill: white; -fx-font-size: 36px; -fx-font-weight: bold;"/>
+
+        <VBox spacing="10" alignment="CENTER" style="-fx-background-color: #1c1c1c; -fx-padding: 30; -fx-background-radius: 15;" maxWidth="350">
+            <Label text="Sign Up" style="-fx-text-fill: white; -fx-font-size: 24px;"/>
+            <TextField fx:id="username" promptText="Username" maxWidth="300"/>
+            <TextField fx:id="signUpEmail" promptText="Email" maxWidth="300"/>
+            <PasswordField fx:id="signUpPassword" promptText="Password" maxWidth="300"/>
+            <PasswordField fx:id="signUpConfirmPassword" promptText="Confirm Password" maxWidth="300"/>
+            <Button fx:id="signUpButton" text="Sign Up" style="-fx-background-color: #e50914; -fx-text-fill: white; -fx-font-weight: bold;" maxWidth="200"/>
+            <Hyperlink fx:id="goToLogin" text="Already have an account? Login" style="-fx-text-fill: #bbbbbb;"/>
+        </VBox>
+
+    </VBox>
+</StackPane>
+

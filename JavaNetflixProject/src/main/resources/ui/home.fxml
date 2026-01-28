@@ -2,16 +2,20 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 
-<BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml"
-           
-            stylesheets="@../css/netflix.css">
+<BorderPane fx:id="root"
+            xmlns:fx="http://javafx.com/fxml"
+             fx:controller="org.JavaProject.JavaNetflixProject.app.HomeController">
 
     <!-- TOP BAR -->
     <top>
         <HBox spacing="20" alignment="CENTER_LEFT" styleClass="top-bar">
-            <Label text="NETFLIX" styleClass="logo"/>
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+
+            <Label text="J-Stream" styleClass="logo"/>
             <TextField promptText="Search..." styleClass="search-box"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Label text="Profile" styleClass="profile"/>
@@ -21,32 +25,41 @@
     <!-- CENTER CONTENT -->
     <center>
         <ScrollPane fitToWidth="true" styleClass="scroll-pane">
-            <VBox spacing="30" padding="20">
 
-                <!-- Trending Category -->
-                <VBox spacing="30" padding="20 20 20 20">
+            <VBox spacing="30">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
 
+                <!-- Trending -->
+                <VBox spacing="10">
                     <Label text="Trending Now" styleClass="category-title"/>
                     <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
                         <HBox fx:id="trendingRow" spacing="15"/>
                     </ScrollPane>
                 </VBox>
 
-                <!-- Action Category -->
-               <VBox spacing="30" padding="20 20 20 20">
-
+                <!-- Action -->
+                <VBox spacing="10">
                     <Label text="Action Movies" styleClass="category-title"/>
                     <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
                         <HBox fx:id="actionRow" spacing="15"/>
                     </ScrollPane>
                 </VBox>
 
-                <!-- Comedy Category -->
-                <VBox spacing="30" padding="20 20 20 20">
-
+                <!-- Comedy -->
+                <VBox spacing="10">
                     <Label text="Comedy" styleClass="category-title"/>
                     <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
                         <HBox fx:id="comedyRow" spacing="15"/>
+                    </ScrollPane>
+                </VBox>
+                
+                <!-- Horror -->
+                <VBox spacing="10">
+                    <Label text="Horror" styleClass="category-title"/>
+                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+                        <HBox fx:id="horrorRow" spacing="15"/>
                     </ScrollPane>
                 </VBox>
 
