@@ -10,6 +10,10 @@ public class UserEntities {
     private String role; // USER ou ADMIN
     private List<FilmEntities> listeFavoris;
     private List<VisionnageEntities> historiqueVisionnage;
+    
+	public UserEntities() {
+		super();
+	}
 	public UserEntities(int id, String nom, String email, String motDePasseHash, String role,
 			List<FilmEntities> listeFavoris, List<VisionnageEntities> historiqueVisionnage) {
 		super();

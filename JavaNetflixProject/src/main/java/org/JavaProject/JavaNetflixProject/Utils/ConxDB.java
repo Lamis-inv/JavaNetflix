@@ -1,36 +1,48 @@
 package org.JavaProject.JavaNetflixProject.Utils;
 
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class ConxDB{
+public class ConxDB {
 
-    private static Connection connexion;
+  
+    private static ConxDB instance;
+    private Connection connexion;
 
-    private final String DB_URL = "jdbc:mysql://localhost:3306/demojava";
+   
+    private final String DB_URL = "jdbc:mysql://localhost:3306/database"; 
     private final String USER = "root";
     private final String PASS = "";
 
-    private ConxDB() throws SQLException{
-
-        try{
-               Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-
-            e.printStackTrace();
+   
+    private ConxDB() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            this.connexion = DriverManager.getConnection(DB_URL, USER, PASS);
+            System.out.println("Connexion réussie !");
+        } catch (ClassNotFoundException | SQLException e) {
+            System.out.println("Erreur de connexion : " + e.getMessage());
         }
-        connexion= DriverManager.getConnection(DB_URL, USER, PASS);
     }
 
-    public static Connection getInstance(){
-        if (connexion == null)
+    public static ConxDB getInstance() {
+        if (instance == null) {
+            instance = new ConxDB();
+        } else {
             try {
-                new ConxDB();
-            }catch(Exception e){
-                System.out.println("--"+e.getMessage());
+                if (instance.getCnx().isClosed()) {
+                    instance = new ConxDB();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
+        }
+        return instance;
+    }
+
+    
+    public Connection getCnx() {
         return connexion;
     }
 }

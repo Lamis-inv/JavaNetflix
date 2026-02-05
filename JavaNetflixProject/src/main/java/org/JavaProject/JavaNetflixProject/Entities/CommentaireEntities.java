@@ -12,6 +12,9 @@ public class CommentaireEntities {
     
     
     
+	public CommentaireEntities() {
+		super();
+	}
 	public CommentaireEntities(int id, String contenu, UserEntities auteur, FilmEntities film, LocalDateTime date,
 			boolean signale) {
 		super();

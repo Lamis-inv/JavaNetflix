@@ -5,7 +5,7 @@ public class EpisodeEntities {
     private String titre;
     private int numero;
     private String urlVideo;
-    private int duree; // en minutes
+    private int duree; 
     private String resume;
     
 	public EpisodeEntities(int id, String titre, int numero, String urlVideo, int duree, String resume) {
