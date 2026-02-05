@@ -55,4 +55,46 @@
 .scroll-pane {
     -fx-background: #141414;
 }
+
+.movie-card {
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+}
+
+.movie-overlay {
+    -fx-background-color: linear-gradient(
+        from 0% 0% to 0% 100%,
+        rgba(0,0,0,0.1),
+        rgba(0,0,0,0.9)
+    );
+    -fx-padding: 10;
+    -fx-pref-height: 270;
+}
+
+.movie-card:hover {
+    -fx-scale-x: 1.15;
+    -fx-scale-y: 1.15;
+    -fx-effect: dropshadow(gaussian, black, 25, 0.5, 0, 0);
+    -fx-z-index: 10;
+}
+
+.movie-title {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.movie-info {
+    -fx-text-fill: #ccc;
+    -fx-font-size: 11px;
+}
+
+.add-btn {
+    -fx-background-color: #E50914;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+}
+.movie-card {
+    -fx-transition: all 0.25s ease-in-out;
+}
+
  

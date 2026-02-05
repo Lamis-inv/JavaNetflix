@@ -34,17 +34,21 @@
                 <!-- Trending -->
                 <VBox spacing="10">
                     <Label text="Trending Now" styleClass="category-title"/>
+                    <Button text="❮" onAction="#scrollLeft"/>
                     <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
                         <HBox fx:id="trendingRow" spacing="15"/>
                     </ScrollPane>
+                     <Button text="❯" onAction="#scrollRight"/>
                 </VBox>
 
                 <!-- Action -->
                 <VBox spacing="10">
                     <Label text="Action Movies" styleClass="category-title"/>
+                    <Button text="❮" onAction="#scrollLeft"/>
                     <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
                         <HBox fx:id="actionRow" spacing="15"/>
                     </ScrollPane>
+                     <Button text="❯" onAction="#scrollRight"/>
                 </VBox>
 
                 <!-- Comedy -->
@@ -60,6 +64,13 @@
                     <Label text="Horror" styleClass="category-title"/>
                     <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
                         <HBox fx:id="horrorRow" spacing="15"/>
+                    </ScrollPane>
+                </VBox>
+                <!-- Advanture -->
+                <VBox spacing="10">
+                    <Label text="Advanture" styleClass="category-title"/>
+                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+                        <HBox fx:id="advantureRow" spacing="15"/>
                     </ScrollPane>
                 </VBox>
 

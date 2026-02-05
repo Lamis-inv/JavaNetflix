@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<StackPane fx:id="card"
+           styleClass="movie-card"
+           prefWidth="180"
+           prefHeight="270"
+           xmlns:fx="http://javafx.com/fxml">
+
+    <!-- Poster -->
+    <ImageView fx:id="poster"
+               fitWidth="180"
+               fitHeight="270"
+               preserveRatio="false"/>
+
+    <!-- Hover overlay -->
+    <VBox fx:id="overlay"
+          alignment="BOTTOM_LEFT"
+          spacing="5"
+          styleClass="movie-overlay"
+          visible="false">
+
+        <Label fx:id="title" styleClass="movie-title"/>
+        <Label fx:id="info" styleClass="movie-info"/>
+
+        <Button text="+ My List" styleClass="add-btn"/>
+    </VBox>
+
+</StackPane>
+
