@@ -214,6 +214,43 @@ ALTER TABLE `watch_progress`
   ADD CONSTRAINT `watch_progress_ibfk_1` FOREIGN KEY (`episode_id`) REFERENCES `episode` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
+
+--table commentaires
+CREATE TABLE commentaires (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    contenu TEXT NOT NULL,
+    date_pub DATETIME DEFAULT CURRENT_TIMESTAMP, -- C'est le nom que tu utilises en Java
+    user_id INT NOT NULL,
+    film_id INT NOT NULL,
+    signale BOOLEAN DEFAULT FALSE, -- Pour modérer les commentaires
+    
+    -- Clés étrangères
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE
+);
+
+--table notes(rating)
+CREATE TABLE notes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    valeur INT NOT NULL,
+    user_id INT NOT NULL,
+    film_id INT NOT NULL,
+    -- Contrainte pour s'assurer que la note est bien entre 1 et 5
+    CHECK (valeur >= 1 AND valeur <= 5),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE
+);
+
+
+-- TABLE 3 : FAVORIS
+
+CREATE TABLE favoris (
+    user_id INT NOT NULL,
+    film_id INT NOT NULL,
+    PRIMARY KEY (user_id, film_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films(id) ON DELETE CASCADE
+);
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

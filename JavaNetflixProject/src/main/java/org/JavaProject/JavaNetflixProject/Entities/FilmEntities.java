@@ -12,7 +12,6 @@ public class FilmEntities {
     private String urlVideo;
     private String urlImage;
     private LocalDate dateSortie;
-    private boolean estFavori;
     private List<NoteEntities> notes;
     private List<CommentaireEntities> commentaires;
 	public FilmEntities(int id, String titre, String synopsis, String genre, String urlVideo, String urlImage,
@@ -61,6 +60,7 @@ public class FilmEntities {
 	public String getUrlImage() {
 		return urlImage;
 	}
+	
 	public void setUrlImage(String urlImage) {
 		this.urlImage = urlImage;
 	}
@@ -82,12 +82,6 @@ public class FilmEntities {
 	public void setCommentaires(List<CommentaireEntities> commentaires) {
 		this.commentaires = commentaires;
 	}
-	public boolean isEstFavori() {
-	    return estFavori;
-	}
-
-	public void setEstFavori(boolean estFavori) {
-	    this.estFavori = estFavori;
-	}
+    
     
 }
