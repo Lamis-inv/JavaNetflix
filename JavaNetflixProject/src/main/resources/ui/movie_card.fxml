@@ -2,31 +2,21 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.geometry.Insets?>
-<StackPane fx:id="card"
-           styleClass="movie-card"
-           prefWidth="180"
-           prefHeight="270"
-           xmlns:fx="http://javafx.com/fxml">
 
-    <!-- Poster -->
-    <ImageView fx:id="poster"
-               fitWidth="180"
-               fitHeight="270"
-               preserveRatio="false"/>
+<StackPane fx:id="cardRoot" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.JavaProject.JavaNetflixProject.app.FilmCardController"
+           styleClass="movie-card">
 
-    <!-- Hover overlay -->
-    <VBox fx:id="overlay"
-          alignment="BOTTOM_LEFT"
-          spacing="5"
-          styleClass="movie-overlay"
+    <ImageView fx:id="posterImageView" fitWidth="120" fitHeight="180" preserveRatio="true"/>
+
+    <VBox fx:id="infoBox" alignment="BOTTOM_LEFT" spacing="5"
+          style="-fx-background-color: rgba(0,0,0,0.7); -fx-padding: 5;"
           visible="false">
-
-        <Label fx:id="title" styleClass="movie-title"/>
-        <Label fx:id="info" styleClass="movie-info"/>
-
-        <Button text="+ My List" styleClass="add-btn"/>
+        <Label fx:id="titleLabel" textFill="WHITE" style="-fx-font-weight: bold;"/>
+        <Label fx:id="genreLabel" textFill="WHITE" style="-fx-font-size: 11;"/>
+        <Button fx:id="addToListButton" text="Add to List" style="-fx-font-size: 10;"/>
     </VBox>
 
 </StackPane>
-

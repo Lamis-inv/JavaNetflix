@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InteractionDAO {
-
+/*
     Connection cnx = ConxDB.getInstance().getCnx();
 
     // ------------------- FAVORIS -------------------
@@ -149,4 +149,6 @@ public class InteractionDAO {
             System.out.println("Erreur ajout note : " + e.getMessage());
         }
     }
+    
+    */
 }

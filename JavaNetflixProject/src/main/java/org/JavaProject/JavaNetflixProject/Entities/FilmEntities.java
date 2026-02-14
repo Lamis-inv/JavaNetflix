@@ -7,26 +7,43 @@ import java.util.List;
 public class FilmEntities {
 	private int id;
     private String titre;
-    private String synopsis;
+    private String description;
     private String genre;
     private String urlVideo;
-    private String urlImage;
+    private String coverUrl;
     private LocalDate dateSortie;
     private List<NoteEntities> notes;
     private List<CommentaireEntities> commentaires;
-	public FilmEntities(int id, String titre, String synopsis, String genre, String urlVideo, String urlImage,
+	public FilmEntities(int id, String titre, String description, String genre, String urlVideo, String coverUrl,
 			LocalDate dateSortie, List<NoteEntities> notes, List<CommentaireEntities> commentaires) {
 		super();
 		this.id = id;
 		this.titre = titre;
-		this.synopsis = synopsis;
+		this.description = description;
 		this.genre = genre;
 		this.urlVideo = urlVideo;
-		this.urlImage = urlImage;
+		this.coverUrl = coverUrl;
 		this.dateSortie = dateSortie;
 		this.notes = notes;
 		this.commentaires = commentaires;
 	}
+	
+	
+	
+	public FilmEntities(int id, String titre, String description, String genre,
+			LocalDate dateSortie,String urlVideo, String coverUrl) {
+		super();
+		this.id = id;
+		this.titre = titre;
+		this.description = description;
+		this.genre = genre;
+		this.urlVideo = urlVideo;
+		this.coverUrl = coverUrl;
+		this.dateSortie = dateSortie;
+	}
+
+
+
 	public int getId() {
 		return id;
 	}
@@ -39,12 +56,10 @@ public class FilmEntities {
 	public void setTitre(String titre) {
 		this.titre = titre;
 	}
-	public String getSynopsis() {
-		return synopsis;
+	public String getDescription() {
+		return description;
 	}
-	public void setSynopsis(String synopsis) {
-		this.synopsis = synopsis;
-	}
+
 	public String getGenre() {
 		return genre;
 	}
@@ -57,13 +72,10 @@ public class FilmEntities {
 	public void setUrlVideo(String urlVideo) {
 		this.urlVideo = urlVideo;
 	}
-	public String getUrlImage() {
-		return urlImage;
+	public String getCoverUrl() {
+		return coverUrl;
 	}
 	
-	public void setUrlImage(String urlImage) {
-		this.urlImage = urlImage;
-	}
 	public LocalDate getDateSortie() {
 		return dateSortie;
 	}

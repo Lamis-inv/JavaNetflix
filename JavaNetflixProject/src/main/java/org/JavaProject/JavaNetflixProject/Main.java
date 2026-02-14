@@ -21,8 +21,8 @@ public class Main extends Application {
         */
     	
     	
-    	Parent root = FXMLLoader.load(getClass().getResource("/ui/movie_card.fxml"));
-        Scene scene = new Scene(root, 400, 500);
+    	Parent root = FXMLLoader.load(getClass().getResource("/ui/home.fxml"));
+        Scene scene = new Scene(root, 1200, 680);
         scene.getStylesheets().add(
         	    Main.class.getResource("/css/netflix.css").toExternalForm());
 

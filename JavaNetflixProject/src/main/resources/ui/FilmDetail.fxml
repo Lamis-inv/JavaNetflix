@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx" 
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.JavaProject.JavaNetflixProject.app.FilmDetailController"
+            stylesheets="@../css/film-detail.css">
+    
+    <top>
+        <HBox style="-fx-background-color: #141414;" alignment="CENTER_LEFT">
+            <padding><Insets top="20" left="20" bottom="20" right="20"/></padding>
+            <Button text="‹ Back" onAction="#goBack" 
+                    style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 16;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="NETFLIX" style="-fx-text-fill: #E50914; -fx-font-size: 24; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
+    
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background: #141414;">
+            <VBox spacing="20" style="-fx-background-color: #141414;">
+                
+                <!-- Hero Section -->
+                <HBox spacing="30" alignment="TOP_LEFT" style="-fx-background-color: #1a1a1a;">
+                    <padding><Insets top="30" left="50" bottom="30" right="50"/></padding>
+                    <ImageView fx:id="posterImage" fitHeight="300" preserveRatio="true" 
+                               style="-fx-effect: dropshadow(gaussian, black, 20, 0.5, 0, 0);"/>
+                    <VBox spacing="15">
+                        <Label fx:id="titleText" styleClass="title-label"/>
+                        <HBox spacing="20">
+                            <Label fx:id="yearLabel" styleClass="info-label"/>
+                            <Label fx:id="genreLabel" styleClass="info-label"/>
+                        </HBox>
+                        <Label fx:id="descriptionText" style="-fx-text-fill: white; -fx-font-size: 14; -fx-wrap-text: true; 
+                                                              -fx-pref-width: 500;"/>
+                        <HBox spacing="15">
+                            <Button text="▶ Play" onAction="#playFilm" styleClass="play-button"/>
+                            <Button text="+ My List" onAction="#addToList" styleClass="action-button"/>
+                            <Button fx:id="likeButton" text="Like" onAction="#toggleLike" styleClass="action-button"/>
+                        </HBox>
+                    </VBox>
+                </HBox>
+                
+                <!-- Details Section -->
+                <VBox spacing="15">
+                    <padding><Insets left="50" right="50"/></padding>
+                    
+                    <Label text="Details" styleClass="title-label" style="-fx-font-size: 24px;"/>
+                    
+                    <GridPane hgap="20" vgap="10">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="NEVER" prefWidth="120"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        <VBox spacing="15">
+                        <Label text="Release Date:" styleClass="detail-label"/>
+                        <Label fx:id="releaseDateLabel" styleClass="detail-value"/>
+                        </VBox>
+                        <VBox spacing="15">
+                        <Label text="Genre:" styleClass="detail-label" GridPane.rowIndex="1"/>
+                        <Label fx:id="genreFullLabel" styleClass="detail-value" GridPane.rowIndex="1"/>
+                        </VBox>
+                        <VBox spacing="15">
+                        <Label text="Description:" styleClass="detail-label" GridPane.rowIndex="2"/>
+                        <Label fx:id="fullDescriptionLabel" styleClass="detail-value" GridPane.rowIndex="2" 
+                               style="-fx-wrap-text: true;" GridPane.columnSpan="2"/>
+                    	</VBox>
+                    </GridPane>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

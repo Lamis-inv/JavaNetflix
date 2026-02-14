@@ -50,8 +50,8 @@ CREATE TABLE `film` (
   `description` text NOT NULL,
   `genre` enum('action','comedy','drama','fantasy','horror','romance','sci-fi','thriller') NOT NULL,
   `date_sortie` date NOT NULL,
-  `video_url` text NOT NULL,
-  `cover_url` text NOT NULL
+  `video_url` varchar(100) NOT NULL,
+  `cover_url` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

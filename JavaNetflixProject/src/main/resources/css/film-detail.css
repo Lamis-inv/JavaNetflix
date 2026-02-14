@@ -1,0 +1,99 @@
+/* Film Detail CSS */
+.root {
+    -fx-background-color: #141414;
+}
+
+/* Button Styles */
+.button {
+    -fx-background-radius: 3px;
+    -fx-cursor: hand;
+    -fx-font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.play-button {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-padding: 10px 30px;
+    -fx-min-width: 120px;
+    -fx-min-height: 40px;
+}
+
+.play-button:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+}
+
+.play-button:pressed {
+    -fx-background-color: rgba(255, 255, 255, 0.8);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+.action-button {
+    -fx-background-color: rgba(109, 109, 110, 0.7);
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-padding: 10px 20px;
+    -fx-min-width: 100px;
+    -fx-min-height: 40px;
+}
+
+.action-button:hover {
+    -fx-background-color: rgba(109, 109, 110, 0.9);
+}
+
+.action-button:pressed {
+    -fx-background-color: rgba(109, 109, 110, 0.7);
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+
+/* Text Styles */
+.label {
+    -fx-text-fill: white;
+}
+
+.title-label {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+}
+
+.info-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #d2d2d2;
+}
+
+.detail-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #808080;
+    -fx-margin: 0 0 5px 0;
+}
+
+.detail-value {
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+    -fx-margin: 0 0 5px 0;
+}
+.details-container {
+    -fx-spacing: 10px; /* Space between children */
+    -fx-padding: 10px; /* Padding inside container */
+}
+.liked-button {
+    -fx-background-color: #E50914 !important;
+    -fx-text-fill: white !important;
+    -fx-font-size: 16px !important;
+    -fx-padding: 10px 20px !important;
+    -fx-min-width: 100px !important;
+    -fx-min-height: 40px !important;
+}
+
+.liked-button:hover {
+    -fx-background-color: #c40812 !important;
+}
+
+.liked-button:pressed {
+    -fx-background-color: #E50914 !important;
+    -fx-scale-x: 0.98 !important;
+    -fx-scale-y: 0.98 !important;
+}

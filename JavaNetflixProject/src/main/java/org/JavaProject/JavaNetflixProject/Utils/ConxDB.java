@@ -6,43 +6,29 @@ import java.sql.SQLException;
 
 public class ConxDB {
 
-  
-    private static ConxDB instance;
-    private Connection connexion;
+    private static Connection connexion;
 
-   
-    private final String DB_URL = "jdbc:mysql://localhost:3306/database"; 
-    private final String USER = "root";
-    private final String PASS = "";
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/database?serverTimezone=UTC";
+    private static final String USER = "root";
+    private static final String PASS = "";
 
-   
+    // Private constructor for singleton
     private ConxDB() {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            this.connexion = DriverManager.getConnection(DB_URL, USER, PASS);
-            System.out.println("Connexion réussie !");
+            // Optional, modern JDBC auto-loads the driver
+            Class.forName("com.mysql.cj.jdbc.Driver"); 
+            connexion = DriverManager.getConnection(DB_URL, USER, PASS);
+            System.out.println("Connected to database successfully!");
         } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("Erreur de connexion : " + e.getMessage());
+            throw new RuntimeException("Failed to connect to database: " + e.getMessage(), e);
         }
     }
 
-    public static ConxDB getInstance() {
-        if (instance == null) {
-            instance = new ConxDB();
-        } else {
-            try {
-                if (instance.getCnx().isClosed()) {
-                    instance = new ConxDB();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+    // Thread-safe singleton getter
+    public static synchronized Connection getInstance() {
+        if (connexion == null) {
+            new ConxDB();
         }
-        return instance;
-    }
-
-    
-    public Connection getCnx() {
         return connexion;
     }
 }
