@@ -20,7 +20,6 @@ public class Main extends Application {
 
         */
     	
-    	
     	Parent root = FXMLLoader.load(getClass().getResource("/ui/home.fxml"));
         Scene scene = new Scene(root, 1200, 680);
         scene.getStylesheets().add(
