@@ -24,7 +24,7 @@ CREATE DATABASE IF NOT EXISTS `database` DEFAULT CHARACTER SET utf8mb4 COLLATE u
 USE `database`;
 
 -- --------------------------------------------------------
-
+--
 --
 -- Table structure for table `actor`
 --
