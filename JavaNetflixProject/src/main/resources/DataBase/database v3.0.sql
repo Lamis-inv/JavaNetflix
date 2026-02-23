@@ -25,7 +25,6 @@ USE `database`;
 
 -- --------------------------------------------------------
 --
---
 -- Table structure for table `actor`
 --
 
