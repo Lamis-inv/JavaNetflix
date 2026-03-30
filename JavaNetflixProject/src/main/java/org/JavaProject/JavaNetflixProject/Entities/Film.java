@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 
-public class FilmEntities {
+public class Film {
 	private int id;
     private String titre;
     private String description;
@@ -13,9 +13,9 @@ public class FilmEntities {
     private String coverUrl;
     private LocalDate dateSortie;
     private List<NoteEntities> notes;
-    private List<CommentaireEntities> commentaires;
-	public FilmEntities(int id, String titre, String description, String genre, String urlVideo, String coverUrl,
-			LocalDate dateSortie, List<NoteEntities> notes, List<CommentaireEntities> commentaires) {
+    private List<Comment> commentaires;
+	public Film(int id, String titre, String description, String genre, String urlVideo, String coverUrl,
+			LocalDate dateSortie, List<NoteEntities> notes, List<Comment> commentaires) {
 		super();
 		this.id = id;
 		this.titre = titre;
@@ -30,7 +30,7 @@ public class FilmEntities {
 	
 	
 	
-	public FilmEntities(int id, String titre, String description, String genre,
+	public Film(int id, String titre, String description, String genre,
 			LocalDate dateSortie,String urlVideo, String coverUrl) {
 		super();
 		this.id = id;
@@ -88,10 +88,10 @@ public class FilmEntities {
 	public void setNotes(List<NoteEntities> notes) {
 		this.notes = notes;
 	}
-	public List<CommentaireEntities> getCommentaires() {
+	public List<Comment> getCommentaires() {
 		return commentaires;
 	}
-	public void setCommentaires(List<CommentaireEntities> commentaires) {
+	public void setCommentaires(List<Comment> commentaires) {
 		this.commentaires = commentaires;
 	}
     

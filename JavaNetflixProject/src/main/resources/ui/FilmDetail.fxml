@@ -10,7 +10,8 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane style="-fx-background-color: #141414;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.JavaProject.JavaNetflixProject.app.FilmDetailController">
+<BorderPane style="-fx-background-color: #141414;" 
+xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.JavaProject.JavaNetflixProject.app.FilmDetailController">
     
     <top>
         <HBox alignment="CENTER_LEFT" style="-fx-background-color: #141414;">

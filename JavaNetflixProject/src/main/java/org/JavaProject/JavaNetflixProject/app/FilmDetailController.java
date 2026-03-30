@@ -17,7 +17,7 @@ import javafx.stage.Modality;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import org.JavaProject.JavaNetflixProject.Entities.FilmEntities;
+import org.JavaProject.JavaNetflixProject.Entities.Film;
 
 public class FilmDetailController {
     
@@ -31,11 +31,11 @@ public class FilmDetailController {
     @FXML private Label fullDescriptionLabel;
     @FXML private Button likeButton;
     
-    private FilmEntities currentFilm;
+    private Film currentFilm;
     private boolean isLiked = false;
     private MediaPlayer mediaPlayer;
     
-    public void setFilm(FilmEntities film) {
+    public void setFilm(Film film) {
         this.currentFilm = film;
         updateUI();
     }

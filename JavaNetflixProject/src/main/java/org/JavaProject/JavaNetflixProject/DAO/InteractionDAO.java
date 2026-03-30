@@ -1,8 +1,8 @@
 package org.JavaProject.JavaNetflixProject.DAO;
 
-import org.JavaProject.JavaNetflixProject.Entities.CommentaireEntities;
+import org.JavaProject.JavaNetflixProject.Entities.Comment;
 import org.JavaProject.JavaNetflixProject.Entities.NoteEntities;
-import org.JavaProject.JavaNetflixProject.Entities.UserEntities;
+import org.JavaProject.JavaNetflixProject.Entities.User;
 import org.JavaProject.JavaNetflixProject.Utils.ConxDB;
 
 import java.sql.*;

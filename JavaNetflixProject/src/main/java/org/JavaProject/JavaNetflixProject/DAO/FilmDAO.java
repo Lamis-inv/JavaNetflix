@@ -1,7 +1,7 @@
 package org.JavaProject.JavaNetflixProject.DAO;
 
 
-import org.JavaProject.JavaNetflixProject.Entities.FilmEntities;
+import org.JavaProject.JavaNetflixProject.Entities.Film;
 import org.JavaProject.JavaNetflixProject.Utils.ConxDB;
 
 import java.sql.*;
@@ -17,8 +17,8 @@ public class FilmDAO {
     }
 
     // Get films by genre
-    public List<FilmEntities> getByGenre(String genre) {
-        List<FilmEntities> films = new ArrayList<>();
+    public List<Film> getByGenre(String genre) {
+        List<Film> films = new ArrayList<>();
         String sql = "SELECT * FROM film WHERE genre = ?";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -26,7 +26,7 @@ public class FilmDAO {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                FilmEntities film = new FilmEntities(
+                Film film = new Film(
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getString("description"),
@@ -45,14 +45,14 @@ public class FilmDAO {
         return films;
     }
 
-    public List<FilmEntities> getAllFilms() {
-        List<FilmEntities> films = new ArrayList<>();
+    public List<Film> getAllFilms() {
+        List<Film> films = new ArrayList<>();
         String sql = "SELECT * FROM film";
 
         try (Statement stmt = conn.createStatement()) {
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
-            	FilmEntities film = new FilmEntities(
+            	Film film = new Film(
                         rs.getInt("id"),
                         rs.getString("title"),
                         rs.getString("description"),

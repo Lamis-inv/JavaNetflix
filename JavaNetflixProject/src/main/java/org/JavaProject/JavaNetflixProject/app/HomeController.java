@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.JavaProject.JavaNetflixProject.DAO.FilmDAO;
-import org.JavaProject.JavaNetflixProject.Entities.FilmEntities;
+import org.JavaProject.JavaNetflixProject.Entities.Film;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -34,17 +34,35 @@ public class HomeController {
     @FXML
     private HBox horrorRow;
     @FXML
-    private HBox adventureRow;
-  
-    
+    private HBox advantureRow;
+    @FXML
+    private HBox fantasyRow;
+    @FXML
+    private HBox scifiRow;
+    @FXML
+    private HBox dramaRow;
+    @FXML
+    private HBox thrillerRow;
+    @FXML
+    private HBox docRow;
+    @FXML
+    private javafx.scene.layout.Pane hoverOverlay;
     @FXML
     public void initialize() {
+        
+        FilmCardController.setHoverOverlay(hoverOverlay);
+
         try {
             loadFilms("trending", trendingRow);
             loadFilms("action", actionRow);
             loadFilms("comedy", comedyRow);
             loadFilms("horror", horrorRow);
-            loadFilms("adventure", adventureRow);
+            loadFilms("advanture", advantureRow);
+            loadFilms("fantasy", fantasyRow);
+            loadFilms("sci-fi", scifiRow);
+            loadFilms("drama", dramaRow);
+            loadFilms("thriller", thrillerRow);
+            loadFilms("documentary", docRow);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -90,9 +108,9 @@ public class HomeController {
     private void loadFilms(String genre, HBox row) throws IOException {
     	
 
-        List<FilmEntities> films = filmDAO.getByGenre(genre);
+        List<Film> films = filmDAO.getByGenre(genre);
 
-        for (FilmEntities film : films) {
+        for (Film film : films) {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/movie_card.fxml"));
             Node card = loader.load();
 

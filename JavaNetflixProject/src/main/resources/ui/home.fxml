@@ -4,9 +4,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane fx:id="root"
-            xmlns:fx="http://javafx.com/fxml"
-             fx:controller="org.JavaProject.JavaNetflixProject.app.HomeController">
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.JavaProject.JavaNetflixProject.app.HomeController">
+
+    <!-- MAIN UI -->
+    <BorderPane fx:id="root">
 
     <!-- TOP BAR -->
     <top>
@@ -69,9 +71,49 @@
                         <HBox fx:id="advantureRow" spacing="15"/>
                     </ScrollPane>
                 </VBox>
-
+                <!-- Fantasy -->
+                <VBox spacing="10">
+                    <Label text="Fantasy" styleClass="category-title"/>
+                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+                        <HBox fx:id="fantasyRow" spacing="15"/>
+                    </ScrollPane>
+                </VBox>
+                <!-- sci-fi -->
+                <VBox spacing="10">
+                    <Label text="sci-fi" styleClass="category-title"/>
+                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+                    	    <HBox fx:id="scifiRow" spacing="15"/>
+                    </ScrollPane>
+                </VBox>
+                <!-- drama -->
+                <VBox spacing="10">
+                    <Label text="Drama" styleClass="category-title"/>
+                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+                        <HBox fx:id="dramaRow" spacing="15"/>
+                    </ScrollPane>
+                </VBox>
+                <!-- thriller -->
+                <VBox spacing="10">
+                    <Label text="Thriller" styleClass="category-title"/>
+                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+                        <HBox fx:id="thrillerRow" spacing="15"/>
+                    </ScrollPane>
+                </VBox>
+				<!-- documentary -->
+                <VBox spacing="10">
+                    <Label text="Documentary" styleClass="category-title"/>
+                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
+                        <HBox fx:id="docRow" spacing="15"/>
+                    </ScrollPane>
+                </VBox>
             </VBox>
         </ScrollPane>
     </center>
 
 </BorderPane>
+
+    <!-- NETFLIX HOVER OVERLAY -->
+    <Pane fx:id="hoverOverlay"
+          mouseTransparent="true"
+          pickOnBounds="false"/>
+</StackPane>

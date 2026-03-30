@@ -1,6 +1,6 @@
 package org.JavaProject.JavaNetflixProject.Entities;
 
-public class EpisodeEntities {
+public class Episode {
 	private int id;
     private String titre;
     private int numero;
@@ -8,7 +8,7 @@ public class EpisodeEntities {
     private int duree; 
     private String resume;
     
-	public EpisodeEntities(int id, String titre, int numero, String urlVideo, int duree, String resume) {
+	public Episode(int id, String titre, int numero, String urlVideo, int duree, String resume) {
 		super();
 		this.id = id;
 		this.titre = titre;

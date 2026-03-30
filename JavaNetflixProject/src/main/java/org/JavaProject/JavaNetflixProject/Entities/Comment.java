@@ -2,20 +2,20 @@ package org.JavaProject.JavaNetflixProject.Entities;
 
 import java.time.LocalDateTime;
 
-public class CommentaireEntities {
+public class Comment {
 	private int id;
     private String contenu;
-    private UserEntities auteur;
-    private FilmEntities film;
+    private User auteur;
+    private Film film;
     private LocalDateTime date;
     private boolean signale;
     
     
     
-	public CommentaireEntities() {
+	public Comment() {
 		super();
 	}
-	public CommentaireEntities(int id, String contenu, UserEntities auteur, FilmEntities film, LocalDateTime date,
+	public Comment(int id, String contenu, User auteur, Film film, LocalDateTime date,
 			boolean signale) {
 		super();
 		this.id = id;
@@ -37,16 +37,16 @@ public class CommentaireEntities {
 	public void setContenu(String contenu) {
 		this.contenu = contenu;
 	}
-	public UserEntities getAuteur() {
+	public User getAuteur() {
 		return auteur;
 	}
-	public void setAuteur(UserEntities auteur) {
+	public void setAuteur(User auteur) {
 		this.auteur = auteur;
 	}
-	public FilmEntities getFilm() {
+	public Film getFilm() {
 		return film;
 	}
-	public void setFilm(FilmEntities film) {
+	public void setFilm(Film film) {
 		this.film = film;
 	}
 	public LocalDateTime getDate() {

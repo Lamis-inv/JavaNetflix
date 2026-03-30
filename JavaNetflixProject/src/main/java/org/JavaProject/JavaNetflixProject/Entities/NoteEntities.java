@@ -3,10 +3,10 @@ package org.JavaProject.JavaNetflixProject.Entities;
 public class NoteEntities {
 	private int id;
     private int valeur; // entre 1 et 5
-    private UserEntities auteur;
-    private FilmEntities film;
+    private User auteur;
+    private Film film;
     
-	public NoteEntities(int id, int valeur, UserEntities auteur, FilmEntities film) {
+	public NoteEntities(int id, int valeur, User auteur, Film film) {
 		super();
 		this.id = id;
 		this.valeur = valeur;
@@ -30,19 +30,19 @@ public class NoteEntities {
 		this.valeur = valeur;
 	}
 
-	public UserEntities getAuteur() {
+	public User getAuteur() {
 		return auteur;
 	}
 
-	public void setAuteur(UserEntities auteur) {
+	public void setAuteur(User auteur) {
 		this.auteur = auteur;
 	}
 
-	public FilmEntities getFilm() {
+	public Film getFilm() {
 		return film;
 	}
 
-	public void setFilm(FilmEntities film) {
+	public void setFilm(Film film) {
 		this.film = film;
 	}
     

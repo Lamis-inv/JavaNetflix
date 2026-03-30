@@ -15,9 +15,12 @@
 
         <VBox spacing="10" alignment="CENTER" style="-fx-background-color: #1c1c1c; -fx-padding: 30; -fx-background-radius: 15;" maxWidth="350">
             <Label text="Login" style="-fx-text-fill: white; -fx-font-size: 24px;"/>
-            <TextField fx:id="loginEmail" promptText="Email" maxWidth="300"/>
-            <PasswordField fx:id="loginPassword" promptText="Password" maxWidth="300"/>
+            <TextField fx:id="loginEmail" promptText="votre@email.com"  maxWidth="300" onKeyPressed="#onKeyPress"/>
+            <PasswordField fx:id="loginPassword" promptText="••••••••" maxWidth="300" onKeyPressed="#onKeyPress"/>
+            
+            <Label fx:id="errorLabel" styleClass="error-label" wrapText="true"/>
             <Button fx:id="loginButton" text="Login" style="-fx-background-color: #e50914; -fx-text-fill: white; -fx-font-weight: bold;" maxWidth="200"/>
+            
             <Hyperlink fx:id="goToSignUp" text="Don't have an account? Sign Up" style="-fx-text-fill: #bbbbbb;"/>
         </VBox>
 
