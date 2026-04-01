@@ -12,7 +12,7 @@ public class AuthService {
 	
     private final static UserDAO userDAO = new UserDAO();
 
-    public static User login(String email, String password) throws SQLException {
+    public User login(String email, String password) throws SQLException {
         if (email == null || email.isBlank() || password == null || password.isBlank())
             throw new IllegalArgumentException("Email et mot de passe requis.");
 

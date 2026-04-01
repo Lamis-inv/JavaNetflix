@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
 <StackPane xmlns:fx="http://javafx.com/fxml"
-           fx:controller="org.JavaProject.JavaNetflixProject.app.HomeController">
+           fx:controller="org.JavaProject.JavaNetflixProject.app.HomeController"
+           stylesheets="@/css/dark-theme.css"
+           styleClass="root-pane">
 
     <!-- MAIN UI -->
     <BorderPane fx:id="root">
@@ -18,102 +21,46 @@
             </padding>
 
             <Label text="J-Stream" styleClass="logo"/>
-            <TextField promptText="Search..." styleClass="search-box"/>
+             <TextField fx:id="searchField" promptText="🔍 Rechercher..." styleClass="search-field"
+                       onAction="#onSearch" prefWidth="300"/>
+            <Button text="✕" onAction="#onClearSearch" styleClass="btn-icon"/>
+            <Button text="Search" onAction="#onSearch" styleClass="btn-s"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label text="Profile" styleClass="profile"/>
+
+            <Button text="Ma Liste" onAction="#onMyList" styleClass="btn-nav"/>
+            <Label fx:id="usernameLabel" styleClass="username-label"/>
+            <Button text="Déconnexion" onAction="#onLogout" styleClass="btn-logout"/>
         </HBox>
     </top>
-
+	
+	
     <!-- CENTER CONTENT -->
     <center>
-        <ScrollPane fitToWidth="true" styleClass="scroll-pane">
+    <ScrollPane fitToWidth="true" styleClass="main-scroll">
+    <VBox spacing="20">
 
-            <VBox spacing="30">
-                <padding>
-                    <Insets top="20" right="20" bottom="20" left="20"/>
-                </padding>
+        <!-- FEATURED -->
+        <VBox spacing="10">
+            <Label fx:id="featuredTitle" styleClass="featured-title"/>
+            <ImageView fx:id="featuredCover" fitHeight="200" preserveRatio="true"/>
+            <Label fx:id="featuredSynopsis" wrapText="true"/>
+        </VBox>
 
-                <!-- Trending -->
-                <VBox spacing="10">
-                    <Label text="Trending Now" styleClass="category-title"/>
-                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
-                        <HBox fx:id="trendingRow" spacing="15"/>
-                    </ScrollPane>
-                </VBox>
+        <!-- CATEGORIES -->
+        
+            <VBox fx:id="categoriesContainer" spacing="20">
+			    <padding>
+			        <Insets top="20" right="20" bottom="20" left="20"/>
+			    </padding>
+			</VBox>
+        
 
-                <!-- Action -->
-                <VBox spacing="10">
-                    <Label text="Action Movies" styleClass="category-title"/>
-                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
-                        <HBox fx:id="actionRow" spacing="15"/>
-                    </ScrollPane>
-                </VBox>
-
-                <!-- Comedy -->
-                <VBox spacing="10">
-                    <Label text="Comedy" styleClass="category-title"/>
-                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
-                        <HBox fx:id="comedyRow" spacing="15"/>
-                    </ScrollPane>
-                </VBox>
-                
-                <!-- Horror -->
-                <VBox spacing="10">
-                    <Label text="Horror" styleClass="category-title"/>
-                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
-                        <HBox fx:id="horrorRow" spacing="15"/>
-                    </ScrollPane>
-                </VBox>
-                <!-- Advanture -->
-                <VBox spacing="10">
-                    <Label text="Advanture" styleClass="category-title"/>
-                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
-                        <HBox fx:id="advantureRow" spacing="15"/>
-                    </ScrollPane>
-                </VBox>
-                <!-- Fantasy -->
-                <VBox spacing="10">
-                    <Label text="Fantasy" styleClass="category-title"/>
-                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
-                        <HBox fx:id="fantasyRow" spacing="15"/>
-                    </ScrollPane>
-                </VBox>
-                <!-- sci-fi -->
-                <VBox spacing="10">
-                    <Label text="sci-fi" styleClass="category-title"/>
-                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
-                    	    <HBox fx:id="scifiRow" spacing="15"/>
-                    </ScrollPane>
-                </VBox>
-                <!-- drama -->
-                <VBox spacing="10">
-                    <Label text="Drama" styleClass="category-title"/>
-                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
-                        <HBox fx:id="dramaRow" spacing="15"/>
-                    </ScrollPane>
-                </VBox>
-                <!-- thriller -->
-                <VBox spacing="10">
-                    <Label text="Thriller" styleClass="category-title"/>
-                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
-                        <HBox fx:id="thrillerRow" spacing="15"/>
-                    </ScrollPane>
-                </VBox>
-				<!-- documentary -->
-                <VBox spacing="10">
-                    <Label text="Documentary" styleClass="category-title"/>
-                    <ScrollPane hbarPolicy="ALWAYS" vbarPolicy="NEVER">
-                        <HBox fx:id="docRow" spacing="15"/>
-                    </ScrollPane>
-                </VBox>
-            </VBox>
-        </ScrollPane>
-    </center>
+    </VBox>
+    </ScrollPane>
+</center>
 
 </BorderPane>
 
     <!-- NETFLIX HOVER OVERLAY -->
-    <Pane fx:id="hoverOverlay"
-          mouseTransparent="true"
-          pickOnBounds="false"/>
+    <Pane fx:id="hoverOverlay" mouseTransparent="true" pickOnBounds="false"/>
 </StackPane>

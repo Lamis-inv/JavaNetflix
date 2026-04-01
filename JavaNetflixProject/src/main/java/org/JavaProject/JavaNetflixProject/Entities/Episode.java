@@ -1,71 +1,41 @@
 package org.JavaProject.JavaNetflixProject.Entities;
 
 public class Episode {
-	private int id;
-    private String titre;
-    private int numero;
-    private String urlVideo;
-    private int duree; 
-    private String resume;
-    
-	public Episode(int id, String titre, int numero, String urlVideo, int duree, String resume) {
-		super();
-		this.id = id;
-		this.titre = titre;
-		this.numero = numero;
-		this.urlVideo = urlVideo;
-		this.duree = duree;
-		this.resume = resume;
-	}
+    private int id;
+    private int seasonId;
+    private int episodeNum;
+    private String title;
+    private String synopsis;
+    private int durationMin;
+    private String videoUrl;
+    private String thumbnailUrl;
 
-	public int getId() {
-		return id;
-	}
+    // Watch progress (populated for logged-in user)
+    private boolean watched;
+    private int progressSec;
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    public Episode() {}
 
-	public String getTitre() {
-		return titre;
-	}
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public int getSeasonId() { return seasonId; }
+    public void setSeasonId(int seasonId) { this.seasonId = seasonId; }
+    public int getEpisodeNum() { return episodeNum; }
+    public void setEpisodeNum(int episodeNum) { this.episodeNum = episodeNum; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getSynopsis() { return synopsis; }
+    public void setSynopsis(String synopsis) { this.synopsis = synopsis; }
+    public int getDurationMin() { return durationMin; }
+    public void setDurationMin(int durationMin) { this.durationMin = durationMin; }
+    public String getVideoUrl() { return videoUrl; }
+    public void setVideoUrl(String videoUrl) { this.videoUrl = videoUrl; }
+    public String getThumbnailUrl() { return thumbnailUrl; }
+    public void setThumbnailUrl(String thumbnailUrl) { this.thumbnailUrl = thumbnailUrl; }
+    public boolean isWatched() { return watched; }
+    public void setWatched(boolean watched) { this.watched = watched; }
+    public int getProgressSec() { return progressSec; }
+    public void setProgressSec(int progressSec) { this.progressSec = progressSec; }
 
-	public void setTitre(String titre) {
-		this.titre = titre;
-	}
-
-	public int getNumero() {
-		return numero;
-	}
-
-	public void setNumero(int numero) {
-		this.numero = numero;
-	}
-
-	public String getUrlVideo() {
-		return urlVideo;
-	}
-
-	public void setUrlVideo(String urlVideo) {
-		this.urlVideo = urlVideo;
-	}
-
-	public int getDuree() {
-		return duree;
-	}
-
-	public void setDuree(int duree) {
-		this.duree = duree;
-	}
-
-	public String getResume() {
-		return resume;
-	}
-
-	public void setResume(String resume) {
-		this.resume = resume;
-	}
-    
-    
-
+    @Override public String toString() { return "E" + episodeNum + " - " + title; }
 }

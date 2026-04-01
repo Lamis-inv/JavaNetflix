@@ -27,19 +27,16 @@ public class LoginController {
 	@FXML private Label errorLabel;
     @FXML private Hyperlink goToSignUp;
 
+    private final AuthService authService = new AuthService();
+    
     @FXML
     public void initialize() {
         goToSignUp.setOnAction(e -> {
-            try {
-                Parent signUpRoot = FXMLLoader.load(getClass().getResource("/ui/SignUpPage.fxml"));
-                Stage stage = (Stage) goToSignUp.getScene().getWindow();
-                stage.setScene(new Scene(signUpRoot, 400, 500));
-            } catch (Exception ex) {
-            	 showError(ex.getMessage());
+        	try {
+                Navigator.navigateTo("/ui/SignUpPage.fxml", 900, 600);
+            } catch (Exception er) {
+                showError(er.getMessage());
             }
-        });
-        loginButton.setOnAction(e -> {
-        	System.out.println("I am logged in");
         });
         errorLabel.setVisible(false);
 
@@ -51,7 +48,7 @@ public class LoginController {
         String email = loginEmail.getText();
         String password = loginPassword.getText();
         try {
-            User user = AuthService.login(email, password);
+            User user = authService.login(email, password);
             if (user.isAdmin()) {
                 Navigator.navigateTo("/ui/AdminDashboard.fxml", 1280, 800);
             } else {

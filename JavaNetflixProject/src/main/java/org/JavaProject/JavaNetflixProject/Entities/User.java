@@ -56,8 +56,12 @@ public class User {
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public String getPassword() {
+    	return password; 
+    }
+    public void setPassword(String password) {
+    	this.password = password; 
+    }
     
     
 }

@@ -17,8 +17,8 @@
             <Label text="Sign Up" style="-fx-text-fill: white; -fx-font-size: 24px;"/>
             <TextField fx:id="username" promptText="Michael Jackson" maxWidth="300"/>
             <TextField fx:id="email" promptText="votre@email.com" maxWidth="300"/>
-            <PasswordField fx:id="Password" promptText="6 caractères minimum" maxWidth="300"/>
-            <PasswordField fx:id="confirmPassword" promptText="••••••••" maxWidth="300"/>
+            <PasswordField fx:id="password" promptText="6 caractères minimum" maxWidth="300"/>
+            <PasswordField fx:id="confirmpassword" promptText="••••••••" maxWidth="300"/>
             <Label fx:id="errorLabel" styleClass="error-label" wrapText="true"/>
             <Button fx:id="signUpButton"  onAction="#onRegister" text="Sign Up" style="-fx-background-color: #e50914; -fx-text-fill: white; -fx-font-weight: bold;" maxWidth="200"/>
             <Hyperlink fx:id="goToLogin" text="Already have an account? Login" style="-fx-text-fill: #bbbbbb;"/>
