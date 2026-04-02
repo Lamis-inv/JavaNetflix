@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.JavaProject.JavaNetflixProject.app.MyListController"
+            styleClass="root-pane"
+            prefWidth="1280" prefHeight="800">
+
+    <top>
+        <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="16">
+            <padding><Insets top="12" bottom="12" left="24" right="24"/></padding>
+            <Button text="← Accueil" onAction="#onBack" styleClass="btn-nav"/>
+            <Label text="J-STREAM" styleClass="brand-nav"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="usernameLabel" styleClass="username-label"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="main-scroll">
+            <VBox spacing="20">
+                <padding><Insets top="24" bottom="24" left="40" right="40"/></padding>
+                <Label text="⭐ Ma Liste" styleClass="section-title" style="-fx-font-size: 28px;"/>
+                <FlowPane fx:id="contentGrid" hgap="16" vgap="16"/>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

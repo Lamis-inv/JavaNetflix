@@ -1,0 +1,483 @@
+package org.JavaProject.JavaNetflixProject.app;
+
+import javafx.animation.*;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.control.*;
+import javafx.scene.image.*;
+import javafx.scene.layout.*;
+import javafx.scene.media.*;
+import javafx.scene.text.Text;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.JavaProject.JavaNetflixProject.DAO.CommentDAO;
+import org.JavaProject.JavaNetflixProject.DAO.EpisodeDAO;
+import org.JavaProject.JavaNetflixProject.DAO.RatingDAO;
+import org.JavaProject.JavaNetflixProject.DAO.SeasonDAO;
+import org.JavaProject.JavaNetflixProject.DAO.WatchHistoryDAO;
+import org.JavaProject.JavaNetflixProject.DAO.WatchlistDAO;
+import org.JavaProject.JavaNetflixProject.Entities.Comment;
+import org.JavaProject.JavaNetflixProject.Entities.Content;
+import org.JavaProject.JavaNetflixProject.Entities.Episode;
+import org.JavaProject.JavaNetflixProject.Entities.Season;
+import org.JavaProject.JavaNetflixProject.Services.ContentService;
+import org.JavaProject.JavaNetflixProject.Utils.Navigator;
+import org.JavaProject.JavaNetflixProject.Utils.Session;
+
+public class DetailController {
+
+    @FXML private Label titleLabel;
+    @FXML private Label yearLabel;
+    @FXML private Label durationLabel;
+    @FXML private Label categoryLabel;
+    @FXML private Text synopsisText;
+    @FXML private Label castingLabel;
+    @FXML private Label ratingLabel;
+    @FXML private ImageView coverImage;
+
+    // Film player
+    @FXML private VBox filmPlayerBox;
+    @FXML private MediaView mediaView;
+    @FXML private Slider progressSlider;
+    @FXML private Slider volumeSlider;
+    @FXML private Label timeLabel;
+    @FXML private Button playPauseBtn;
+
+    // Serie section
+    @FXML private VBox serieBox;
+    @FXML private ComboBox<Season> seasonCombo;
+    @FXML private VBox episodeListBox;
+
+    // Rating
+    @FXML private HBox starsBox;
+
+    // Comments
+    @FXML private VBox commentsBox;
+    @FXML private TextArea commentInput;
+
+    // Watchlist
+    @FXML private Button watchlistBtn;
+
+    // Countdown overlay for binge-watching
+    @FXML private VBox countdownOverlay;
+    @FXML private Label countdownLabel;
+
+    private Content content;
+    private MediaPlayer mediaPlayer;
+    private int userRating = 0;
+    private boolean isInWatchlist = false;
+    private Episode currentEpisode;
+
+    private final ContentService contentService = new ContentService();
+    private final SeasonDAO seasonDAO = new SeasonDAO();
+    private final EpisodeDAO episodeDAO = new EpisodeDAO();
+    private final RatingDAO ratingDAO = new RatingDAO();
+    private final CommentDAO commentDAO = new CommentDAO();
+    private final WatchlistDAO watchlistDAO = new WatchlistDAO();
+    private final WatchHistoryDAO watchHistoryDAO = new WatchHistoryDAO();
+
+    @FXML
+    public void initialize() {
+        if (volumeSlider != null) volumeSlider.setValue(80);
+        if (countdownOverlay != null) countdownOverlay.setVisible(false);
+        
+    }
+
+    public void setContent(Content c) {
+        this.content = c;
+        populateDetails();
+
+        if (c.isFilm()) {
+            serieBox.setVisible(false); serieBox.setManaged(false);
+            filmPlayerBox.setVisible(true); filmPlayerBox.setManaged(true);
+            if (c.getVideoUrl() != null && !c.getVideoUrl().isBlank())
+                loadMedia(c.getVideoUrl());
+        } else {
+            filmPlayerBox.setVisible(false); filmPlayerBox.setManaged(false);
+            serieBox.setVisible(true); serieBox.setManaged(true);
+            loadSeasons();
+        }
+
+        setupRating();
+        loadComments();
+        setupWatchlist();
+        try { contentService.incrementViews(c.getId()); } catch (Exception ignored) {}
+    }
+
+    private void populateDetails() {
+        titleLabel.setText(content.getTitle());
+        yearLabel.setText(String.valueOf(content.getReleaseYear()));
+        durationLabel.setText(content.getDurationMin() > 0 ? content.getDurationMin() + " min" : "");
+        categoryLabel.setText(content.getCategory() != null ? content.getCategory().getName() : "");
+        synopsisText.setText(content.getSynopsis() != null ? content.getSynopsis() : "");
+        castingLabel.setText(content.getCasting() != null ? "Avec : " + content.getCasting() : "");
+        ratingLabel.setText("⭐ " + String.format("%.1f", content.getAvgRating()));
+        if (content.getCoverUrl() != null && !content.getCoverUrl().isBlank()) {
+            try { coverImage.setImage(new Image(content.getCoverUrl(), true)); }
+            catch (Exception ignored) {}
+        }
+    }
+
+    private void loadMedia(String url) {
+        if (mediaPlayer != null) mediaPlayer.dispose();
+        try {
+        	String fixedUrl;
+
+        	if (url.startsWith("http")) {
+        	    fixedUrl = url;
+        	} else {
+        	    fixedUrl = new java.io.File(url).toURI().toString();
+        	}
+
+        	Media media = new Media(fixedUrl);
+            mediaPlayer = new MediaPlayer(media);
+            mediaView.setMediaPlayer(mediaPlayer);
+            mediaPlayer.setVolume(volumeSlider.getValue() / 100.0);
+
+            mediaPlayer.currentTimeProperty().addListener((obs, o, n) -> {
+                if (!progressSlider.isValueChanging()) {
+                    Duration total = mediaPlayer.getTotalDuration();
+                    if (total != null && total.greaterThan(Duration.ZERO)) {
+                        progressSlider.setValue(n.toSeconds() / total.toSeconds() * 100);
+                    }
+                    int sec = (int) n.toSeconds();
+                    timeLabel.setText(formatTime(sec) + " / " + formatTime((int)(total != null ? total.toSeconds() : 0)));
+                }
+            });
+
+            mediaPlayer.setOnEndOfMedia(this::onMediaEnd);
+            volumeSlider.valueProperty().addListener((obs, o, n) -> mediaPlayer.setVolume(n.doubleValue() / 100.0));
+        } catch (Exception e) {
+            showAlert("Impossible de charger la vidéo: " + e.getMessage());
+        }
+    }
+
+    private void onMediaEnd() {
+        if (currentEpisode != null) {
+            saveProgress(currentEpisode.getId(), (int)(mediaPlayer.getTotalDuration().toSeconds()), true);
+            try {
+                Episode next = episodeDAO.findNextEpisode(currentEpisode.getId());
+                if (next != null) startCountdown(next);
+            } catch (Exception ignored) {}
+        } else {
+            saveProgress(null, (int)(mediaPlayer.getTotalDuration().toSeconds()), true);
+        }
+    }
+
+    private void startCountdown(Episode next) {
+        countdownOverlay.setVisible(true);
+        int[] count = {10};
+        countdownLabel.setText("Prochain épisode dans " + count[0] + "s");
+        Timeline tl = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            count[0]--;
+            countdownLabel.setText("Prochain épisode dans " + count[0] + "s");
+            if (count[0] <= 0) playEpisode(next);
+        }));
+        tl.setCycleCount(10);
+        tl.play();
+    }
+
+    @FXML
+    public void onCancelCountdown() {
+        countdownOverlay.setVisible(false);
+    }
+
+    @FXML
+    public void onPlayPause() {
+        if (mediaPlayer == null) return;
+        if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+            mediaPlayer.pause();
+            playPauseBtn.setText("▶");
+        } else {
+            mediaPlayer.play();
+            playPauseBtn.setText("⏸");
+        }
+    }
+
+    @FXML
+    public void onSeek() {
+        if (mediaPlayer != null && mediaPlayer.getTotalDuration() != null) {
+            mediaPlayer.seek(Duration.seconds(progressSlider.getValue() / 100.0 * mediaPlayer.getTotalDuration().toSeconds()));
+        }
+    }
+
+    @FXML
+    private double savedWidth, savedHeight;
+
+    @FXML
+    private void onFullscreen() {
+        Stage stage = (Stage) mediaView.getScene().getWindow();
+
+        if (!stage.isFullScreen()) {
+            savedWidth = mediaView.getFitWidth();
+            savedHeight = mediaView.getFitHeight();
+
+            stage.setFullScreen(true);
+            mediaView.setFitWidth(Screen.getPrimary().getBounds().getWidth());
+            mediaView.setFitHeight(Screen.getPrimary().getBounds().getHeight());
+        } else {
+            stage.setFullScreen(false);
+            mediaView.setFitWidth(savedWidth);
+            mediaView.setFitHeight(savedHeight);
+        }
+    }
+
+    private void loadSeasons() {
+        try {
+            List<Season> seasons = seasonDAO.findBySerieId(content.getId());
+            seasonCombo.getItems().addAll(seasons);
+            seasonCombo.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
+                if (n != null) loadEpisodes(n);
+            });
+            if (!seasons.isEmpty()) seasonCombo.getSelectionModel().selectFirst();
+        } catch (Exception e) {
+            showAlert("Erreur chargement saisons: " + e.getMessage());
+        }
+    }
+
+    private void loadEpisodes(Season season) {
+        episodeListBox.getChildren().clear();
+        try {
+            List<Episode> episodes = episodeDAO.findBySeasonId(season.getId());
+            for (Episode ep : episodes) {
+                // Load watch progress
+                int userId = Session.getCurrentUser().getId();
+                ep.setWatched(watchHistoryDAO.isCompleted(userId, ep.getId()));
+                ep.setProgressSec(watchHistoryDAO.getProgressSec(userId, ep.getId()));
+                episodeListBox.getChildren().add(buildEpisodeRow(ep));
+            }
+        } catch (Exception e) {
+            showAlert("Erreur chargement épisodes: " + e.getMessage());
+        }
+    }
+
+    private HBox buildEpisodeRow(Episode ep) {
+        HBox row = new HBox(12);
+        row.getStyleClass().add("episode-row");
+        row.setCursor(javafx.scene.Cursor.HAND);
+
+        Label numLbl = new Label("E" + ep.getEpisodeNum());
+        numLbl.getStyleClass().add("episode-num");
+
+        VBox info = new VBox(3);
+        Label titleLbl = new Label(ep.getTitle());
+        titleLbl.getStyleClass().add("episode-title");
+        Label synLbl = new Label(ep.getSynopsis() != null ? ep.getSynopsis() : "");
+        synLbl.getStyleClass().add("episode-synopsis");
+        synLbl.setWrapText(true);
+        Label durLbl = new Label(ep.getDurationMin() + " min");
+        durLbl.getStyleClass().add("episode-duration");
+        info.getChildren().addAll(titleLbl, synLbl, durLbl);
+        HBox.setHgrow(info, Priority.ALWAYS);
+
+        Label statusLbl = new Label(ep.isWatched() ? "✅ Vu" : (ep.getProgressSec() > 0 ? "▶ En cours" : ""));
+        statusLbl.getStyleClass().add("episode-status");
+
+        row.getChildren().addAll(numLbl, info, statusLbl);
+        row.setOnMouseEntered(e -> {
+            row.setScaleX(1.02);
+            row.setScaleY(1.02);
+        });
+
+        row.setOnMouseExited(e -> {
+            row.setScaleX(1);
+            row.setScaleY(1);
+        });
+        return row;
+    }
+
+    private void playEpisode(Episode ep) {
+        countdownOverlay.setVisible(false);
+        currentEpisode = ep;
+        filmPlayerBox.setVisible(true); filmPlayerBox.setManaged(true);
+
+        if (mediaPlayer != null) mediaPlayer.dispose(); // dispose old player
+
+        String url = ep.getVideoUrl();
+        if (!url.startsWith("http")) {
+            url = new java.io.File(url).toURI().toString();
+        }
+
+        Media media = new Media(url);
+        mediaPlayer = new MediaPlayer(media);
+        mediaView.setMediaPlayer(mediaPlayer);
+        mediaPlayer.setVolume(volumeSlider.getValue() / 100.0);
+
+        // Resume from saved position
+        int savedSec = ep.getProgressSec();
+        mediaPlayer.setOnReady(() -> {
+            if (savedSec > 0) {
+                mediaPlayer.seek(Duration.seconds(savedSec));
+            }
+            mediaPlayer.play();
+            playPauseBtn.setText("⏸");
+        });
+
+        // update progress slider
+        mediaPlayer.currentTimeProperty().addListener((obs, o, n) -> {
+            if (!progressSlider.isValueChanging()) {
+                Duration total = mediaPlayer.getTotalDuration();
+                if (total != null && total.greaterThan(Duration.ZERO)) {
+                    progressSlider.setValue(n.toSeconds() / total.toSeconds() * 100);
+                }
+                int sec = (int) n.toSeconds();
+                timeLabel.setText(formatTime(sec) + " / " + formatTime((int)(total != null ? total.toSeconds() : 0)));
+            }
+        });
+
+        mediaPlayer.setOnEndOfMedia(this::onMediaEnd);
+    }
+
+    private void saveProgress(Integer episodeId, int progressSec, boolean completed) {
+        try {
+            int userId = Session.getCurrentUser().getId();
+            watchHistoryDAO.saveProgress(userId, content.getId(), episodeId, progressSec, completed);
+        } catch (Exception ignored) {}
+    }
+
+    private void setupRating() {
+        starsBox.getChildren().clear();
+        try {
+            int userId = Session.getCurrentUser().getId();
+            userRating = ratingDAO.getUserRating(userId, content.getId());
+        } catch (Exception ignored) {}
+
+        for (int i = 1; i <= 5; i++) {
+            final int star = i;
+            Label lbl = new Label(i <= userRating ? "★" : "☆");
+            lbl.getStyleClass().add("star");
+            lbl.setStyle("-fx-font-size: 28px; -fx-text-fill: " + (i <= userRating ? "#f5c518" : "#888") + "; -fx-cursor: hand;");
+            lbl.setOnMouseClicked(e -> onRate(star));
+            lbl.setOnMouseEntered(e -> {
+                for (int j = 0; j < starsBox.getChildren().size(); j++) {
+                    Label s = (Label) starsBox.getChildren().get(j);
+                    s.setText(j < star ? "★" : "☆");
+                    s.setStyle("-fx-font-size: 28px; -fx-text-fill: " + (j < star ? "#f5c518" : "#888") + "; -fx-cursor: hand;");
+                }
+            });
+            starsBox.getChildren().add(lbl);
+        }
+        starsBox.setOnMouseExited(e -> refreshStars());
+    }
+
+    private void onRate(int stars) {
+        userRating = stars;
+        try {
+            int userId = Session.getCurrentUser().getId();
+            ratingDAO.upsertRating(userId, content.getId(), stars);
+            contentService.refreshAvgRating(content.getId());
+            Content updated = contentService.getById(content.getId());
+            ratingLabel.setText("⭐ " + String.format("%.1f", updated.getAvgRating()));
+        } catch (Exception e) {
+            showAlert("Erreur: " + e.getMessage());
+        }
+        refreshStars();
+    }
+
+    private void refreshStars() {
+        for (int j = 0; j < starsBox.getChildren().size(); j++) {
+            Label s = (Label) starsBox.getChildren().get(j);
+            s.setText(j < userRating ? "★" : "☆");
+            s.setStyle("-fx-font-size: 28px; -fx-text-fill: " + (j < userRating ? "#f5c518" : "#888") + "; -fx-cursor: hand;");
+        }
+    }
+
+    private void loadComments() {
+        commentsBox.getChildren().clear();
+        try {
+            List<Comment> comments = commentDAO.findByContentId(content.getId());
+            for (Comment c : comments) {
+                VBox cb = new VBox(4);
+                cb.getStyleClass().add("comment-box");
+                Label author = new Label(c.getUserName() + " • " + (c.getCreatedAt() != null ? c.getCreatedAt().toLocalDate() : ""));
+                author.getStyleClass().add("comment-author");
+                Label body = new Label(c.getBody());
+                body.setWrapText(true);
+                body.getStyleClass().add("comment-body");
+
+                Button flagBtn = new Button("🚩");
+                flagBtn.getStyleClass().add("btn-flag");
+                flagBtn.setOnAction(e -> { try { commentDAO.flag(c.getId()); loadComments(); } catch (Exception ignored) {} });
+
+                cb.getChildren().addAll(author, body, flagBtn);
+                commentsBox.getChildren().add(cb);
+            }
+        } catch (Exception e) {
+            showAlert("Erreur commentaires: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void onPostComment() {
+        String text = commentInput.getText().trim();
+        if (text.isEmpty()) return;
+        Comment c = new Comment();
+        c.setUserId(Session.getCurrentUser().getId());
+        c.setContentId(content.getId());
+        c.setBody(text);
+        try {
+            commentDAO.save(c);
+            commentInput.clear();
+            loadComments();
+        } catch (Exception e) {
+            showAlert("Erreur: " + e.getMessage());
+        }
+    }
+
+    private void setupWatchlist() {
+        try {
+            isInWatchlist = watchlistDAO.isInWatchlist(Session.getCurrentUser().getId(), content.getId());
+            updateWatchlistBtn();
+        } catch (Exception ignored) {}
+    }
+
+    @FXML
+    public void onToggleWatchlist() {
+        try {
+            int userId = Session.getCurrentUser().getId();
+            if (isInWatchlist) {
+                watchlistDAO.remove(userId, content.getId());
+                isInWatchlist = false;
+            } else {
+                watchlistDAO.add(userId, content.getId());
+                isInWatchlist = true;
+            }
+            updateWatchlistBtn();
+        } catch (Exception e) {
+            showAlert("Erreur: " + e.getMessage());
+        }
+    }
+
+    private void updateWatchlistBtn() {
+        watchlistBtn.setText(isInWatchlist ? "✓ Ma liste" : "+ Ma liste");
+        watchlistBtn.getStyleClass().removeAll("btn-added");
+        if (isInWatchlist) watchlistBtn.getStyleClass().add("btn-added");
+    }
+
+    @FXML
+    public void onBack() {
+        if (mediaPlayer != null) {
+            if (currentEpisode != null)
+                saveProgress(currentEpisode.getId(), (int) mediaPlayer.getCurrentTime().toSeconds(), false);
+            mediaPlayer.dispose();
+        }
+        try { Navigator.navigateTo("/ui/home.fxml", 1280, 800); }
+        catch (Exception e) { showAlert(e.getMessage()); }
+    }
+
+    private String formatTime(int seconds) {
+        return String.format("%02d:%02d", seconds / 60, seconds % 60);
+    }
+
+    private void showAlert(String msg) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
+        alert.showAndWait();
+    }
+}
