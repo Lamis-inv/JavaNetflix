@@ -23,84 +23,102 @@
 
     <!-- MAIN -->
     <center>
-        <ScrollPane fitToWidth="true" styleClass="main-scroll">
-            <VBox spacing="24">
-                <padding><Insets top="24" bottom="40" left="60" right="60"/></padding>
+        <!--
+            FIX: rootStack contains ONLY the scrollable content.
+            The fullscreen overlay has been removed from FXML entirely —
+            fullscreen is handled by a separate Stage in the controller.
+            The old <StackPane fx:id="fullscreenOverlay"> caused a duplicate
+            closing tag that broke the FXML layout tree.
+        -->
+        <StackPane fx:id="rootStack">
 
-                <!-- DETAIL HEADER -->
-                <HBox spacing="32">
-                    <ImageView fx:id="coverImage" fitWidth="220" fitHeight="320" preserveRatio="true"/>
-                    <VBox spacing="10" HBox.hgrow="ALWAYS">
-                        <Label fx:id="titleLabel" styleClass="detail-title" wrapText="true"/>
-                        <HBox spacing="14">
-                            <Label fx:id="yearLabel" styleClass="detail-meta"/>
-                            <Label fx:id="durationLabel" styleClass="detail-meta"/>
-                            <Label fx:id="categoryLabel" styleClass="badge-film"/>
-                            <Label fx:id="ratingLabel" styleClass="detail-meta"/>
+            <ScrollPane fx:id="mainContent" fitToWidth="true" styleClass="main-scroll">
+                <VBox spacing="24">
+                    <padding><Insets top="24" bottom="40" left="60" right="60"/></padding>
+
+                    <!-- DETAIL HEADER -->
+                    <HBox spacing="32">
+                        <ImageView fx:id="coverImage" fitWidth="220" fitHeight="320" preserveRatio="true"/>
+                        <VBox spacing="10" HBox.hgrow="ALWAYS">
+                            <Label fx:id="titleLabel" styleClass="detail-title" wrapText="true"/>
+                            <HBox spacing="14">
+                                <Label fx:id="yearLabel" styleClass="detail-meta"/>
+                                <Label fx:id="durationLabel" styleClass="detail-meta"/>
+                                <Label fx:id="categoryLabel" styleClass="badge-film"/>
+                                <Label fx:id="ratingLabel" styleClass="detail-meta"/>
+                            </HBox>
+                            <Text fx:id="synopsisText" styleClass="detail-synopsis" 
+      wrappingWidth="600" 
+      style="-fx-fill: white;"/>
+                            <Label fx:id="castingLabel" styleClass="detail-casting" wrapText="true"/>
+
+                            <!-- Rating stars -->
+                            <VBox spacing="4">
+                                <Label text="Votre note :" styleClass="section-title"/>
+                                <HBox fx:id="starsBox" spacing="4"/>
+                            </VBox>
+
+                            <!-- Watchlist button -->
+                            <Button fx:id="watchlistBtn" text="+ Ma liste" onAction="#onToggleWatchlist" styleClass="btn-secondary"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- FILM VIDEO PLAYER -->
+                    <VBox fx:id="filmPlayerBox" spacing="10" styleClass="player-box">
+                        <StackPane>
+                            <!--
+                                Double-click the MediaView to enter fullscreen
+                                (wired up in controller via setOnMouseClicked)
+                            -->
+                            <MediaView fx:id="mediaView" fitWidth="1100" fitHeight="520" preserveRatio="true"/>
+
+                            <!-- Countdown overlay (binge-watching) -->
+                            <VBox fx:id="countdownOverlay" alignment="CENTER" spacing="12"
+                                  styleClass="countdown-overlay">
+                                <Label text="Épisode suivant" styleClass="countdown-title"/>
+                                <Label fx:id="countdownLabel" styleClass="countdown-number"/>
+                                <Button text="Annuler" onAction="#onCancelCountdown" styleClass="btn-secondary"/>
+                            </VBox>
+                        </StackPane>
+
+                        <!-- Player controls -->
+                        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="player-controls">
+                            <padding><Insets top="8" bottom="8" left="16" right="16"/></padding>
+                            <Button fx:id="playPauseBtn" text="▶" onAction="#onPlayPause" styleClass="btn-player"/>
+                            <Slider fx:id="progressSlider" HBox.hgrow="ALWAYS" onMouseReleased="#onSeek"
+                                    styleClass="progress-slider"/>
+                            <Label fx:id="timeLabel" text="00:00 / 00:00" styleClass="time-label"/>
+                            <Label text="🔊" styleClass="icon-label"/>
+                            <Slider fx:id="volumeSlider" prefWidth="100" styleClass="volume-slider"/>
+                            <!-- Double-click the video or press this button to go fullscreen -->
+                            <Button text="⛶" onAction="#onFullscreen" styleClass="btn-player"/>
                         </HBox>
-                        <Text fx:id="synopsisText" styleClass="detail-synopsis" wrappingWidth="600"/>
-                        <Label fx:id="castingLabel" styleClass="detail-casting" wrapText="true"/>
-
-                        <!-- Rating stars -->
-                        <VBox spacing="4">
-                            <Label text="Votre note :" styleClass="section-title"/>
-                            <HBox fx:id="starsBox" spacing="4"/>
-                        </VBox>
-
-                        <!-- Watchlist button -->
-                        <Button fx:id="watchlistBtn" text="+ Ma liste" onAction="#onToggleWatchlist" styleClass="btn-secondary"/>
                     </VBox>
-                </HBox>
 
-                <!-- FILM VIDEO PLAYER -->
-                <VBox fx:id="filmPlayerBox" spacing="10" styleClass="player-box">
-                    <StackPane>
-                        <MediaView fx:id="mediaView" fitWidth="1100" fitHeight="520" preserveRatio="true"/>
+                    <!-- SERIE SECTION -->
+                    <VBox fx:id="serieBox" spacing="16">
+                        <Label text="Épisodes" styleClass="section-title"/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Label text="Saison :" styleClass="field-label"/>
+                            <ComboBox fx:id="seasonCombo" prefWidth="200" styleClass="combo-dark"/>
+                        </HBox>
+                        <VBox fx:id="episodeListBox" spacing="8"/>
+                    </VBox>
 
-                        <!-- Countdown overlay -->
-                        <VBox fx:id="countdownOverlay" alignment="CENTER" spacing="12"
-                              styleClass="countdown-overlay">
-                            <Label text="Épisode suivant" styleClass="countdown-title"/>
-                            <Label fx:id="countdownLabel" styleClass="countdown-number"/>
-                            <Button text="Annuler" onAction="#onCancelCountdown" styleClass="btn-secondary"/>
-                        </VBox>
-                    </StackPane>
+                    <!-- COMMENTS -->
+                    <VBox spacing="12">
+                        <Label text="💬 Commentaires" styleClass="section-title"/>
+                        <HBox spacing="10">
+                            <TextArea fx:id="commentInput" promptText="Partagez votre avis..."
+                                      prefRowCount="3" HBox.hgrow="ALWAYS" styleClass="text-area-dark"/>
+                            <Button text="Publier" onAction="#onPostComment" styleClass="btn-primary"/>
+                        </HBox>
+                        <VBox fx:id="commentsBox" spacing="10"/>
+                    </VBox>
 
-                    <!-- Player controls -->
-                    <HBox spacing="12" alignment="CENTER_LEFT" styleClass="player-controls">
-                        <padding><Insets top="8" bottom="8" left="16" right="16"/></padding>
-                        <Button fx:id="playPauseBtn" text="▶" onAction="#onPlayPause" styleClass="btn-player"/>
-                        <Slider fx:id="progressSlider" HBox.hgrow="ALWAYS" onMouseReleased="#onSeek"
-                                styleClass="progress-slider"/>
-                        <Label fx:id="timeLabel" text="00:00 / 00:00" styleClass="time-label"/>
-                        <Label text="🔊" styleClass="icon-label"/>
-                        <Slider fx:id="volumeSlider" prefWidth="100" styleClass="volume-slider"/>
-                        <Button text="⛶" onAction="#onFullscreen" styleClass="btn-player"/>
-                    </HBox>
                 </VBox>
+            </ScrollPane>
 
-                <!-- SERIE SECTION -->
-                <VBox fx:id="serieBox" spacing="16">
-                    <Label text="Épisodes" styleClass="section-title"/>
-                    <HBox spacing="12" alignment="CENTER_LEFT">
-                        <Label text="Saison :" styleClass="field-label"/>
-                        <ComboBox fx:id="seasonCombo" prefWidth="200" styleClass="combo-dark"/>
-                    </HBox>
-                    <VBox fx:id="episodeListBox" spacing="8"/>
-                </VBox>
-
-                <!-- COMMENTS -->
-                <VBox spacing="12">
-                    <Label text="💬 Commentaires" styleClass="section-title"/>
-                    <HBox spacing="10">
-                        <TextArea fx:id="commentInput" promptText="Partagez votre avis..."
-                                  prefRowCount="3" HBox.hgrow="ALWAYS" styleClass="text-area-dark"/>
-                        <Button text="Publier" onAction="#onPostComment" styleClass="btn-primary"/>
-                    </HBox>
-                    <VBox fx:id="commentsBox" spacing="10"/>
-                </VBox>
-
-            </VBox>
-        </ScrollPane>
+        </StackPane>
     </center>
 </BorderPane>

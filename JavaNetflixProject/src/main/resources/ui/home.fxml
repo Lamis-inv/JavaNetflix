@@ -5,62 +5,119 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
+<!--
+    ROOT: StackPane fills the entire Stage (no prefWidth/prefHeight).
+    The Stage is maximised in Navigator, so this fills the screen.
+    Every child uses HBox.hgrow / VBox.vgrow / maxWidth=Infinity so
+    the layout re-flows correctly at any window size.
+-->
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:controller="org.JavaProject.JavaNetflixProject.app.HomeController"
            stylesheets="@/css/dark-theme.css"
            styleClass="root-pane">
 
-    <!-- MAIN UI -->
-    <BorderPane fx:id="root">
+    <!-- ═══════════════════════ MAIN UI (layer 0) ═══════════════════════ -->
+    <BorderPane>
 
-    <!-- TOP BAR -->
-    <top>
-        <HBox spacing="20" alignment="CENTER_LEFT" styleClass="top-bar">
-            <padding>
-                <Insets top="10" right="20" bottom="10" left="20"/>
-            </padding>
+        <!-- ── TOP BAR ───────────────────────────────────────────────── -->
+        <top>
+            <HBox spacing="16" alignment="CENTER_LEFT" styleClass="top-bar">
+                <padding><Insets top="12" right="28" bottom="12" left="28"/></padding>
 
-            <Label text="J-Stream" styleClass="logo"/>
-             <TextField fx:id="searchField" promptText="🔍 Rechercher..." styleClass="search-field"
-                       onAction="#onSearch" prefWidth="300"/>
-            <Button text="✕" onAction="#onClearSearch" styleClass="btn-icon"/>
-            <Button text="Search" onAction="#onSearch" styleClass="btn-s"/>
-            <Region HBox.hgrow="ALWAYS"/>
+                <Label text="J-Stream" styleClass="logo"/>
 
-            <Button text="Ma Liste" onAction="#onMyList" styleClass="btn-nav"/>
-            <Label fx:id="usernameLabel" styleClass="username-label"/>
-            <Button text="Déconnexion" onAction="#onLogout" styleClass="btn-logout"/>
-        </HBox>
-    </top>
-	
-	
-    <!-- CENTER CONTENT -->
-    <center>
-    <ScrollPane fitToWidth="true" styleClass="main-scroll">
-    <VBox spacing="20">
+                <TextField fx:id="searchField"
+                           promptText="Rechercher..."
+                           styleClass="search-field"
+                           onAction="#onSearch"
+                           prefWidth="320" maxWidth="520"/>
+                <Button text="X"          onAction="#onClearSearch" styleClass="btn-icon"/>
+                <Button text="Rechercher" onAction="#onSearch"      styleClass="btn-s"/>
 
-        <!-- FEATURED -->
-        <VBox spacing="10">
-            <Label fx:id="featuredTitle" styleClass="featured-title"/>
-            <ImageView fx:id="featuredCover" fitHeight="200" preserveRatio="true"/>
-            <Label fx:id="featuredSynopsis" wrapText="true"/>
-        </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
 
-        <!-- CATEGORIES -->
-        
-            <VBox fx:id="categoriesContainer" spacing="20">
-			    <padding>
-			        <Insets top="20" right="20" bottom="20" left="20"/>
-			    </padding>
-			</VBox>
-        
+                <Button text="Ma Liste"    onAction="#onMyList"  styleClass="btn-nav"/>
+                <Label fx:id="usernameLabel" styleClass="username-label"/>
+                <Button text="Deconnexion" onAction="#onLogout"  styleClass="btn-logout"/>
+            </HBox>
+        </top>
 
-    </VBox>
-    </ScrollPane>
-</center>
+        <!-- ── CENTER ────────────────────────────────────────────────── -->
+        <center>
+            <ScrollPane fitToWidth="true" fitToHeight="false"
+                        styleClass="main-scroll"
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
 
-</BorderPane>
+                <VBox spacing="0">
 
-    <!-- NETFLIX HOVER OVERLAY -->
-    <Pane fx:id="hoverOverlay" mouseTransparent="true" pickOnBounds="false"/>
+                    <!-- FEATURED BANNER -->
+                    <StackPane fx:id="featuredBanner"
+                               prefHeight="500"
+                               maxWidth="Infinity"
+                               styleClass="featured-banner"
+                               VBox.vgrow="NEVER">
+
+                        <!-- ImageView sized by controller binding -->
+                        <ImageView fx:id="featuredCover"
+                                   preserveRatio="false"
+                                   styleClass="featured-cover"
+                                   StackPane.alignment="CENTER"/>
+
+                        <!-- Gradient scrim -->
+                        <Pane styleClass="banner-gradient"
+                              mouseTransparent="true"
+                              maxWidth="Infinity" maxHeight="Infinity"/>
+
+                        <!-- Left arrow -->
+                        <Button fx:id="bannerPrev" text="&lt;"
+                                onAction="#onBannerPrev"
+                                styleClass="banner-nav-btn"
+                                StackPane.alignment="CENTER_LEFT">
+                            <StackPane.margin><Insets left="20"/></StackPane.margin>
+                        </Button>
+
+                        <!-- Right arrow -->
+                        <Button fx:id="bannerNext" text="&gt;"
+                                onAction="#onBannerNext"
+                                styleClass="banner-nav-btn"
+                                StackPane.alignment="CENTER_RIGHT">
+                            <StackPane.margin><Insets right="20"/></StackPane.margin>
+                        </Button>
+
+                        <!-- Text block bottom-left -->
+                        <VBox spacing="10"
+                              StackPane.alignment="BOTTOM_LEFT"
+                              mouseTransparent="true"
+                              maxWidth="680">
+                            <padding><Insets bottom="56" left="64"/></padding>
+                            <Label fx:id="featuredTitle"    styleClass="featured-title"/>
+                            <Label fx:id="featuredMeta"     styleClass="featured-meta"/>
+                            <Label fx:id="featuredSynopsis" wrapText="true"
+                                   styleClass="featured-synopsis"/>
+                        </VBox>
+
+                        <!-- Dot strip bottom-centre -->
+                        <HBox fx:id="bannerDots" spacing="6" alignment="CENTER"
+                              StackPane.alignment="BOTTOM_CENTER">
+                            <padding><Insets bottom="20"/></padding>
+                        </HBox>
+
+                    </StackPane>
+
+                    <!-- CATEGORY ROWS -->
+                    <VBox fx:id="categoriesContainer" spacing="32"
+                          maxWidth="Infinity" VBox.vgrow="ALWAYS">
+                        <padding><Insets top="32" right="32" bottom="48" left="32"/></padding>
+                    </VBox>
+
+                </VBox>
+            </ScrollPane>
+        </center>
+
+    </BorderPane>
+
+    <!-- HOVER POPUP LAYER -->
+    <Pane fx:id="hoverOverlay" mouseTransparent="true" pickOnBounds="false"
+          maxWidth="Infinity" maxHeight="Infinity"/>
+
 </StackPane>

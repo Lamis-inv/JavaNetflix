@@ -2,12 +2,15 @@ package org.JavaProject.JavaNetflixProject.app;
 
 import javafx.animation.*;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.media.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -65,15 +68,27 @@ public class DetailController {
     // Watchlist
     @FXML private Button watchlistBtn;
 
-    // Countdown overlay for binge-watching
+    // Countdown overlay
     @FXML private VBox countdownOverlay;
     @FXML private Label countdownLabel;
+    @FXML private StackPane rootStack;
+
+    // The FXML fullscreen overlay fields are kept for FXML compatibility
+    // but the actual fullscreen is handled via a separate Stage below.
+    @FXML private StackPane fullscreenOverlay;
+    @FXML private MediaView fullscreenMediaView;
 
     private Content content;
     private MediaPlayer mediaPlayer;
     private int userRating = 0;
     private boolean isInWatchlist = false;
     private Episode currentEpisode;
+
+    // FIX: keep a reference to the countdown Timeline so we can stop it
+    private Timeline countdownTimeline;
+
+    // FIX: fullscreen Stage stored here (not as @FXML)
+    private Stage fullscreenStage;
 
     private final ContentService contentService = new ContentService();
     private final SeasonDAO seasonDAO = new SeasonDAO();
@@ -87,7 +102,21 @@ public class DetailController {
     public void initialize() {
         if (volumeSlider != null) volumeSlider.setValue(80);
         if (countdownOverlay != null) countdownOverlay.setVisible(false);
-        
+        // FIX: hide the unused FXML fullscreen overlay immediately
+        if (fullscreenOverlay != null) {
+            fullscreenOverlay.setVisible(false);
+            fullscreenOverlay.setManaged(false);
+        }
+
+        rootStack.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.setOnKeyPressed(e -> {
+                    if (e.getCode() == KeyCode.ESCAPE) {
+                        exitFullscreen();
+                    }
+                });
+            }
+        });
     }
 
     public void setContent(Content c) {
@@ -126,37 +155,42 @@ public class DetailController {
     }
 
     private void loadMedia(String url) {
+        // Double-click on the MediaView triggers fullscreen
+        mediaView.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 2) {
+                onFullscreen();
+            }
+        });
+
         if (mediaPlayer != null) mediaPlayer.dispose();
         try {
-        	String fixedUrl;
+            String fixedUrl = url.startsWith("http") ? url : new java.io.File(url).toURI().toString();
 
-        	if (url.startsWith("http")) {
-        	    fixedUrl = url;
-        	} else {
-        	    fixedUrl = new java.io.File(url).toURI().toString();
-        	}
-
-        	Media media = new Media(fixedUrl);
+            Media media = new Media(fixedUrl);
             mediaPlayer = new MediaPlayer(media);
             mediaView.setMediaPlayer(mediaPlayer);
             mediaPlayer.setVolume(volumeSlider.getValue() / 100.0);
 
-            mediaPlayer.currentTimeProperty().addListener((obs, o, n) -> {
-                if (!progressSlider.isValueChanging()) {
-                    Duration total = mediaPlayer.getTotalDuration();
-                    if (total != null && total.greaterThan(Duration.ZERO)) {
-                        progressSlider.setValue(n.toSeconds() / total.toSeconds() * 100);
-                    }
-                    int sec = (int) n.toSeconds();
-                    timeLabel.setText(formatTime(sec) + " / " + formatTime((int)(total != null ? total.toSeconds() : 0)));
-                }
-            });
-
+            mediaPlayer.currentTimeProperty().addListener((obs, o, n) -> updateProgressUI(n));
             mediaPlayer.setOnEndOfMedia(this::onMediaEnd);
-            volumeSlider.valueProperty().addListener((obs, o, n) -> mediaPlayer.setVolume(n.doubleValue() / 100.0));
+            volumeSlider.valueProperty().addListener((obs, o, n) ->
+                mediaPlayer.setVolume(n.doubleValue() / 100.0));
+
         } catch (Exception e) {
             showAlert("Impossible de charger la vidéo: " + e.getMessage());
         }
+    }
+
+    // FIX: extracted into a shared helper used by both the normal and fullscreen player
+    private void updateProgressUI(Duration current) {
+        if (progressSlider.isValueChanging()) return;
+        Duration total = mediaPlayer.getTotalDuration();
+        if (total != null && total.greaterThan(Duration.ZERO)) {
+            progressSlider.setValue(current.toSeconds() / total.toSeconds() * 100);
+        }
+        int sec = (int) current.toSeconds();
+        String formatted = formatTime(sec) + " / " + formatTime((int)(total != null ? total.toSeconds() : 0));
+        timeLabel.setText(formatted);
     }
 
     private void onMediaEnd() {
@@ -172,20 +206,34 @@ public class DetailController {
     }
 
     private void startCountdown(Episode next) {
+        // FIX: stop any already-running countdown before starting a new one
+        if (countdownTimeline != null) {
+            countdownTimeline.stop();
+        }
+
         countdownOverlay.setVisible(true);
         int[] count = {10};
         countdownLabel.setText("Prochain épisode dans " + count[0] + "s");
-        Timeline tl = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+
+        countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             count[0]--;
             countdownLabel.setText("Prochain épisode dans " + count[0] + "s");
-            if (count[0] <= 0) playEpisode(next);
+            if (count[0] <= 0) {
+                countdownOverlay.setVisible(false);
+                playEpisode(next);
+            }
         }));
-        tl.setCycleCount(10);
-        tl.play();
+        countdownTimeline.setCycleCount(10);
+        countdownTimeline.play();
     }
 
     @FXML
     public void onCancelCountdown() {
+        // FIX: actually stop the timeline, not just hide the overlay
+        if (countdownTimeline != null) {
+            countdownTimeline.stop();
+            countdownTimeline = null;
+        }
         countdownOverlay.setVisible(false);
     }
 
@@ -204,28 +252,132 @@ public class DetailController {
     @FXML
     public void onSeek() {
         if (mediaPlayer != null && mediaPlayer.getTotalDuration() != null) {
-            mediaPlayer.seek(Duration.seconds(progressSlider.getValue() / 100.0 * mediaPlayer.getTotalDuration().toSeconds()));
+            mediaPlayer.seek(Duration.seconds(
+                progressSlider.getValue() / 100.0 * mediaPlayer.getTotalDuration().toSeconds()));
         }
     }
 
-    @FXML
-    private double savedWidth, savedHeight;
-
+    /**
+     * FIX: fullscreen now uses a proper separate Stage with its OWN controls HBox
+     * so the original scene graph is never disturbed. The same MediaPlayer instance
+     * is reused — no video restart, no re-buffering.
+     */
     @FXML
     private void onFullscreen() {
-        Stage stage = (Stage) mediaView.getScene().getWindow();
+        if (mediaPlayer == null) return;
 
-        if (!stage.isFullScreen()) {
-            savedWidth = mediaView.getFitWidth();
-            savedHeight = mediaView.getFitHeight();
+        if (fullscreenStage == null) {
+            fullscreenStage = new Stage();
 
-            stage.setFullScreen(true);
-            mediaView.setFitWidth(Screen.getPrimary().getBounds().getWidth());
-            mediaView.setFitHeight(Screen.getPrimary().getBounds().getHeight());
-        } else {
-            stage.setFullScreen(false);
-            mediaView.setFitWidth(savedWidth);
-            mediaView.setFitHeight(savedHeight);
+            // --- Media view for fullscreen (shares the same MediaPlayer) ---
+            MediaView fsView = new MediaView(mediaPlayer);
+            fsView.setPreserveRatio(true);
+            // Bind to stage size so it fills the window
+            fsView.fitWidthProperty().bind(fullscreenStage.widthProperty());
+            fsView.fitHeightProperty().bind(fullscreenStage.heightProperty().subtract(60));
+
+            // --- Duplicate controls (bound to the same MediaPlayer / sliders) ---
+            Button fsPlayPause = new Button(
+                mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING ? "⏸" : "▶");
+            fsPlayPause.getStyleClass().add("btn-player");
+
+            Slider fsProgress = new Slider();
+            fsProgress.getStyleClass().add("progress-slider");
+            HBox.setHgrow(fsProgress, Priority.ALWAYS);
+
+            Label fsTime = new Label("00:00 / 00:00");
+            fsTime.getStyleClass().add("time-label");
+
+            Slider fsVolume = new Slider(0, 100, volumeSlider.getValue());
+            fsVolume.setPrefWidth(100);
+            fsVolume.getStyleClass().add("volume-slider");
+
+            Button fsExit = new Button("⛶ Quitter");
+            fsExit.getStyleClass().add("btn-player");
+
+            // Sync progress slider and time label from the already-running player
+            mediaPlayer.currentTimeProperty().addListener((obs, o, n) -> {
+                if (!fsProgress.isValueChanging()) {
+                    Duration total = mediaPlayer.getTotalDuration();
+                    if (total != null && total.greaterThan(Duration.ZERO))
+                        fsProgress.setValue(n.toSeconds() / total.toSeconds() * 100);
+                    int sec = (int) n.toSeconds();
+                    fsTime.setText(formatTime(sec) + " / " +
+                        formatTime((int)(total != null ? total.toSeconds() : 0)));
+                }
+            });
+
+            // Wire up fullscreen controls
+            fsPlayPause.setOnAction(e -> {
+                if (mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING) {
+                    mediaPlayer.pause();
+                    fsPlayPause.setText("▶");
+                    playPauseBtn.setText("▶");     // keep main controls in sync
+                } else {
+                    mediaPlayer.play();
+                    fsPlayPause.setText("⏸");
+                    playPauseBtn.setText("⏸");
+                }
+            });
+
+            fsProgress.setOnMouseReleased(e -> {
+                if (mediaPlayer.getTotalDuration() != null) {
+                    mediaPlayer.seek(Duration.seconds(
+                        fsProgress.getValue() / 100.0 * mediaPlayer.getTotalDuration().toSeconds()));
+                    // Mirror back to main slider
+                    progressSlider.setValue(fsProgress.getValue());
+                }
+            });
+
+            fsVolume.valueProperty().addListener((obs, o, n) -> {
+                mediaPlayer.setVolume(n.doubleValue() / 100.0);
+                volumeSlider.setValue(n.doubleValue()); // keep main slider in sync
+            });
+
+            fsExit.setOnAction(e -> exitFullscreen());
+
+            HBox controls = new HBox(12, fsPlayPause, fsProgress, fsTime,
+                                     new Label("🔊"), fsVolume, fsExit);
+            controls.setAlignment(Pos.CENTER_LEFT);
+            controls.getStyleClass().add("player-controls");
+            controls.setStyle("-fx-padding: 8 16 8 16;");
+
+            BorderPane fsRoot = new BorderPane();
+            fsRoot.setStyle("-fx-background-color: black;");
+            fsRoot.setCenter(fsView);
+            fsRoot.setBottom(controls);
+            BorderPane.setAlignment(controls, Pos.CENTER);
+
+            double w = Screen.getPrimary().getBounds().getWidth();
+            double h = Screen.getPrimary().getBounds().getHeight();
+            Scene fsScene = new Scene(fsRoot, w, h);
+            fsScene.setFill(Color.BLACK);
+
+            // Apply the same stylesheet if available
+            if (!rootStack.getScene().getStylesheets().isEmpty()) {
+                fsScene.getStylesheets().addAll(rootStack.getScene().getStylesheets());
+            }
+
+            fsScene.setOnKeyPressed(e -> {
+                if (e.getCode() == KeyCode.ESCAPE) exitFullscreen();
+                if (e.getCode() == KeyCode.SPACE)  fsPlayPause.fire();
+            });
+
+            fullscreenStage.setScene(fsScene);
+            fullscreenStage.setFullScreen(true);
+            fullscreenStage.setFullScreenExitHint("");
+            // When the window is closed with the X button, clean up too
+            fullscreenStage.setOnCloseRequest(e -> exitFullscreen());
+        }
+
+        fullscreenStage.show();
+        fullscreenStage.toFront();
+    }
+
+    @FXML
+    private void exitFullscreen() {
+        if (fullscreenStage != null && fullscreenStage.isShowing()) {
+            fullscreenStage.hide();
         }
     }
 
@@ -247,7 +399,6 @@ public class DetailController {
         try {
             List<Episode> episodes = episodeDAO.findBySeasonId(season.getId());
             for (Episode ep : episodes) {
-                // Load watch progress
                 int userId = Session.getCurrentUser().getId();
                 ep.setWatched(watchHistoryDAO.isCompleted(userId, ep.getId()));
                 ep.setProgressSec(watchHistoryDAO.getProgressSec(userId, ep.getId()));
@@ -269,11 +420,14 @@ public class DetailController {
         VBox info = new VBox(3);
         Label titleLbl = new Label(ep.getTitle());
         titleLbl.getStyleClass().add("episode-title");
+
         Label synLbl = new Label(ep.getSynopsis() != null ? ep.getSynopsis() : "");
         synLbl.getStyleClass().add("episode-synopsis");
         synLbl.setWrapText(true);
+
         Label durLbl = new Label(ep.getDurationMin() + " min");
         durLbl.getStyleClass().add("episode-duration");
+
         info.getChildren().addAll(titleLbl, synLbl, durLbl);
         HBox.setHgrow(info, Priority.ALWAYS);
 
@@ -281,24 +435,34 @@ public class DetailController {
         statusLbl.getStyleClass().add("episode-status");
 
         row.getChildren().addAll(numLbl, info, statusLbl);
-        row.setOnMouseEntered(e -> {
-            row.setScaleX(1.02);
-            row.setScaleY(1.02);
-        });
 
-        row.setOnMouseExited(e -> {
-            row.setScaleX(1);
-            row.setScaleY(1);
-        });
+        row.setOnMouseEntered(e -> { row.setScaleX(1.02); row.setScaleY(1.02); });
+        row.setOnMouseExited(e  -> { row.setScaleX(1);    row.setScaleY(1); });
+        row.setOnMouseClicked(e -> playEpisode(ep));
+
         return row;
     }
 
     private void playEpisode(Episode ep) {
+        // FIX: cancel any running countdown properly
+        if (countdownTimeline != null) {
+            countdownTimeline.stop();
+            countdownTimeline = null;
+        }
         countdownOverlay.setVisible(false);
         currentEpisode = ep;
-        filmPlayerBox.setVisible(true); filmPlayerBox.setManaged(true);
 
-        if (mediaPlayer != null) mediaPlayer.dispose(); // dispose old player
+        filmPlayerBox.setVisible(true);
+        filmPlayerBox.setManaged(true);
+
+        if (mediaPlayer != null) mediaPlayer.dispose();
+
+        // FIX: if a fullscreen stage exists, invalidate it so it's rebuilt
+        // with the new MediaPlayer on the next fullscreen request
+        if (fullscreenStage != null) {
+            fullscreenStage.close();
+            fullscreenStage = null;
+        }
 
         String url = ep.getVideoUrl();
         if (!url.startsWith("http")) {
@@ -310,28 +474,14 @@ public class DetailController {
         mediaView.setMediaPlayer(mediaPlayer);
         mediaPlayer.setVolume(volumeSlider.getValue() / 100.0);
 
-        // Resume from saved position
         int savedSec = ep.getProgressSec();
         mediaPlayer.setOnReady(() -> {
-            if (savedSec > 0) {
-                mediaPlayer.seek(Duration.seconds(savedSec));
-            }
+            if (savedSec > 0) mediaPlayer.seek(Duration.seconds(savedSec));
             mediaPlayer.play();
             playPauseBtn.setText("⏸");
         });
 
-        // update progress slider
-        mediaPlayer.currentTimeProperty().addListener((obs, o, n) -> {
-            if (!progressSlider.isValueChanging()) {
-                Duration total = mediaPlayer.getTotalDuration();
-                if (total != null && total.greaterThan(Duration.ZERO)) {
-                    progressSlider.setValue(n.toSeconds() / total.toSeconds() * 100);
-                }
-                int sec = (int) n.toSeconds();
-                timeLabel.setText(formatTime(sec) + " / " + formatTime((int)(total != null ? total.toSeconds() : 0)));
-            }
-        });
-
+        mediaPlayer.currentTimeProperty().addListener((obs, o, n) -> updateProgressUI(n));
         mediaPlayer.setOnEndOfMedia(this::onMediaEnd);
     }
 
@@ -396,7 +546,8 @@ public class DetailController {
             for (Comment c : comments) {
                 VBox cb = new VBox(4);
                 cb.getStyleClass().add("comment-box");
-                Label author = new Label(c.getUserName() + " • " + (c.getCreatedAt() != null ? c.getCreatedAt().toLocalDate() : ""));
+                Label author = new Label(c.getUserName() + " • " +
+                    (c.getCreatedAt() != null ? c.getCreatedAt().toLocalDate() : ""));
                 author.getStyleClass().add("comment-author");
                 Label body = new Label(c.getBody());
                 body.setWrapText(true);
@@ -404,7 +555,10 @@ public class DetailController {
 
                 Button flagBtn = new Button("🚩");
                 flagBtn.getStyleClass().add("btn-flag");
-                flagBtn.setOnAction(e -> { try { commentDAO.flag(c.getId()); loadComments(); } catch (Exception ignored) {} });
+                flagBtn.setOnAction(e -> {
+                    try { commentDAO.flag(c.getId()); loadComments(); }
+                    catch (Exception ignored) {}
+                });
 
                 cb.getChildren().addAll(author, body, flagBtn);
                 commentsBox.getChildren().add(cb);
@@ -463,6 +617,11 @@ public class DetailController {
 
     @FXML
     public void onBack() {
+        // FIX: close fullscreen stage before navigating away
+        if (fullscreenStage != null) {
+            fullscreenStage.close();
+            fullscreenStage = null;
+        }
         if (mediaPlayer != null) {
             if (currentEpisode != null)
                 saveProgress(currentEpisode.getId(), (int) mediaPlayer.getCurrentTime().toSeconds(), false);
