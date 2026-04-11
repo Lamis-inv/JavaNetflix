@@ -1,81 +1,125 @@
-/* ──────────────────────────────────────────────
-   Global / Root
-────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════
+   dark-theme.css  — complete file, replace your existing one
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Root ─────────────────────────────────────────────────────────── */
 .root-pane {
     -fx-background-color: #0a0a0a;
     -fx-font-family: 'Segoe UI', Arial, sans-serif;
-    -fx-pref-width: -1;
+    -fx-pref-width:  -1;
     -fx-pref-height: -1;
-    -fx-max-width: Infinity;
-    -fx-max-height: Infinity;
+    -fx-max-width:   Infinity;
+    -fx-max-height:  Infinity;
 }
+* { -fx-text-fill: #e5e5e5; }
 
-* {
-    -fx-text-fill: #e5e5e5;
-}
-.root-stack {
-    -fx-background-color: #121212;
-    -fx-text-fill: #eee;
-}
-
+/* ── ScrollPane — transparent, scroll everywhere ─────────────────── */
 .main-scroll {
-    -fx-background-color: transparent; /* so parent shows through */
+    -fx-background-color: transparent;
+    -fx-background:       transparent;
+    -fx-border-color:     transparent;
+    -fx-padding:          0;
 }
+.main-scroll > .viewport            { -fx-background-color: #0a0a0a; }
+.main-scroll > .scroll-bar:vertical { -fx-background-color: rgba(255,255,255,0.03); -fx-pref-width: 5px; }
+.main-scroll > .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(255,255,255,0.20);
+    -fx-background-radius: 3px;
+}
+.main-scroll > .scroll-bar:horizontal { -fx-pref-height: 0; -fx-opacity: 0; }
 
-.main-scroll .viewport {
-    -fx-background-color: #121212; /* ScrollPane viewport must be dark too */
+/* Row scroll (horizontal card row) — no scrollbar shown */
+.row-scroll {
+    -fx-background-color: transparent;
+    -fx-background:       transparent;
+    -fx-border-color:     transparent;
+    -fx-padding:          0;
 }
-/* Movie synopsis text */
-.detail-synopsis {
-    -fx-text-fill: white;       /* White text */
-    -fx-font-size: 14px;
-    -fx-wrap-text: true;
-}
-/* ──────────────────────────────────────────────
-   Navbar / Top Bar
-────────────────────────────────────────────── */
+.row-scroll > .viewport             { -fx-background-color: transparent; }
+.row-scroll > .scroll-bar:horizontal{ -fx-pref-height:0; -fx-opacity:0; }
+.row-scroll > .scroll-bar:vertical  { -fx-pref-width:0;  -fx-opacity:0; }
+
+/* ── Top bar ─────────────────────────────────────────────────────── */
 .navbar, .top-bar {
-    -fx-background-color: rgba(10,10,10,0.92);
-    -fx-border-color: #222;
+    -fx-background-color: rgba(10,10,10,0.95);
+    -fx-border-color: rgba(255,255,255,0.06);
     -fx-border-width: 0 0 1 0;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 8, 0.3, 0, 2);
+    -fx-pref-width: -1;
+    -fx-max-width:  Infinity;
 }
 
 .brand-nav, .logo {
     -fx-text-fill: #e50914;
     -fx-font-weight: bold;
 }
-
-.brand-nav { -fx-font-size: 20px; -fx-font-family: 'Georgia', serif; }
-.brand-title { -fx-text-fill: #e50914; -fx-font-size: 36px; -fx-font-weight: bold; -fx-font-family: 'Georgia', serif; }
+.brand-nav   { -fx-font-size: 20px; -fx-font-family: 'Georgia', serif; }
+.logo        { -fx-font-size: 22px; }
+.brand-title { -fx-text-fill: #e50914; -fx-font-size: 36px; -fx-font-weight: bold; }
 
 .username-label { -fx-text-fill: #cccccc; -fx-font-size: 13px; }
 
 .btn-nav, .btn-icon, .btn-s {
     -fx-background-color: rgba(255,255,255,0.10);
     -fx-text-fill: white;
-    -fx-border-radius: 4px;
     -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
     -fx-cursor: hand;
     -fx-font-size: 12px;
     -fx-padding: 6 12 6 12;
 }
-.btn-nav:hover, .btn-icon:hover, .btn-s:hover { -fx-background-color: rgba(255,255,255,0.20); }
+.btn-nav:hover, .btn-icon:hover, .btn-s:hover {
+    -fx-background-color: rgba(255,255,255,0.20);
+}
 
 .btn-logout {
     -fx-background-color: rgba(229,9,20,0.20);
     -fx-text-fill: #e50914;
     -fx-background-radius: 4px;
-    -fx-border-color: rgba(229,9,20,0.4);
+    -fx-border-color: rgba(229,9,20,0.40);
+    -fx-border-radius: 4px;
     -fx-border-width: 1px;
     -fx-cursor: hand;
     -fx-padding: 6 12 6 12;
 }
 .btn-logout:hover { -fx-background-color: rgba(229,9,20,0.40); }
 
-/* ──────────────────────────────────────────────
-   Auth Card
-────────────────────────────────────────────── */
+/* Notification badge */
+.notif-badge {
+    -fx-background-color: #e50914;
+    -fx-text-fill: white;
+    -fx-font-size: 9px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-padding: 1 4 1 4;
+    -fx-min-width: 16px;
+    -fx-alignment: center;
+}
+
+/* ── Filter bar (#2) ─────────────────────────────────────────────── */
+.filter-bar {
+    -fx-background-color: rgba(20,20,20,0.95);
+    -fx-border-color: rgba(255,255,255,0.06);
+    -fx-border-width: 0 0 1 0;
+}
+.filter-label {
+    -fx-text-fill: #aaa;
+    -fx-font-size: 12px;
+}
+.combo-dark {
+    -fx-background-color: #2a2a2a;
+    -fx-border-color: #3a3a3a;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-text-fill: #e5e5e5;
+    -fx-padding: 4 10;
+}
+.combo-dark .list-cell    { -fx-background-color: #2a2a2a; -fx-text-fill: #e5e5e5; }
+.combo-dark .list-view    { -fx-background-color: #2a2a2a; -fx-border-color: #444; }
+.combo-dark .cell:hover,
+.combo-dark .list-cell:filled:hover { -fx-background-color: #e50914; -fx-text-fill: white; }
+
+/* ── Auth card ───────────────────────────────────────────────────── */
 .auth-card {
     -fx-background-color: #1a1a1a;
     -fx-background-radius: 12;
@@ -84,15 +128,11 @@
     -fx-border-width: 1px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 40, 0, 0, 8);
 }
-
 .auth-subtitle { -fx-text-fill: #888; -fx-font-size: 14px; }
 
-/* ──────────────────────────────────────────────
-   Form Fields
-────────────────────────────────────────────── */
+/* ── Form fields ─────────────────────────────────────────────────── */
 .field-label { -fx-text-fill: #aaa; -fx-font-size: 12px; }
-
-.text-field-dark, .text-area-dark, .search-field, .combo-dark {
+.text-field-dark, .text-area-dark, .search-field {
     -fx-background-color: #2a2a2a;
     -fx-border-color: #3a3a3a;
     -fx-border-radius: 6px;
@@ -100,12 +140,16 @@
     -fx-text-fill: #e5e5e5;
     -fx-padding: 8 14;
 }
-.text-field-dark:focused, .text-area-dark:focused, .search-field:focused { -fx-border-color: #e50914; }
+.search-field {
+    -fx-prompt-text-fill: #666;
+    -fx-border-width: 1px;
+}
+.search-field:focused,
+.text-field-dark:focused,
+.text-area-dark:focused  { -fx-border-color: #e50914; }
 .text-area-dark .content { -fx-background-color: #2a2a2a; }
 
-/* ──────────────────────────────────────────────
-   Buttons
-────────────────────────────────────────────── */
+/* ── Buttons ─────────────────────────────────────────────────────── */
 .btn-primary {
     -fx-background-color: #e50914;
     -fx-text-fill: white;
@@ -113,7 +157,6 @@
     -fx-font-size: 14px;
     -fx-padding: 11 28;
     -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
     -fx-cursor: hand;
 }
 .btn-primary:hover { -fx-background-color: #b81c24; }
@@ -124,119 +167,144 @@
     -fx-font-size: 13px;
     -fx-padding: 10 22;
     -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
     -fx-cursor: hand;
 }
 .btn-secondary:hover { -fx-background-color: #444; }
 
-.btn-danger {
-    -fx-background-color: #8b0000;
-    -fx-text-fill: white;
+/* FIX #1: trailer button */
+.btn-trailer {
+    -fx-background-color: rgba(229,9,20,0.15);
+    -fx-text-fill: #e50914;
     -fx-font-size: 13px;
-    -fx-padding: 8 18;
+    -fx-font-weight: bold;
+    -fx-padding: 10 22;
     -fx-background-radius: 6px;
+    -fx-border-color: rgba(229,9,20,0.50);
+    -fx-border-radius: 6px;
+    -fx-border-width: 1px;
     -fx-cursor: hand;
 }
-.btn-danger:hover { -fx-background-color: #a00; }
+.btn-trailer:hover {
+    -fx-background-color: rgba(229,9,20,0.35);
+    -fx-border-color: #e50914;
+}
 
-.btn-added { -fx-background-color: #2e7d32; }
+.btn-added { -fx-background-color: #2e7d32 !important; -fx-text-fill: white !important; }
 
 .btn-player, .btn-flag { -fx-background-color: transparent; -fx-cursor: hand; }
-.btn-player:hover { -fx-text-fill: #e50914; }
-.btn-flag:hover { -fx-text-fill: #e50914; }
+.btn-player:hover, .btn-flag:hover { -fx-text-fill: #e50914; }
 
-/* ──────────────────────────────────────────────
-   Featured Banner
-────────────────────────────────────────────── */
+/* FIX #6: Actor chips */
+.actor-chip {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-text-fill: #ccc;
+    -fx-font-size: 12px;
+    -fx-padding: 4 10 4 10;
+    -fx-background-radius: 14px;
+    -fx-border-color: rgba(255,255,255,0.15);
+    -fx-border-radius: 14px;
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+}
+.actor-chip:hover {
+    -fx-background-color: rgba(229,9,20,0.25);
+    -fx-border-color: #e50914;
+    -fx-text-fill: white;
+}
+
+/* ── Featured banner ─────────────────────────────────────────────── */
 .featured-banner {
     -fx-background-color: #111;
     -fx-cursor: hand;
 }
-.featured-cover { -fx-opacity: 0.7; }
+.featured-cover { -fx-opacity: 0.70; }
 .banner-gradient {
     -fx-background-color: linear-gradient(
         to top,
-        rgba(10,10,10,1) 0%,
-        rgba(10,10,10,0.65) 38%,
-        rgba(10,10,10,0) 100%
+        rgba(10,10,10,1.0)  0%,
+        rgba(10,10,10,0.65) 40%,
+        rgba(10,10,10,0.0) 100%
     );
+    -fx-max-width:  Infinity;
+    -fx-max-height: Infinity;
 }
 
 .featured-title {
-    -fx-font-size: 46px;
+    -fx-font-size: 40px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.95), 14, 0.5, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.95), 12, 0.5, 0, 2);
+    -fx-wrap-text: true;
 }
-.featured-meta { -fx-font-size: 13px; -fx-text-fill: #aaa; }
+.featured-meta     { -fx-font-size: 13px; -fx-text-fill: #aaa; }
 .featured-synopsis { -fx-font-size: 14px; -fx-text-fill: #ccc; -fx-wrap-text: true; }
 
-/* Banner nav */
+/* FIX #4: arrows */
 .banner-nav-btn {
-    -fx-background-color: rgba(0,0,0,0.50);
+    -fx-background-color: rgba(0,0,0,0.55);
     -fx-text-fill: white;
     -fx-font-size: 18px;
-    -fx-min-width: 40px;
-    -fx-min-height: 40px;
+    -fx-min-width: 40px; -fx-min-height: 40px;
     -fx-background-radius: 50%;
     -fx-border-radius: 50%;
     -fx-border-color: rgba(255,255,255,0.18);
     -fx-border-width: 1px;
     -fx-cursor: hand;
 }
-.banner-nav-btn:hover { -fx-background-color: rgba(229,9,20,0.85); -fx-border-color: transparent; }
+.banner-nav-btn:hover {
+    -fx-background-color: rgba(229,9,20,0.85);
+    -fx-border-color: transparent;
+}
 
-.banner-dot { -fx-fill: rgba(255,255,255,0.30); -fx-cursor: hand; }
+/* FIX #4: dots — now bottom-left, smaller */
+.banner-dot        { -fx-fill: rgba(255,255,255,0.28); -fx-cursor: hand; }
 .banner-dot-active { -fx-fill: #e50914; -fx-cursor: hand; }
 
-/* ──────────────────────────────────────────────
-   Category & Cards
-────────────────────────────────────────────── */
-.category-title { -fx-font-size: 19px; -fx-font-weight: bold; -fx-text-fill: #e8e8e8; -fx-padding: 0 0 4 0; }
+/* ── Category section ────────────────────────────────────────────── */
+.category-section { -fx-max-width: Infinity; }
+.category-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #e8e8e8;
+    -fx-padding: 0 0 4 0;
+}
 
+/* ── Content card ────────────────────────────────────────────────── */
 .content-card {
     -fx-background-color: #1a1a1a;
     -fx-background-radius: 6px;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 8, 0.2, 0, 3);
+    /* FIX #9: transition via CSS scale — smoother than code animation */
 }
 .content-card:hover {
-    -fx-scale-x: 1.06;
-    -fx-scale-y: 1.06;
-    -fx-effect: dropshadow(gaussian, rgba(229,9,20,0.55), 18, 0.3, 0, 4);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(gaussian, rgba(229,9,20,0.50), 16, 0.3, 0, 4);
 }
-
 .card-title {
     -fx-font-size: 11px;
     -fx-text-fill: white;
-    -fx-background-color: rgba(0,0,0,0.72);
+    -fx-background-color: rgba(0,0,0,0.75);
     -fx-padding: 3 5;
     -fx-background-radius: 3px;
     -fx-wrap-text: true;
 }
 
-.card-scroll, .card-scroll > .viewport {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-padding: 0;
-}
-
-/* ──────────────────────────────────────────────
-   Hover Popup
-────────────────────────────────────────────── */
+/* ── Hover popup ─────────────────────────────────────────────────── */
 .hover-popup {
     -fx-background-color: #1c1c1c;
     -fx-background-radius: 8px;
     -fx-border-radius: 8px;
     -fx-border-color: rgba(255,255,255,0.10);
     -fx-border-width: 1px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.90), 30, 0.5, 0, 8);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.92), 28, 0.5, 0, 8);
     -fx-cursor: hand;
 }
-
-.popup-title { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white; -fx-wrap-text: true; }
-.popup-meta { -fx-font-size: 11px; -fx-text-fill: #888; }
+.popup-title  { -fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: white; -fx-wrap-text: true; }
+.popup-meta   { -fx-font-size: 11px; -fx-text-fill: #888; }
 .popup-rating { -fx-font-size: 12px; -fx-text-fill: #f5c518; }
+.popup-info   { -fx-background-color: transparent; }
 
 .popup-play-btn {
     -fx-background-color: #e50914;
@@ -249,21 +317,276 @@
 }
 .popup-play-btn:hover { -fx-background-color: #f40612; }
 
+/* FIX #1: trailer mini-btn in popup */
+.popup-trailer-btn {
+    -fx-background-color: rgba(229,9,20,0.18);
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4px;
+    -fx-padding: 5 12;
+    -fx-cursor: hand;
+    -fx-border-color: rgba(229,9,20,0.50);
+    -fx-border-radius: 4px;
+    -fx-border-width: 1px;
+}
+.popup-trailer-btn:hover { -fx-background-color: rgba(229,9,20,0.45); }
+
 .popup-watchlist-btn {
     -fx-background-color: rgba(255,255,255,0.10);
     -fx-text-fill: white;
     -fx-font-size: 11px;
     -fx-background-radius: 4px;
     -fx-border-color: rgba(255,255,255,0.22);
+    -fx-border-radius: 4px;
     -fx-border-width: 1px;
     -fx-padding: 6 10;
     -fx-cursor: hand;
 }
 .popup-watchlist-btn:hover { -fx-background-color: rgba(255,255,255,0.20); }
 .popup-watchlist-btn.btn-added {
-    -fx-background-color: rgba(229,9,20,0.20);
+    -fx-background-color: rgba(229,9,20,0.22);
     -fx-border-color: #e50914;
     -fx-text-fill: #e50914;
 }
 
-.popup-info { -fx-background-color: transparent; }
+/* ── Detail page ─────────────────────────────────────────────────── */
+.detail-title   { -fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white; }
+.detail-meta    { -fx-font-size: 13px; -fx-text-fill: #aaa; }
+.detail-casting { -fx-font-size: 13px; -fx-text-fill: #bbb; }
+.detail-synopsis{ -fx-font-size: 14px; -fx-fill: white; }
+
+.badge-film {
+    -fx-background-color: rgba(229,9,20,0.25);
+    -fx-text-fill: #e50914;
+    -fx-font-size: 11px;
+    -fx-padding: 2 8;
+    -fx-background-radius: 10px;
+    -fx-border-color: rgba(229,9,20,0.45);
+    -fx-border-radius: 10px;
+    -fx-border-width: 1px;
+}
+
+.section-title  { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #ddd; }
+
+/* Player */
+.player-box     { -fx-background-color: #000; -fx-background-radius: 8px; }
+.player-controls{ -fx-background-color: rgba(0,0,0,0.75); -fx-background-radius: 0 0 8 8; }
+.time-label     { -fx-text-fill: #aaa; -fx-font-size: 12px; }
+.icon-label     { -fx-font-size: 16px; }
+
+.progress-slider .track  { -fx-background-color: #444; }
+.progress-slider .thumb  { -fx-background-color: #e50914; }
+.volume-slider   .track  { -fx-background-color: #444; }
+.volume-slider   .thumb  { -fx-background-color: white; }
+
+/* Countdown overlay */
+.countdown-overlay {
+    -fx-background-color: rgba(0,0,0,0.75);
+    -fx-background-radius: 12px;
+    -fx-max-width: 280;
+    -fx-max-height: 140;
+    -fx-padding: 20;
+}
+.countdown-title  { -fx-text-fill: #aaa; -fx-font-size: 14px; }
+.countdown-number { -fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold; }
+
+/* Episode list */
+.episode-row {
+    -fx-background-color: #1c1c1c;
+    -fx-background-radius: 6px;
+    -fx-padding: 10 14;
+    -fx-alignment: CENTER_LEFT;
+}
+.episode-row:hover    { -fx-background-color: #262626; }
+.episode-num          { -fx-text-fill: #e50914; -fx-font-weight: bold; -fx-font-size: 13px; }
+.episode-title        { -fx-text-fill: white;   -fx-font-weight: bold; -fx-font-size: 13px; }
+.episode-synopsis     { -fx-text-fill: #888;    -fx-font-size: 12px; }
+.episode-duration     { -fx-text-fill: #666;    -fx-font-size: 11px; }
+.episode-status       { -fx-text-fill: #4caf50; -fx-font-size: 12px; }
+
+/* Comments */
+.comment-box    { -fx-background-color: #1c1c1c; -fx-background-radius: 6px; -fx-padding: 10 12; }
+.comment-author { -fx-text-fill: #e50914; -fx-font-size: 12px; -fx-font-weight: bold; }
+.comment-body   { -fx-text-fill: #ccc;    -fx-font-size: 13px; }
+
+/*Admin */
+
+
+
+
+
+
+
+
+
+/* ================= GLOBAL TEXT ================= */
+.label {
+    -fx-text-fill: #e5e5e5;
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+    -fx-background-color: #181818;
+    -fx-border-color: #2a2a2a;
+}
+
+.brand-nav {
+    -fx-text-fill: #e50914;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+}
+
+.username-label {
+    -fx-text-fill: white;
+}
+
+/* ================= BUTTONS ================= */
+.button {
+    -fx-text-fill: white;
+}
+
+.btn-primary {
+    -fx-background-color: #e50914;
+}
+.btn-primary:hover {
+    -fx-background-color: #ff1e2d;
+}
+
+.btn-secondary {
+    -fx-background-color: #2a2a2a;
+}
+.btn-secondary:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+.btn-danger {
+    -fx-background-color: #b20710;
+}
+.btn-danger:hover {
+    -fx-background-color: #d40813;
+}
+
+/* ================= INPUTS ================= */
+.text-field-dark, .text-area-dark {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #888;
+    -fx-border-color: #444;
+}
+
+/* IMPORTANT FIX (text area inner white) */
+.text-area-dark .content {
+    -fx-background-color: #2a2a2a;
+}
+
+/* ================= COMBOBOX ================= */
+.combo-box {
+    -fx-background-color: #2a2a2a;
+    -fx-mark-color: white;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: #2a2a2a;
+    -fx-text-fill: white;
+}
+
+/* DROPDOWN FIX (THIS WAS WHITE!) */
+.combo-box-popup .list-view {
+    -fx-background-color: #2a2a2a;
+}
+
+.combo-box-popup .list-cell {
+    -fx-text-fill: white;
+}
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #444;
+}
+
+/* ================= TABLE ================= */
+.table-view {
+    -fx-background-color: #1e1e1e;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #2a2a2a;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: white;
+}
+
+/* 🔥 CRITICAL FIX (white text issue) */
+.table-cell {
+    -fx-text-fill: #e5e5e5;
+}
+
+/* rows */
+.table-row-cell {
+    -fx-background-color: #1e1e1e;
+}
+
+.table-row-cell:filled:hover {
+    -fx-background-color: #2a2a2a;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: #e50914;
+}
+
+/* ================= TABS ================= */
+.tab-pane {
+    -fx-background-color: #141414;
+}
+
+.tab {
+    -fx-background-color: #181818;
+}
+
+.tab .label {
+    -fx-text-fill: #aaa;
+}
+
+.tab:selected {
+    -fx-background-color: #1f1f1f;
+}
+
+.tab:selected .label {
+    -fx-text-fill: white;
+}
+
+/* ================= SCROLL ================= */
+.scroll-pane {
+    -fx-background: #141414;
+}
+
+.viewport {
+    -fx-background-color: transparent;
+}
+
+/* ================= CHECKBOX ================= */
+.check-box {
+    -fx-text-fill: white;
+}
+
+/* ================= CHARTS ================= */
+.chart {
+    -fx-background-color: #1e1e1e;
+}
+
+.chart-title {
+    -fx-text-fill: white;
+}
+
+.axis-label {
+    -fx-text-fill: white;
+}
+
+.axis {
+    -fx-tick-label-fill: #ccc;
+}
+
+/* ================= ERROR ================= */
+.error-label {
+    -fx-text-fill: #ff4c4c;
+}

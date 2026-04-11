@@ -5,24 +5,18 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
-<!--
-    ROOT: StackPane fills the entire Stage (no prefWidth/prefHeight).
-    The Stage is maximised in Navigator, so this fills the screen.
-    Every child uses HBox.hgrow / VBox.vgrow / maxWidth=Infinity so
-    the layout re-flows correctly at any window size.
--->
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:controller="org.JavaProject.JavaNetflixProject.app.HomeController"
            stylesheets="@/css/dark-theme.css"
            styleClass="root-pane">
 
-    <!-- ═══════════════════════ MAIN UI (layer 0) ═══════════════════════ -->
+    <!-- ══════════════════ MAIN UI ══════════════════ -->
     <BorderPane>
 
-        <!-- ── TOP BAR ───────────────────────────────────────────────── -->
+        <!-- ── TOP BAR ────────────────────────────── -->
         <top>
-            <HBox spacing="16" alignment="CENTER_LEFT" styleClass="top-bar">
-                <padding><Insets top="12" right="28" bottom="12" left="28"/></padding>
+            <HBox spacing="12" alignment="CENTER_LEFT" styleClass="top-bar">
+                <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
 
                 <Label text="J-Stream" styleClass="logo"/>
 
@@ -30,34 +24,56 @@
                            promptText="Rechercher..."
                            styleClass="search-field"
                            onAction="#onSearch"
-                           prefWidth="320" maxWidth="520"/>
-                <Button text="X"          onAction="#onClearSearch" styleClass="btn-icon"/>
-                <Button text="Rechercher" onAction="#onSearch"      styleClass="btn-s"/>
+                           prefWidth="280" maxWidth="460"/>
+                <Button text="X"           onAction="#onClearSearch" styleClass="btn-icon"/>
+                <Button text="Rechercher"  onAction="#onSearch"      styleClass="btn-s"/>
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <Button text="Ma Liste"    onAction="#onMyList"  styleClass="btn-nav"/>
+                <!-- History button (#7) -->
+                <Button fx:id="historyBtn" text="⏱ Historique"
+                        onAction="#onHistory" styleClass="btn-nav"/>
+
+                <!-- Ma Liste -->
+                <Button text="♡ Ma Liste" onAction="#onMyList" styleClass="btn-nav"/>
+
+                <!-- Notification bell (#3) -->
+                <StackPane>
+                    <Button fx:id="notifBtn" text="🔔"
+                            onAction="#onNotifications" styleClass="btn-icon"/>
+                    <!-- Red badge -->
+                    <Label fx:id="notifBadge" text="0"
+                           styleClass="notif-badge"
+                           StackPane.alignment="TOP_RIGHT"
+                           visible="false" managed="false"/>
+                </StackPane>
+
                 <Label fx:id="usernameLabel" styleClass="username-label"/>
-                <Button text="Deconnexion" onAction="#onLogout"  styleClass="btn-logout"/>
+                <Button text="Déco" onAction="#onLogout" styleClass="btn-logout"/>
             </HBox>
         </top>
 
-        <!-- ── CENTER ────────────────────────────────────────────────── -->
         <center>
-            <ScrollPane fitToWidth="true" fitToHeight="false"
+            <!--
+                fx:id="mainScroll" so the controller can forward
+                scroll events from card rows to the main scroll.
+            -->
+            <ScrollPane fx:id="mainScroll"
+                        fitToWidth="true" fitToHeight="false"
                         styleClass="main-scroll"
-                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED">
+                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                        pannable="true">
 
                 <VBox spacing="0">
 
-                    <!-- FEATURED BANNER -->
+                    <!-- ══ FEATURED BANNER ══ -->
                     <StackPane fx:id="featuredBanner"
-                               prefHeight="500"
+                               prefHeight="480"
                                maxWidth="Infinity"
                                styleClass="featured-banner"
                                VBox.vgrow="NEVER">
 
-                        <!-- ImageView sized by controller binding -->
+                        <!-- Cover image — size bound in controller -->
                         <ImageView fx:id="featuredCover"
                                    preserveRatio="false"
                                    styleClass="featured-cover"
@@ -68,46 +84,62 @@
                               mouseTransparent="true"
                               maxWidth="Infinity" maxHeight="Infinity"/>
 
-                        <!-- Left arrow -->
-                        <Button fx:id="bannerPrev" text="&lt;"
+                        <!-- FIX #4: arrow buttons consume click so banner doesn't open detail -->
+                        <Button fx:id="bannerPrev" text="&#10094;"
                                 onAction="#onBannerPrev"
                                 styleClass="banner-nav-btn"
                                 StackPane.alignment="CENTER_LEFT">
-                            <StackPane.margin><Insets left="20"/></StackPane.margin>
+                            <StackPane.margin><Insets left="18"/></StackPane.margin>
                         </Button>
-
-                        <!-- Right arrow -->
-                        <Button fx:id="bannerNext" text="&gt;"
+                        <Button fx:id="bannerNext" text="&#10095;"
                                 onAction="#onBannerNext"
                                 styleClass="banner-nav-btn"
                                 StackPane.alignment="CENTER_RIGHT">
-                            <StackPane.margin><Insets right="20"/></StackPane.margin>
+                            <StackPane.margin><Insets right="18"/></StackPane.margin>
                         </Button>
 
-                        <!-- Text block bottom-left -->
+                        <!--
+                            FIX #4: text block + dots together bottom-left.
+                            Dots are below the synopsis, NOT in the center of the banner.
+                        -->
                         <VBox spacing="10"
                               StackPane.alignment="BOTTOM_LEFT"
-                              mouseTransparent="true"
-                              maxWidth="680">
-                            <padding><Insets bottom="56" left="64"/></padding>
+                              mouseTransparent="false"
+                              maxWidth="660">
+                            <padding><Insets bottom="28" left="60"/></padding>
+
                             <Label fx:id="featuredTitle"    styleClass="featured-title"/>
                             <Label fx:id="featuredMeta"     styleClass="featured-meta"/>
                             <Label fx:id="featuredSynopsis" wrapText="true"
-                                   styleClass="featured-synopsis"/>
-                        </VBox>
+                                   styleClass="featured-synopsis" maxWidth="540"/>
 
-                        <!-- Dot strip bottom-centre -->
-                        <HBox fx:id="bannerDots" spacing="6" alignment="CENTER"
-                              StackPane.alignment="BOTTOM_CENTER">
-                            <padding><Insets bottom="20"/></padding>
-                        </HBox>
+                            <!-- Dots sit just below the synopsis text -->
+                            <HBox fx:id="bannerDots" spacing="6" alignment="CENTER_LEFT">
+                                <padding><Insets top="6"/></padding>
+                            </HBox>
+                        </VBox>
 
                     </StackPane>
 
-                    <!-- CATEGORY ROWS -->
-                    <VBox fx:id="categoriesContainer" spacing="32"
+                    <!-- ══ FILTER BAR (#2) ══ -->
+                    <HBox fx:id="filterBar" spacing="12" alignment="CENTER_LEFT"
+                          styleClass="filter-bar">
+                        <padding><Insets top="14" right="28" bottom="14" left="28"/></padding>
+
+                        <Label text="Filtrer :" styleClass="filter-label"/>
+
+                        <ComboBox fx:id="filterType"  prefWidth="130" styleClass="combo-dark"
+                                  promptText="Type"/>
+                        <ComboBox fx:id="filterGenre" prefWidth="160" styleClass="combo-dark"
+                                  promptText="Genre"/>
+                        <ComboBox fx:id="filterYear"  prefWidth="130" styleClass="combo-dark"
+                                  promptText="Année"/>
+                    </HBox>
+
+                    <!-- ══ CATEGORY ROWS ══ -->
+                    <VBox fx:id="categoriesContainer" spacing="28"
                           maxWidth="Infinity" VBox.vgrow="ALWAYS">
-                        <padding><Insets top="32" right="32" bottom="48" left="32"/></padding>
+                        <padding><Insets top="20" right="28" bottom="48" left="28"/></padding>
                     </VBox>
 
                 </VBox>
@@ -116,8 +148,9 @@
 
     </BorderPane>
 
-    <!-- HOVER POPUP LAYER -->
-    <Pane fx:id="hoverOverlay" mouseTransparent="true" pickOnBounds="false"
+    <!-- ══ HOVER POPUP LAYER — top of StackPane, full-size, above ScrollPane ══ -->
+    <Pane fx:id="hoverOverlay"
+          mouseTransparent="true" pickOnBounds="false"
           maxWidth="Infinity" maxHeight="Infinity"/>
 
 </StackPane>

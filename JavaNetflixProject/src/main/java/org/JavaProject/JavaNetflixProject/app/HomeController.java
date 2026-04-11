@@ -2,7 +2,6 @@ package org.JavaProject.JavaNetflixProject.app;
 
 import javafx.animation.*;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Bounds;
@@ -17,19 +16,29 @@ import javafx.scene.layout.*;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
-import org.JavaProject.JavaNetflixProject.Entities.Content;
+import org.JavaProject.JavaNetflixProject.DAO.NotificationDAO;
+import org.JavaProject.JavaNetflixProject.DAO.WatchHistoryDAO;
+import org.JavaProject.JavaNetflixProject.DAO.WatchlistDAO;
 import org.JavaProject.JavaNetflixProject.Entities.Category;
+import org.JavaProject.JavaNetflixProject.Entities.Content;
 import org.JavaProject.JavaNetflixProject.Services.ContentService;
 import org.JavaProject.JavaNetflixProject.Utils.Navigator;
 import org.JavaProject.JavaNetflixProject.Utils.Session;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class HomeController {
 
@@ -48,87 +57,112 @@ public class HomeController {
     @FXML private Button    bannerPrev;
     @FXML private Button    bannerNext;
 
-    // Hover overlay (top layer in root StackPane)
-    @FXML private Pane hoverOverlay;
+    // Filter bar
+    @FXML private HBox      filterBar;
+    @FXML private ComboBox<String>  filterType;
+    @FXML private ComboBox<String>  filterGenre;
+    @FXML private ComboBox<String>  filterYear;
+
+    // Top bar extras
+    @FXML private Button    notifBtn;
+    @FXML private Label     notifBadge;
+    @FXML private Button    historyBtn;
+
+    // Hover overlay — top-level Pane injected by FXML
+    @FXML private Pane      hoverOverlay;
+
+    // ScrollPane reference for scroll-locking fix
+    @FXML private ScrollPane mainScroll;
 
     // ── State ─────────────────────────────────────────────────────────────────
-    private final ContentService contentService = new ContentService();
+    private final ContentService  contentService  = new ContentService();
+    private final WatchHistoryDAO watchHistoryDAO = new WatchHistoryDAO();
+    private final NotificationDAO notifDAO        = new NotificationDAO();
 
-    private List<Content> featuredList;
+    private List<Content> featuredList  = new ArrayList<>();
+    private List<Content> allContent    = new ArrayList<>();   // cache for filter
     private int           featuredIndex = 0;
     private Timeline      bannerSlider;
 
-    private StackPane activePopup;
-    private Timeline  popupHideTimer;
-    private MediaPlayer hoverPlayer;
-    private Timeline    hoverVideoDelay;
+    // Popup
+    private StackPane   activePopup;
+    private Timeline    popupHideTimer;
+    private Timeline    popupShowTimer;
+    // No MediaPlayer for hover — we open a WebView for YouTube trailer
 
     // ── Init ──────────────────────────────────────────────────────────────────
 
     @FXML
     public void initialize() {
         usernameLabel.setText("Bonjour, " + Session.getCurrentUser().getNom());
-
-        // Maximise the window and make it fully resizable
         Platform.runLater(this::setupResponsiveStage);
 
         loadFeatured();
-        loadCategories();
+        loadAllContent();      // populates allContent cache + renders
+        populateFilterOptions();
+        refreshNotifBadge();
     }
 
-    /**
-     * Called after the scene is attached so we have a real Stage reference.
-     * - Maximises to the current screen
-     * - Binds the banner ImageView size to the banner StackPane so it always
-     *   fills the full width/height even after resizing
-     */
+    // ── Responsive Stage ──────────────────────────────────────────────────────
+
     private void setupResponsiveStage() {
         Stage stage = Navigator.getPrimaryStage();
         if (stage == null) return;
 
-        // Fill the whole screen on startup
         javafx.geometry.Rectangle2D screen = Screen.getPrimary().getVisualBounds();
         stage.setX(screen.getMinX());
         stage.setY(screen.getMinY());
         stage.setWidth(screen.getWidth());
         stage.setHeight(screen.getHeight());
         stage.setMaximized(true);
-        stage.setResizable(true);   // allow resize / restore
+        stage.setResizable(true);
 
-        // Bind banner image to banner pane dimensions
+        // Bind banner image to banner pane so it always fills on resize
         if (featuredCover != null && featuredBanner != null) {
             featuredCover.fitWidthProperty().bind(featuredBanner.widthProperty());
             featuredCover.fitHeightProperty().bind(featuredBanner.heightProperty());
         }
+
+        // FIX #5: allow scrolling everywhere, not just from the scrollbar track
+        // The ScrollPane's viewport consumes mouse-scroll by default;
+        // we make the whole scene forward scroll events to the ScrollPane.
+        if (mainScroll != null && stage.getScene() != null) {
+            stage.getScene().setOnScroll(e -> {
+                double delta = e.getDeltaY() / mainScroll.getContent().getBoundsInLocal().getHeight();
+                mainScroll.setVvalue(mainScroll.getVvalue() - delta);
+            });
+        }
     }
 
-    // ── Banner ────────────────────────────────────────────────────────────────
+    // ── Featured Banner ───────────────────────────────────────────────────────
 
     private void loadFeatured() {
         try {
             featuredList = contentService.getFeaturedContent();
             if (featuredList == null || featuredList.isEmpty()) return;
-
             buildBannerDots();
-            updateFeaturedBanner(false);
+            applyBannerContent(featuredList.get(0));
             startBannerSlider();
 
+            // FIX #4: banner click opens detail; arrow buttons have e.consume() so
+            // they don't bubble to the banner click handler
             featuredBanner.setOnMouseClicked(e -> openDetail(featuredList.get(featuredIndex)));
             featuredBanner.setCursor(javafx.scene.Cursor.HAND);
-
         } catch (SQLException e) {
-            showAlert("Erreur chargement bandeau: " + e.getMessage());
+            showAlert("Erreur bandeau: " + e.getMessage());
         }
     }
 
+    // FIX #4: dots moved to bottom-left of text block via FXML (see home.fxml)
     private void buildBannerDots() {
         bannerDots.getChildren().clear();
         for (int i = 0; i < featuredList.size(); i++) {
-            javafx.scene.shape.Rectangle dot = new javafx.scene.shape.Rectangle(
-                i == featuredIndex ? 24 : 8, 4);
+            javafx.scene.shape.Rectangle dot =
+                new javafx.scene.shape.Rectangle(i == featuredIndex ? 22 : 7, 4);
             dot.setArcWidth(4); dot.setArcHeight(4);
             dot.getStyleClass().add(i == featuredIndex ? "banner-dot-active" : "banner-dot");
             final int idx = i;
+            // consume event so it doesn't open detail
             dot.setOnMouseClicked(e -> { e.consume(); goToBanner(idx); });
             bannerDots.getChildren().add(dot);
         }
@@ -137,16 +171,12 @@ public class HomeController {
     private void updateFeaturedBanner(boolean animate) {
         Content c = featuredList.get(featuredIndex);
         if (animate) {
-            FadeTransition out = new FadeTransition(Duration.millis(300), featuredBanner);
-            out.setFromValue(1);
-            out.setToValue(0);
+            FadeTransition out = new FadeTransition(Duration.millis(250), featuredBanner);
+            out.setFromValue(1); out.setToValue(0);
             out.setOnFinished(ev -> {
                 applyBannerContent(c);
-
-                // Fixed FadeTransition
-                FadeTransition in = new FadeTransition(Duration.millis(300), featuredBanner);
-                in.setFromValue(0);
-                in.setToValue(1);
+                FadeTransition in = new FadeTransition(Duration.millis(250), featuredBanner);
+                in.setFromValue(0); in.setToValue(1);
                 in.play();
             });
             out.play();
@@ -165,12 +195,11 @@ public class HomeController {
         );
         featuredSynopsis.setText(
             c.getSynopsis() != null && !c.getSynopsis().isBlank()
-                ? c.getSynopsis().substring(0, Math.min(220, c.getSynopsis().length())) + "\u2026"
+                ? c.getSynopsis().substring(0, Math.min(200, c.getSynopsis().length())) + "\u2026"
                 : ""
         );
-        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
+        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank())
             featuredCover.setImage(new Image(c.getCoverUrl(), true));
-        }
     }
 
     private void startBannerSlider() {
@@ -187,61 +216,133 @@ public class HomeController {
         if (bannerSlider != null) { bannerSlider.stop(); bannerSlider.play(); }
     }
 
+    // FIX #4: consume event so it doesn't reach the banner's click handler
     @FXML public void onBannerPrev() {
-        if (featuredList != null && !featuredList.isEmpty())
-            goToBanner((featuredIndex - 1 + featuredList.size()) % featuredList.size());
+        if (featuredList.isEmpty()) return;
+        goToBanner((featuredIndex - 1 + featuredList.size()) % featuredList.size());
     }
     @FXML public void onBannerNext() {
-        if (featuredList != null && !featuredList.isEmpty())
-            goToBanner((featuredIndex + 1) % featuredList.size());
+        if (featuredList.isEmpty()) return;
+        goToBanner((featuredIndex + 1) % featuredList.size());
     }
 
-    // ── Categories ────────────────────────────────────────────────────────────
+    // ── Content loading & filtering ───────────────────────────────────────────
 
-    private void loadCategories() {
+    private void loadAllContent() {
         try {
-            categoriesContainer.getChildren().clear();
+            allContent.clear();
             List<Category> categories = contentService.getAllCategories();
-
             for (Category cat : categories) {
                 List<Content> items = contentService.getByCategory(cat.getId());
-                if (items == null || items.isEmpty()) continue;
-
-                Label catLabel = new Label(cat.getName());
-                catLabel.getStyleClass().add("category-title");
-
-                // FlowPane reflows cards automatically on resize
-                FlowPane row = new FlowPane();
-                row.setHgap(14);
-                row.setVgap(14);
-                row.getStyleClass().add("card-flow");
-
-                for (Content c : items) row.getChildren().add(buildCard(c));
-
-                VBox section = new VBox(12, catLabel, row);
-                section.getStyleClass().add("category-section");
-                categoriesContainer.getChildren().add(section);
+                if (items != null) allContent.addAll(items);
             }
-
+            renderContent(allContent);
         } catch (SQLException e) {
-            showAlert("Erreur chargement categories: " + e.getMessage());
+            showAlert("Erreur chargement: " + e.getMessage());
         }
     }
 
-    // ── Card ──────────────────────────────────────────────────────────────────
+    private void populateFilterOptions() {
+        filterType.getItems().setAll("Tous", "Films", "Séries");
+        filterType.getSelectionModel().selectFirst();
+
+        // Years from content
+        List<String> years = allContent.stream()
+            .map(c -> String.valueOf(c.getReleaseYear()))
+            .filter(y -> !"0".equals(y))
+            .distinct().sorted(java.util.Comparator.reverseOrder())
+            .collect(Collectors.toList());
+        years.add(0, "Toutes années");
+        filterYear.getItems().setAll(years);
+        filterYear.getSelectionModel().selectFirst();
+
+        // Genres (categories)
+        try {
+            List<String> genres = contentService.getAllCategories()
+                .stream().map(Category::getName).collect(Collectors.toList());
+            genres.add(0, "Tous genres");
+            filterGenre.getItems().setAll(genres);
+            filterGenre.getSelectionModel().selectFirst();
+        } catch (Exception ignored) {}
+
+        // Listeners
+        filterType.setOnAction(e -> applyFilters());
+        filterGenre.setOnAction(e -> applyFilters());
+        filterYear.setOnAction(e  -> applyFilters());
+    }
+
+    private void applyFilters() {
+        String type  = filterType.getValue();
+        String genre = filterGenre.getValue();
+        String year  = filterYear.getValue();
+
+        List<Content> filtered = allContent.stream()
+            .filter(c -> {
+                if ("Films".equals(type)   && !c.isFilm()) return false;
+                if ("Séries".equals(type)  &&  c.isFilm()) return false;
+                if (genre != null && !"Tous genres".equals(genre)
+                    && (c.getCategory() == null || !genre.equals(c.getCategory().getName())))
+                    return false;
+                if (year != null && !"Toutes années".equals(year)
+                    && !year.equals(String.valueOf(c.getReleaseYear())))
+                    return false;
+                return true;
+            })
+            .collect(Collectors.toList());
+
+        renderContent(filtered);
+    }
 
     /**
-     * Card uses a fixed 160×230 thumbnail but the FlowPane wraps
-     * to as many columns as the window width allows.
+     * Groups filtered content back into category rows for display.
      */
+    private void renderContent(List<Content> items) {
+        categoriesContainer.getChildren().clear();
+
+        // Group by category name
+        java.util.Map<String, List<Content>> byCategory = new java.util.LinkedHashMap<>();
+        for (Content c : items) {
+            String key = c.getCategory() != null ? c.getCategory().getName() : "Autres";
+            byCategory.computeIfAbsent(key, k -> new ArrayList<>()).add(c);
+        }
+
+        for (java.util.Map.Entry<String, List<Content>> entry : byCategory.entrySet()) {
+            Label catLabel = new Label(entry.getKey());
+            catLabel.getStyleClass().add("category-title");
+
+            // FIX #5: use HBox in a ScrollPane (horizontal scroll per row, Netflix-style)
+            // This way the main vertical scroll is never blocked by card hover.
+            HBox row = new HBox(14);
+            row.setPadding(new Insets(4, 0, 4, 0));
+            for (Content c : entry.getValue()) row.getChildren().add(buildCard(c));
+
+            ScrollPane rowScroll = new ScrollPane(row);
+            rowScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            rowScroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            rowScroll.setFitToHeight(true);
+            rowScroll.getStyleClass().add("row-scroll");
+            // Forward vertical scroll from row to main scroll
+            rowScroll.setOnScroll(e -> {
+                e.consume();
+                double delta = e.getDeltaY() /
+                    mainScroll.getContent().getBoundsInLocal().getHeight();
+                mainScroll.setVvalue(mainScroll.getVvalue() - delta);
+            });
+
+            VBox section = new VBox(10, catLabel, rowScroll);
+            section.getStyleClass().add("category-section");
+            categoriesContainer.getChildren().add(section);
+        }
+    }
+
+    // ── Card + Hover Popup ────────────────────────────────────────────────────
+
     private StackPane buildCard(Content c) {
         ImageView img = new ImageView();
-        img.setFitWidth(160);
-        img.setFitHeight(230);
+        img.setFitWidth(160); img.setFitHeight(230);
         img.setPreserveRatio(false);
-        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
+        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank())
             img.setImage(new Image(c.getCoverUrl(), 160, 230, false, true, true));
-        }
 
         Label titleLbl = new Label(c.getTitle());
         titleLbl.getStyleClass().add("card-title");
@@ -252,104 +353,112 @@ public class HomeController {
 
         StackPane card = new StackPane(img, titleLbl);
         card.getStyleClass().add("content-card");
-        card.setPrefWidth(160);
-        card.setPrefHeight(230);
+        card.setPrefWidth(160); card.setPrefHeight(230);
 
+        // FIX #5: enter/exit use schedule with delay — avoids freeze on fast swipe
         card.setOnMouseEntered(e -> schedulePopup(card, c));
         card.setOnMouseExited(e  -> schedulePopupHide());
-        card.setOnMouseClicked(e -> openDetail(c));
+        card.setOnMouseClicked(e -> { e.consume(); openDetail(c); });
         card.setCursor(javafx.scene.Cursor.HAND);
-
         return card;
     }
 
-    // ── Hover Popup ───────────────────────────────────────────────────────────
-
+    // FIX #5: 500ms delay before showing popup — eliminates freeze on fast swipe
     private void schedulePopup(StackPane card, Content c) {
         cancelPopupHide();
-        if (hoverVideoDelay != null) hoverVideoDelay.stop();
+        if (popupShowTimer != null) popupShowTimer.stop();
 
-        if (activePopup != null) { showPopupFor(card, c); return; }
+        // If popup already showing for different card — dismiss first, then show new
+        if (activePopup != null) {
+            dismissPopupNow();
+        }
 
-        hoverVideoDelay = new Timeline(new KeyFrame(Duration.millis(400),
+        popupShowTimer = new Timeline(new KeyFrame(Duration.millis(500),
             ev -> showPopupFor(card, c)));
-        hoverVideoDelay.play();
+        popupShowTimer.play();
     }
 
     private void showPopupFor(StackPane card, Content c) {
-        dismissPopup();
+        if (activePopup != null) dismissPopupNow();
 
         StackPane popup = buildHoverPopup(c);
         activePopup = popup;
-
         hoverOverlay.setMouseTransparent(false);
         hoverOverlay.getChildren().add(popup);
 
+        // Position after layout pass
         Platform.runLater(() -> {
-            Bounds b = card.localToScene(card.getBoundsInLocal());
+            Bounds b  = card.localToScene(card.getBoundsInLocal());
             Bounds ob = hoverOverlay.localToScene(hoverOverlay.getBoundsInLocal());
 
-            double popupW = 250;
-            double popupH = 330;
+            double pw = 255, ph = 320;
+            double x = (b.getMinX() - ob.getMinX()) + (b.getWidth() - pw) / 2.0;
+            double y = (b.getMinY() - ob.getMinY()) - 50;
 
-            double x = (b.getMinX() - ob.getMinX()) + (b.getWidth() - popupW) / 2.0;
-            double y = (b.getMinY() - ob.getMinY()) - 44;
-
-            x = Math.max(8, Math.min(x, hoverOverlay.getWidth() - popupW - 8));
-            y = Math.max(8, Math.min(y, hoverOverlay.getHeight() - popupH - 8));
+            // Clamp to overlay bounds
+            x = Math.max(8, Math.min(x, hoverOverlay.getWidth()  - pw - 8));
+            y = Math.max(8, Math.min(y, hoverOverlay.getHeight() - ph - 8));
 
             popup.setLayoutX(x);
             popup.setLayoutY(y);
 
-            // Animate in safely without double braces
-            FadeTransition fade = new FadeTransition(Duration.millis(180), popup);
-            fade.setFromValue(0);
-            fade.setToValue(1);
-
-            ScaleTransition scale = new ScaleTransition(Duration.millis(180), popup);
-            scale.setFromX(0.9);
-            scale.setFromY(0.9);
-            scale.setToX(1);
-            scale.setToY(1);
-
-            ParallelTransition pt = new ParallelTransition(fade, scale);
-            pt.play();
-
-            startHoverVideo(popup, c);
+            // Smooth fade + scale in
+            popup.setOpacity(0); popup.setScaleX(0.92); popup.setScaleY(0.92);
+            FadeTransition  ft = new FadeTransition(Duration.millis(160), popup);
+            ft.setToValue(1);
+            ScaleTransition st = new ScaleTransition(Duration.millis(160), popup);
+            st.setToX(1); st.setToY(1);
+            new ParallelTransition(ft, st).play();
         });
 
         popup.setOnMouseEntered(e -> cancelPopupHide());
-        popup.setOnMouseExited(e -> schedulePopupHide());
-        popup.setOnMouseClicked(e -> openDetail(c));
+        popup.setOnMouseExited(e  -> schedulePopupHide());
+        popup.setOnMouseClicked(e -> { e.consume(); openDetail(c); });
         popup.setCursor(javafx.scene.Cursor.HAND);
     }
 
     private StackPane buildHoverPopup(Content c) {
-        // Thumbnail
-        ImageView thumb = new ImageView();
-        thumb.setFitWidth(250);
-        thumb.setFitHeight(145);
-        thumb.setPreserveRatio(false);
-        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank())
-            thumb.setImage(new Image(c.getCoverUrl(), 250, 145, false, true, true));
+    	StackPane preview = new StackPane();
+    	preview.setPrefHeight(148);
+    	preview.setMaxHeight(148);
 
-        // Video preview (hidden until loaded)
-        MediaView mediaView = new MediaView();
-        mediaView.setFitWidth(250);
-        mediaView.setFitHeight(145);
-        mediaView.setPreserveRatio(false);
-        mediaView.setVisible(false);
+    	if (c.getTrailerUrl() != null && !c.getTrailerUrl().isBlank()) {
+    	    // Use local video
+    	    try {
+    	        // Convert file path to URI
+    	        String videoPath = c.getTrailerUrl(); // e.g., "/Users/asus/.../shrek4.mp4"
+    	        Media media = new Media(new File(videoPath).toURI().toString());
+    	        MediaPlayer player = new MediaPlayer(media);
+    	        player.setMute(true); // optional: mute autoplay
+    	        player.setAutoPlay(true); // optional: autoplay
 
-        StackPane preview = new StackPane(thumb, mediaView);
-        preview.setPrefHeight(145);
-        preview.setMaxHeight(145);
+    	        MediaView mediaView = new MediaView(player);
+    	        mediaView.setFitWidth(255);
+    	        mediaView.setFitHeight(148);
+    	        mediaView.setPreserveRatio(false);
 
-        // --- Info ---
+    	        preview.getChildren().add(mediaView);
+    	    } catch (Exception ex) {
+    	        ex.printStackTrace();
+    	        // fallback thumbnail if video fails
+    	        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
+    	            ImageView thumb = new ImageView(new Image(c.getCoverUrl(), 255, 148, false, true, true));
+    	            thumb.setPreserveRatio(false);
+    	            preview.getChildren().add(thumb);
+    	        }
+    	    }
+    	} else if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
+    	    // Fallback: show cover image
+    	    ImageView thumb = new ImageView(new Image(c.getCoverUrl(), 255, 148, false, true, true));
+    	    thumb.setPreserveRatio(false);
+    	    preview.getChildren().add(thumb);
+    	}
+
+        // Info section
         Label titleLbl = new Label(c.getTitle());
         titleLbl.getStyleClass().add("popup-title");
         titleLbl.setWrapText(true);
 
-        // Stars
         int fullStars = (int) c.getAvgRating();
         HBox stars = new HBox(3);
         for (int i = 1; i <= 5; i++) {
@@ -357,24 +466,23 @@ public class HomeController {
             s.setStyle("-fx-text-fill:#f5c518;-fx-font-size:13px;");
             stars.getChildren().add(s);
         }
+
         Label ratingVal = new Label(String.format("%.1f", c.getAvgRating()));
         ratingVal.getStyleClass().add("popup-rating");
         HBox ratingRow = new HBox(6, stars, ratingVal);
         ratingRow.setAlignment(Pos.CENTER_LEFT);
 
         Label meta = new Label(
-            c.getReleaseYear() +
-            (c.getDurationMin() > 0 ? "  \u2022  " + c.getDurationMin() + " min" : "") +
-            (c.getCategory() != null ? "  \u2022  " + c.getCategory().getName() : "")
+                c.getReleaseYear() +
+                (c.getDurationMin() > 0 ? "  \u2022  " + c.getDurationMin() + " min" : "") +
+                (c.getCategory() != null ? "  \u2022  " + c.getCategory().getName() : "")
         );
         meta.getStyleClass().add("popup-meta");
 
-        // Watchlist toggle
+        // Watchlist button
         boolean[] inList = {false};
-        try {
-            inList[0] = new org.JavaProject.JavaNetflixProject.DAO.WatchlistDAO()
-                .isInWatchlist(Session.getCurrentUser().getId(), c.getId());
-        } catch (Exception ignored) {}
+        try { inList[0] = new WatchlistDAO().isInWatchlist(Session.getCurrentUser().getId(), c.getId()); }
+        catch (Exception ignored) {}
 
         Button wlBtn = new Button(inList[0] ? "\u2713 Ma liste" : "+ Ma liste");
         wlBtn.getStyleClass().add("popup-watchlist-btn");
@@ -382,22 +490,23 @@ public class HomeController {
         wlBtn.setOnAction(e -> {
             e.consume();
             try {
-                var dao = new org.JavaProject.JavaNetflixProject.DAO.WatchlistDAO();
+                WatchlistDAO dao = new WatchlistDAO();
                 int uid = Session.getCurrentUser().getId();
-                if (inList[0]) {
-                    dao.remove(uid, c.getId());
-                    inList[0] = false;
-                    wlBtn.setText("+ Ma liste");
-                    wlBtn.getStyleClass().remove("btn-added");
-                } else {
-                    dao.add(uid, c.getId());
-                    inList[0] = true;
-                    wlBtn.setText("\u2713 Ma liste");
-                    wlBtn.getStyleClass().add("btn-added");
+                if (inList[0]) { 
+                    dao.remove(uid, c.getId()); 
+                    inList[0] = false; 
+                    wlBtn.setText("+ Ma liste"); 
+                    wlBtn.getStyleClass().remove("btn-added"); 
+                } else { 
+                    dao.add(uid, c.getId());    
+                    inList[0] = true;  
+                    wlBtn.setText("\u2713 Ma liste"); 
+                    wlBtn.getStyleClass().add("btn-added"); 
                 }
             } catch (Exception ignored) {}
         });
 
+        // Play button just opens detail page
         Button playBtn = new Button("\u25B6 Voir");
         playBtn.getStyleClass().add("popup-play-btn");
         playBtn.setOnAction(e -> { e.consume(); openDetail(c); });
@@ -414,42 +523,21 @@ public class HomeController {
 
         StackPane popup = new StackPane(content);
         popup.setPickOnBounds(false);
-        popup.setUserData(mediaView);   // stored for video injection
-        popup.setPrefWidth(250);
-        popup.setMaxWidth(250);
+        popup.setPrefWidth(255); 
+        popup.setMaxWidth(255);
 
         return popup;
     }
 
-    private void startHoverVideo(StackPane popup, Content c) {
-        String url = c.getVideoUrl();
-        if (url == null || url.isBlank()) return;
-
-        Timeline delay = new Timeline(new KeyFrame(Duration.millis(900), ev -> {
-            stopHoverPlayer();
-            try {
-                String fixedUrl = url.startsWith("http") ? url
-                    : new java.io.File(url).toURI().toString();
-                hoverPlayer = new MediaPlayer(new Media(fixedUrl));
-                hoverPlayer.setVolume(0);
-                hoverPlayer.setCycleCount(MediaPlayer.INDEFINITE);
-                MediaView mv = (MediaView) popup.getUserData();
-                if (mv != null) {
-                    mv.setMediaPlayer(hoverPlayer);
-                    hoverPlayer.setOnReady(() -> { mv.setVisible(true); hoverPlayer.play(); });
-                }
-            } catch (Exception ignored) {}
-        }));
-        delay.play();
-    }
-
-    private void stopHoverPlayer() {
-        if (hoverPlayer != null) { hoverPlayer.stop(); hoverPlayer.dispose(); hoverPlayer = null; }
-    }
+    /**
+     * FIX #1: Open YouTube trailer in a floating WebView dialog.
+     * Converts watch URL to embed URL automatically.
+     */
+    
 
     private void schedulePopupHide() {
         cancelPopupHide();
-        popupHideTimer = new Timeline(new KeyFrame(Duration.millis(280), e -> dismissPopup()));
+        popupHideTimer = new Timeline(new KeyFrame(Duration.millis(280), e -> dismissPopupNow()));
         popupHideTimer.play();
     }
 
@@ -457,43 +545,174 @@ public class HomeController {
         if (popupHideTimer != null) { popupHideTimer.stop(); popupHideTimer = null; }
     }
 
-    private void dismissPopup() {
-        stopHoverPlayer();
-        if (hoverVideoDelay != null) { hoverVideoDelay.stop(); hoverVideoDelay = null; }
+    private void dismissPopupNow() {
+        if (popupShowTimer != null) { popupShowTimer.stop(); popupShowTimer = null; }
         if (activePopup != null) {
-            hoverOverlay.getChildren().remove(activePopup);
+            // Fade out before removing
+            FadeTransition ft = new FadeTransition(Duration.millis(120), activePopup);
+            ft.setToValue(0);
+            StackPane p = activePopup;
+            ft.setOnFinished(e -> hoverOverlay.getChildren().remove(p));
+            ft.play();
+            activePopup = null;
             if (hoverOverlay.getChildren().isEmpty())
                 hoverOverlay.setMouseTransparent(true);
-            activePopup = null;
         }
+    }
+
+    // ── Notifications (#3) ────────────────────────────────────────────────────
+
+    private void refreshNotifBadge() {
+        int count = notifDAO.countUnseen();
+        notifBadge.setText(count > 0 ? String.valueOf(Math.min(count, 99)) : "");
+        notifBadge.setVisible(count > 0);
+        notifBadge.setManaged(count > 0);
+    }
+
+    @FXML
+    public void onNotifications() {
+        notifDAO.markAllSeen();
+        refreshNotifBadge();
+
+        Stage dialog = new Stage(StageStyle.UTILITY);
+        dialog.setTitle("Notifications");
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setWidth(400); dialog.setHeight(480);
+
+        VBox list = new VBox(8);
+        list.setPadding(new Insets(12));
+        list.setStyle("-fx-background-color:#111;");
+
+        try {
+            List<NotificationDAO.Notification> notifs = notifDAO.getRecent();
+            if (notifs.isEmpty()) {
+                Label empty = new Label("Aucune notification récente.");
+                empty.setStyle("-fx-text-fill:#888; -fx-font-size:13px;");
+                list.getChildren().add(empty);
+            }
+            for (NotificationDAO.Notification n : notifs) {
+                HBox row = new HBox(10);
+                row.setAlignment(Pos.CENTER_LEFT);
+                row.setPadding(new Insets(6, 8, 6, 8));
+                row.setStyle("-fx-background-color:#1c1c1c;-fx-background-radius:6px;-fx-cursor:hand;");
+
+                ImageView cover = new ImageView();
+                cover.setFitWidth(40); cover.setFitHeight(56);
+                cover.setPreserveRatio(false);
+                if (n.coverUrl != null && !n.coverUrl.isBlank())
+                    cover.setImage(new Image(n.coverUrl, 40, 56, false, true, true));
+
+                Label text = new Label(
+                    "Nouveau " + (n.isFilm ? "film" : "série") + " : " + n.title);
+                text.setStyle("-fx-text-fill:#eee;-fx-font-size:12px;");
+                text.setWrapText(true);
+
+                row.getChildren().addAll(cover, text);
+                list.getChildren().add(row);
+            }
+        } catch (Exception e) {
+            list.getChildren().add(new Label("Erreur: " + e.getMessage()));
+        }
+
+        ScrollPane sp = new ScrollPane(list);
+        sp.setFitToWidth(true);
+        sp.setStyle("-fx-background:#111;-fx-background-color:#111;");
+
+        dialog.setScene(new Scene(sp));
+        dialog.show();
+    }
+
+    // ── History (#7) ──────────────────────────────────────────────────────────
+
+    @FXML
+    public void onHistory() {
+        Stage dialog = new Stage(StageStyle.UTILITY);
+        dialog.setTitle("Historique");
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setWidth(600); dialog.setHeight(520);
+
+        VBox list = new VBox(10);
+        list.setPadding(new Insets(14));
+        list.setStyle("-fx-background-color:#111;");
+
+        try {
+            List<Content> history = watchHistoryDAO.getHistory(Session.getCurrentUser().getId());
+            if (history.isEmpty()) {
+                Label empty = new Label("Vous n'avez encore rien regardé.");
+                empty.setStyle("-fx-text-fill:#888;-fx-font-size:13px;");
+                list.getChildren().add(empty);
+            }
+            for (Content c : history) {
+                HBox row = new HBox(12);
+                row.setAlignment(Pos.CENTER_LEFT);
+                row.setPadding(new Insets(8));
+                row.setStyle("-fx-background-color:#1c1c1c;-fx-background-radius:6px;-fx-cursor:hand;");
+
+                ImageView cover = new ImageView();
+                cover.setFitWidth(50); cover.setFitHeight(70);
+                cover.setPreserveRatio(false);
+                if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank())
+                    cover.setImage(new Image(c.getCoverUrl(), 50, 70, false, true, true));
+
+                VBox info = new VBox(4);
+                Label titleLbl = new Label(c.getTitle());
+                titleLbl.setStyle("-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:bold;");
+                Label metaLbl = new Label(
+                    c.getReleaseYear() +
+                    (c.getDurationMin() > 0 ? "  \u2022  " + c.getDurationMin() + " min" : "")
+                );
+                metaLbl.setStyle("-fx-text-fill:#888;-fx-font-size:11px;");
+                info.getChildren().addAll(titleLbl, metaLbl);
+                HBox.setHgrow(info, Priority.ALWAYS);
+
+                row.getChildren().addAll(cover, info);
+                row.setOnMouseClicked(e -> { dialog.close(); openDetail(c); });
+                list.getChildren().add(row);
+            }
+        } catch (Exception e) {
+            list.getChildren().add(new Label("Erreur: " + e.getMessage()));
+        }
+
+        ScrollPane sp = new ScrollPane(list);
+        sp.setFitToWidth(true);
+        sp.setStyle("-fx-background:#111;-fx-background-color:#111;");
+
+        dialog.setScene(new Scene(sp));
+        dialog.show();
     }
 
     // ── Search ────────────────────────────────────────────────────────────────
 
     @FXML
     public void onSearch() {
-        dismissPopup();
+        dismissPopupNow();
         String kw = searchField.getText().trim();
-        if (kw.isEmpty()) { loadCategories(); return; }
+        if (kw.isEmpty()) { renderContent(allContent); return; }
         try {
-            categoriesContainer.getChildren().clear();
             List<Content> results = contentService.search(kw);
+            categoriesContainer.getChildren().clear();
 
-            Label title = new Label("Resultats pour : \"" + kw + "\"");
+            Label title = new Label("Résultats pour : \"" + kw + "\"");
             title.getStyleClass().add("category-title");
 
-            FlowPane row = new FlowPane();
-            row.setHgap(14); row.setVgap(14);
+            HBox row = new HBox(14);
+            row.setPadding(new Insets(4, 0, 4, 0));
             for (Content c : results) row.getChildren().add(buildCard(c));
 
-            VBox box = new VBox(12, title, row);
+            ScrollPane sp = new ScrollPane(row);
+            sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            sp.setFitToHeight(true);
+            sp.getStyleClass().add("row-scroll");
+
+            VBox box = new VBox(10, title, sp);
             categoriesContainer.getChildren().add(box);
         } catch (SQLException e) {
             showAlert("Erreur: " + e.getMessage());
         }
     }
 
-    @FXML public void onClearSearch() { searchField.clear(); loadCategories(); }
+    @FXML public void onClearSearch() { searchField.clear(); renderContent(allContent); }
 
     // ── Navigation ────────────────────────────────────────────────────────────
 
@@ -514,17 +733,16 @@ public class HomeController {
     }
 
     private void openDetail(Content c) {
-        dismissPopup();
+        dismissPopupNow();
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/Detail.fxml"));
             Parent root = loader.load();
             DetailController ctrl = loader.getController();
             ctrl.setContent(c);
-            // Reuse current stage size / maximised state
             Stage stage = Navigator.getPrimaryStage();
             stage.setScene(new Scene(root, stage.getWidth(), stage.getHeight()));
         } catch (IOException e) {
-            showAlert("Erreur ouverture detail: " + e.getMessage());
+            showAlert("Erreur: " + e.getMessage());
         }
     }
 

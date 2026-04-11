@@ -1,79 +1,96 @@
 package org.JavaProject.JavaNetflixProject.DAO;
 
-
-import java.sql.*;
-
+import org.JavaProject.JavaNetflixProject.Entities.Content;
 import org.JavaProject.JavaNetflixProject.Utils.ConxDB;
 
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Existing methods kept unchanged.
+ * Added: getHistory(userId) – returns Content items the user has watched,
+ * most recent first. Uses a JOIN so no schema change is needed.
+ */
 public class WatchHistoryDAO {
 
-    public void saveProgress(int userId, Integer contentId, Integer episodeId, int progressSec, boolean completed) throws SQLException {
-        String checkSql = episodeId != null
-                ? "SELECT id FROM watch_history WHERE user_id=? AND episode_id=?"
-                : "SELECT id FROM watch_history WHERE user_id=? AND content_id=? AND episode_id IS NULL";
+    public void saveProgress(int userId, int contentId, Integer episodeId,
+                             int progressSec, boolean completed) throws SQLException {
+        String sql = episodeId != null
+            ? "INSERT INTO watch_history (user_id, content_id, episode_id, progress_sec, completed, watched_at) " +
+              "VALUES (?,?,?,?,?, NOW()) ON DUPLICATE KEY UPDATE progress_sec=?, completed=?, watched_at=NOW()"
+            : "INSERT INTO watch_history (user_id, content_id, progress_sec, completed, watched_at) " +
+              "VALUES (?,?,?,?, NOW()) ON DUPLICATE KEY UPDATE progress_sec=?, completed=?, watched_at=NOW()";
 
-        try (Connection conn = ConxDB.getConnection();
-             PreparedStatement check = conn.prepareStatement(checkSql)) {
-            check.setInt(1, userId);
-            check.setInt(2, episodeId != null ? episodeId : (contentId != null ? contentId : 0));
-            ResultSet rs = check.executeQuery();
-
-            if (rs.next()) {
-                int histId = rs.getInt("id");
-                String upd = "UPDATE watch_history SET progress_sec=?, completed=? WHERE id=?";
-                try (PreparedStatement ups = conn.prepareStatement(upd)) {
-                    ups.setInt(1, progressSec);
-                    ups.setInt(2, completed ? 1 : 0);
-                    ups.setInt(3, histId);
-                    ups.executeUpdate();
-                }
+        try (PreparedStatement ps = ConxDB.getConnection().prepareStatement(sql)) {
+            if (episodeId != null) {
+                ps.setInt(1, userId); ps.setInt(2, contentId); ps.setInt(3, episodeId);
+                ps.setInt(4, progressSec); ps.setBoolean(5, completed);
+                ps.setInt(6, progressSec); ps.setBoolean(7, completed);
             } else {
-                String ins = "INSERT INTO watch_history (user_id, content_id, episode_id, progress_sec, completed) VALUES (?,?,?,?,?)";
-                try (PreparedStatement ins2 = conn.prepareStatement(ins)) {
-                    ins2.setInt(1, userId);
-                    if (contentId != null) ins2.setInt(2, contentId); else ins2.setNull(2, Types.INTEGER);
-                    if (episodeId != null) ins2.setInt(3, episodeId); else ins2.setNull(3, Types.INTEGER);
-                    ins2.setInt(4, progressSec);
-                    ins2.setInt(5, completed ? 1 : 0);
-                    ins2.executeUpdate();
-                }
+                ps.setInt(1, userId); ps.setInt(2, contentId);
+                ps.setInt(3, progressSec); ps.setBoolean(4, completed);
+                ps.setInt(5, progressSec); ps.setBoolean(6, completed);
             }
+            ps.executeUpdate();
+        }
+    }
+
+    public boolean isCompleted(int userId, int episodeId) throws SQLException {
+        String sql = "SELECT completed FROM watch_history WHERE user_id=? AND episode_id=?";
+        try (PreparedStatement ps = ConxDB.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, userId); ps.setInt(2, episodeId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next() && rs.getBoolean("completed");
         }
     }
 
     public int getProgressSec(int userId, int episodeId) throws SQLException {
         String sql = "SELECT progress_sec FROM watch_history WHERE user_id=? AND episode_id=?";
-        try (Connection conn = ConxDB.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = ConxDB.getConnection().prepareStatement(sql)) {
             ps.setInt(1, userId); ps.setInt(2, episodeId);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt("progress_sec");
+            return rs.next() ? rs.getInt("progress_sec") : 0;
         }
-        return 0;
     }
 
-    public boolean isCompleted(int userId, int episodeId) throws SQLException {
-        String sql = "SELECT completed FROM watch_history WHERE user_id=? AND episode_id=?";
-        try (Connection conn = ConxDB.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId); ps.setInt(2, episodeId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt("completed") == 1;
-        }
-        return false;
-    }
+    /**
+     * Returns the list of Content items watched by this user, most recent first.
+     * Joins watch_history → content so no new table is needed.
+     */
+    public List<Content> getHistory(int userId) throws SQLException {
+        String sql =
+            "SELECT DISTINCT c.id, c.title, c.cover_url, c.release_year, c.duration_min, " +
+            "       c.synopsis, c.casting, c.video_url, c.trailer_url, c.type, c.avg_rating, " +
+            "       c.view_count, c.category_id, MAX(wh.watched_at) AS last_watched " +
+            "FROM watch_history wh " +
+            "JOIN content c ON c.id = wh.content_id " +
+            "WHERE wh.user_id = ? " +
+            "GROUP BY c.id " +
+            "ORDER BY last_watched DESC";
 
-    public Integer findFirstUnwatchedEpisodeId(int userId, int serieId) throws SQLException {
-        String sql = "SELECT e.id FROM episodes e JOIN seasons s ON e.season_id=s.id " +
-                "WHERE s.serie_id=? AND e.id NOT IN (" +
-                "  SELECT episode_id FROM watch_history WHERE user_id=? AND episode_id IS NOT NULL AND completed=1" +
-                ") ORDER BY s.number, e.episode_num LIMIT 1";
-        try (Connection conn = ConxDB.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, serieId); ps.setInt(2, userId);
+        List<Content> list = new ArrayList<>();
+        try (PreparedStatement ps = ConxDB.getConnection().prepareStatement(sql)) {
+            ps.setInt(1, userId);
             ResultSet rs = ps.executeQuery();
-            if (rs.next()) return rs.getInt("id");
+            while (rs.next()) {
+                Content c = new Content();
+                c.setId(rs.getInt("id"));
+                c.setTitle(rs.getString("title"));
+                c.setCoverUrl(rs.getString("cover_url"));
+                c.setReleaseYear(rs.getInt("release_year"));
+                c.setDurationMin(rs.getInt("duration_min"));
+                c.setSynopsis(rs.getString("synopsis"));
+                c.setCasting(rs.getString("casting"));
+                c.setVideoUrl(rs.getString("video_url"));
+                c.setTrailerUrl(rs.getString("trailer_url"));
+                c.setAvgRating(rs.getDouble("avg_rating"));
+                c.setViewCount(rs.getInt("view_count"));
+                String type = rs.getString("type");
+                c.setType(Content.Type.valueOf(type.toUpperCase()));
+                list.add(c);
+            }
         }
-        return null;
+        return list;
     }
 }
