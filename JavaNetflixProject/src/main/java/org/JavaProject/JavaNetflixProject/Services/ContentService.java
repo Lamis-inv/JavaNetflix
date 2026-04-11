@@ -1,11 +1,13 @@
 package org.JavaProject.JavaNetflixProject.Services;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 import org.JavaProject.JavaNetflixProject.DAO.ContentDAO;
 import org.JavaProject.JavaNetflixProject.Entities.Category;
 import org.JavaProject.JavaNetflixProject.Entities.Content;
+import org.JavaProject.JavaNetflixProject.Utils.ConxDB;
 
 public class ContentService {
     private final ContentDAO contentDAO = new ContentDAO();
@@ -49,4 +51,62 @@ public class ContentService {
         if (content.getType() == null)
             throw new IllegalArgumentException("Le type (Film/Série) est requis.");
     }
+    
+ // ─────────────────────────────────────────────────────────────────────────────
+ // ADD this method to your existing ContentService class
+ // It searches the `casting` column — no DB change needed.
+ // ─────────────────────────────────────────────────────────────────────────────
+
+ /**
+  * Returns all content where the casting field contains actorName.
+  * Uses the existing content table — no schema change required.
+  */
+    private Content mapRow(ResultSet rs) throws SQLException {
+        Content c = new Content();
+
+        c.setId(rs.getInt("id"));
+        c.setTitle(rs.getString("title"));
+        c.setCoverUrl(rs.getString("cover_url"));
+        c.setReleaseYear(rs.getInt("release_year"));
+        c.setDurationMin(rs.getInt("duration_min"));
+        c.setSynopsis(rs.getString("synopsis"));
+        c.setCasting(rs.getString("casting"));
+        c.setVideoUrl(rs.getString("video_url"));
+        c.setTrailerUrl(rs.getString("trailer_url"));
+        c.setAvgRating(rs.getDouble("avg_rating"));
+        c.setViewCount(rs.getInt("view_count"));
+
+        // ✅ FIXED TYPE (enum)
+        String type = rs.getString("type");
+        if (type != null) {
+            c.setType(Content.Type.valueOf(type.toUpperCase()));
+        }
+
+        return c;
+    }
+ public List<Content> searchByCast(String actorName) throws SQLException {
+     // If your ContentService already has a search() that searches casting,
+     // you can simply delegate:  return search(actorName);
+     //
+     // Otherwise use this direct query:
+     String sql =
+         "SELECT c.*, cat.name AS cat_name " +
+         "FROM content c " +
+         "LEFT JOIN categories cat ON cat.id = c.category_id " +
+         "WHERE c.casting LIKE ? " +
+         "ORDER BY c.title";
+
+     List<Content> list = new java.util.ArrayList<>();
+     try (java.sql.PreparedStatement ps =
+    		 ConxDB.getConnection()
+                  .prepareStatement(sql)) {
+         ps.setString(1, "%" + actorName + "%");
+         java.sql.ResultSet rs = ps.executeQuery();
+         while (rs.next()) {
+             Content content = mapRow(rs);   // reuse your existing mapRow helper
+             list.add(content);
+         }
+     }
+     return list;
+ }
 }

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.JavaProject.JavaNetflixProject.app.AdminDashboardController"
+            styleClass="root-pane"
+            stylesheets="@/css/dark-theme.css">
+
+    <!-- NAVBAR -->
+    <top>
+        <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="16">
+            <padding><Insets top="12" bottom="12" left="24" right="24"/></padding>
+            <Label text="J-STREAM ADMIN" styleClass="brand-nav"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="adminNameLabel" styleClass="username-label"/>
+            <Button text="Déconnexion" onAction="#onLogout" styleClass="btn-logout"/>
+        </HBox>
+    </top>
+
+    <!-- TABS -->
+    <center>
+        <TabPane fx:id="tabPane" styleClass="tab-pane-dark" tabClosingPolicy="UNAVAILABLE">
+
+            <!-- ===================== CATALOGUE ===================== -->
+            <Tab text="📋 Catalogue">
+                <SplitPane dividerPositions="0.55" styleClass="split-pane-dark">
+
+                    <!-- LEFT: Table -->
+                    <VBox spacing="8">
+                        <padding><Insets top="16" bottom="16" left="16" right="8"/></padding>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Contenu" styleClass="section-title"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="+ Nouveau" onAction="#onNewContent" styleClass="btn-primary"/>
+                            <Button text="🔄 Refresh" onAction="#onRefresh" styleClass="btn-secondary"/>
+                            <Button text="🗑 Supprimer" onAction="#onDeleteContent" styleClass="btn-danger"/>
+                        </HBox>
+                        <TableView fx:id="contentTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="colId" text="ID" prefWidth="50"/>
+                                <TableColumn fx:id="colTitle" text="Titre" prefWidth="200"/>
+                                <TableColumn fx:id="colType" text="Type" prefWidth="70"/>
+                                <TableColumn fx:id="colCategory" text="Catégorie" prefWidth="100"/>
+                                <TableColumn fx:id="colViews" text="Vues" prefWidth="70"/>
+                                <TableColumn fx:id="colRating" text="Note" prefWidth="70"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <!-- RIGHT: Form -->
+                    <ScrollPane fitToWidth="true">
+                        <VBox spacing="10">
+                            <padding><Insets top="16" bottom="16" left="8" right="16"/></padding>
+                            <Label text="Formulaire Contenu" styleClass="section-title"/>
+
+                            <Label text="Titre *" styleClass="field-label"/>
+                            <TextField fx:id="formTitle" styleClass="text-field-dark"/>
+
+                            <HBox spacing="10">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Type *" styleClass="field-label"/>
+                                    <ComboBox fx:id="formType" maxWidth="Infinity" styleClass="combo-dark"/>
+                                </VBox>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Catégorie" styleClass="field-label"/>
+                                    <ComboBox fx:id="formCategory" maxWidth="Infinity" styleClass="combo-dark"/>
+                                </VBox>
+                            </HBox>
+
+                            <Label text="Synopsis" styleClass="field-label"/>
+                            <TextArea fx:id="formSynopsis" prefRowCount="3" styleClass="text-area-dark"/>
+
+                            <HBox spacing="10">
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Année" styleClass="field-label"/>
+                                    <TextField fx:id="formYear" styleClass="text-field-dark"/>
+                                </VBox>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Durée (min)" styleClass="field-label"/>
+                                    <TextField fx:id="formDuration" styleClass="text-field-dark"/>
+                                </VBox>
+                            </HBox>
+
+                            <Label text="URL Cover" styleClass="field-label"/>
+                            <TextField fx:id="formCoverUrl" styleClass="text-field-dark"/>
+
+                            <Label text="URL Vidéo (Film)" styleClass="field-label"/>
+                            <TextField fx:id="formVideoUrl" styleClass="text-field-dark"/>
+
+                            <Label text="Casting" styleClass="field-label"/>
+                            <TextField fx:id="formCasting" styleClass="text-field-dark"/>
+
+                            <CheckBox fx:id="formFeatured" text="Mettre en avant (Featured)" styleClass="checkbox-dark"/>
+
+                            <Label fx:id="formError" styleClass="error-label" wrapText="true"/>
+
+                            <Button text="💾 Sauvegarder" onAction="#onSaveContent"
+                                    styleClass="btn-primary" maxWidth="Infinity"/>
+                        </VBox>
+                    </ScrollPane>
+                </SplitPane>
+            </Tab>
+
+            <!-- ===================== UTILISATEURS ===================== -->
+            <Tab text="👥 Utilisateurs">
+                <VBox spacing="12">
+                    <padding><Insets top="16" bottom="16" left="16" right="16"/></padding>
+                    <Label text="Utilisateurs inscrits" styleClass="section-title"/>
+                    <TableView fx:id="usersTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colUserId" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="colUserName" text="Nom" prefWidth="200"/>
+                            <TableColumn fx:id="colUserEmail" text="Email" prefWidth="300"/>
+                            <TableColumn fx:id="colUserRole" text="Rôle" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+            <!-- ===================== MODÉRATION ===================== -->
+            <Tab text="💬 Modération">
+                <VBox spacing="12">
+                    <padding><Insets top="16" bottom="16" left="16" right="16"/></padding>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="Commentaires" styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="🗑 Supprimer" onAction="#onDeleteComment" styleClass="btn-danger"/>
+                    </HBox>
+                    <TableView fx:id="commentsTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colCommentId" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="colCommentUser" text="Utilisateur" prefWidth="160"/>
+                            <TableColumn fx:id="colCommentBody" text="Commentaire" prefWidth="500"/>
+                            <TableColumn fx:id="colCommentFlagged" text="Signalé" prefWidth="80"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+            <!-- ===================== ANALYTICS ===================== -->
+            <Tab text="📊 Dashboard">
+                <ScrollPane fitToWidth="true">
+                    <VBox spacing="24">
+                        <padding><Insets top="24" bottom="24" left="24" right="24"/></padding>
+
+                        <Label text="Tableau de bord analytique" styleClass="section-title"/>
+
+                        <HBox spacing="24">
+                            <PieChart fx:id="categoryPieChart" title="Répartition par catégorie"
+                                      HBox.hgrow="ALWAYS" prefHeight="300"/>
+                        </HBox>
+
+                        <BarChart fx:id="top5BarChart" title="Top 5 films les plus vus" prefHeight="280">
+                            <xAxis><CategoryAxis/></xAxis>
+                            <yAxis><NumberAxis/></yAxis>
+                        </BarChart>
+
+                        <BarChart fx:id="registrationsBarChart" title="Inscriptions par jour (7 jours)" prefHeight="280">
+                            <xAxis><CategoryAxis/></xAxis>
+                            <yAxis><NumberAxis/></yAxis>
+                        </BarChart>
+                    </VBox>
+                </ScrollPane>
+            </Tab>
+
+        </TabPane>
+    </center>
+</BorderPane>
