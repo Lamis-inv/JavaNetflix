@@ -1,6 +1,7 @@
 package org.JavaProject.JavaNetflixProject.app;
 
 import javafx.animation.*;
+import org.JavaProject.JavaNetflixProject.Utils.ThemeManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -289,6 +290,9 @@ public class HomeController {
                 return true;
             })
             .collect(Collectors.toList());
+        if (genre != null && !genre.equals("Tous genres")) {
+            ThemeManager.setThemeByGenre(genre, Navigator.getPrimaryStage().getScene());
+        }
 
         renderContent(filtered);
     }

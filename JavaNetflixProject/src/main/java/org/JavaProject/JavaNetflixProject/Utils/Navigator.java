@@ -1,6 +1,7 @@
 package org.JavaProject.JavaNetflixProject.Utils;
 
 import javafx.fxml.FXMLLoader;
+import org.JavaProject.JavaNetflixProject.Utils.ThemeManager;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Screen;
@@ -36,14 +37,18 @@ public class Navigator {
 
         if (firstLoad) {
             javafx.geometry.Rectangle2D screen = Screen.getPrimary().getVisualBounds();
-            primaryStage.setScene(new Scene(root, screen.getWidth(), screen.getHeight()));
+            Scene scene = new Scene(root, screen.getWidth(), screen.getHeight());
+            ThemeManager.applyTheme(scene);
+            primaryStage.setScene(scene);
             primaryStage.setX(screen.getMinX());
             primaryStage.setY(screen.getMinY());
             primaryStage.setMaximized(true);
         } else {
             double w = Math.max(primaryStage.getWidth(),  800);
             double h = Math.max(primaryStage.getHeight(), 600);
-            primaryStage.setScene(new Scene(root, w, h));
+            Scene scene = new Scene(root, w, h);
+            ThemeManager.applyTheme(scene);
+            primaryStage.setScene(scene);
         }
 
         primaryStage.setResizable(true);

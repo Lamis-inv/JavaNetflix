@@ -50,12 +50,12 @@
 }
 
 .brand-nav, .logo {
-    -fx-text-fill: #e50914;
+    -fx-text-fill: -fx-accent;
     -fx-font-weight: bold;
 }
 .brand-nav   { -fx-font-size: 20px; -fx-font-family: 'Georgia', serif; }
 .logo        { -fx-font-size: 22px; }
-.brand-title { -fx-text-fill: #e50914; -fx-font-size: 36px; -fx-font-weight: bold; }
+.brand-title { -fx-text-fill: -fx-accent; -fx-font-size: 36px; -fx-font-weight: bold; }
 
 .username-label { -fx-text-fill: #cccccc; -fx-font-size: 13px; }
 
@@ -73,20 +73,15 @@
 }
 
 .btn-logout {
-    -fx-background-color: rgba(229,9,20,0.20);
-    -fx-text-fill: #e50914;
-    -fx-background-radius: 4px;
-    -fx-border-color: rgba(229,9,20,0.40);
-    -fx-border-radius: 4px;
-    -fx-border-width: 1px;
-    -fx-cursor: hand;
-    -fx-padding: 6 12 6 12;
+    -fx-background-color: rgba(255,255,255,0.10);
+    -fx-text-fill: -fx-accent;
+    -fx-border-color: -fx-accent;
 }
-.btn-logout:hover { -fx-background-color: rgba(229,9,20,0.40); }
+.btn-logout:hover { -fx-background-color: derive(-fx-accent, -20%); }
 
 /* Notification badge */
 .notif-badge {
-    -fx-background-color: #e50914;
+    -fx-background-color: -fx-accent;
     -fx-text-fill: white;
     -fx-font-size: 9px;
     -fx-font-weight: bold;
@@ -117,7 +112,7 @@
 .combo-dark .list-cell    { -fx-background-color: #2a2a2a; -fx-text-fill: #e5e5e5; }
 .combo-dark .list-view    { -fx-background-color: #2a2a2a; -fx-border-color: #444; }
 .combo-dark .cell:hover,
-.combo-dark .list-cell:filled:hover { -fx-background-color: #e50914; -fx-text-fill: white; }
+.combo-dark .list-cell:filled:hover { -fx-background-color: -fx-accent; -fx-text-fill: white; }
 
 /* ── Auth card ───────────────────────────────────────────────────── */
 .auth-card {
@@ -146,12 +141,12 @@
 }
 .search-field:focused,
 .text-field-dark:focused,
-.text-area-dark:focused  { -fx-border-color: #e50914; }
+.text-area-dark:focused  { -fx-border-color: -fx-accent; }
 .text-area-dark .content { -fx-background-color: #2a2a2a; }
 
 /* ── Buttons ─────────────────────────────────────────────────────── */
 .btn-primary {
-    -fx-background-color: #e50914;
+    -fx-background-color: -fx-accent;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
@@ -159,7 +154,7 @@
     -fx-background-radius: 6px;
     -fx-cursor: hand;
 }
-.btn-primary:hover { -fx-background-color: #b81c24; }
+.btn-primary:hover { -fx-background-color: derive(-fx-accent, -20%); }
 
 .btn-secondary {
     -fx-background-color: #333;
@@ -173,26 +168,18 @@
 
 /* FIX #1: trailer button */
 .btn-trailer {
-    -fx-background-color: rgba(229,9,20,0.15);
-    -fx-text-fill: #e50914;
-    -fx-font-size: 13px;
-    -fx-font-weight: bold;
-    -fx-padding: 10 22;
-    -fx-background-radius: 6px;
-    -fx-border-color: rgba(229,9,20,0.50);
-    -fx-border-radius: 6px;
-    -fx-border-width: 1px;
-    -fx-cursor: hand;
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-border-color: -fx-accent;
 }
 .btn-trailer:hover {
-    -fx-background-color: rgba(229,9,20,0.35);
-    -fx-border-color: #e50914;
+    -fx-background-color: derive(-fx-accent, 20%);
+    -fx-border-color: -fx-accent;
 }
 
 .btn-added { -fx-background-color: #2e7d32 !important; -fx-text-fill: white !important; }
 
 .btn-player, .btn-flag { -fx-background-color: transparent; -fx-cursor: hand; }
-.btn-player:hover, .btn-flag:hover { -fx-text-fill: #e50914; }
+.btn-player:hover, .btn-flag:hover { -fx-text-fill: -fx-accent; }
 
 /* FIX #6: Actor chips */
 .actor-chip {
@@ -207,8 +194,8 @@
     -fx-cursor: hand;
 }
 .actor-chip:hover {
-    -fx-background-color: rgba(229,9,20,0.25);
-    -fx-border-color: #e50914;
+    -fx-background-color: derive(-fx-accent, 20%);
+    -fx-border-color: -fx-accent;
     -fx-text-fill: white;
 }
 
@@ -252,13 +239,12 @@
     -fx-cursor: hand;
 }
 .banner-nav-btn:hover {
-    -fx-background-color: rgba(229,9,20,0.85);
-    -fx-border-color: transparent;
+    -fx-background-color: derive(-fx-accent, -10%);
 }
 
 /* FIX #4: dots — now bottom-left, smaller */
 .banner-dot        { -fx-fill: rgba(255,255,255,0.28); -fx-cursor: hand; }
-.banner-dot-active { -fx-fill: #e50914; -fx-cursor: hand; }
+.banner-dot-active { -fx-fill: -fx-accent; -fx-cursor: hand; }
 
 /* ── Category section ────────────────────────────────────────────── */
 .category-section { -fx-max-width: Infinity; }
@@ -278,9 +264,7 @@
     /* FIX #9: transition via CSS scale — smoother than code animation */
 }
 .content-card:hover {
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
-    -fx-effect: dropshadow(gaussian, rgba(229,9,20,0.50), 16, 0.3, 0, 4);
+    -fx-effect: dropshadow(gaussian, -fx-accent, 16, 0.3, 0, 4);
 }
 .card-title {
     -fx-font-size: 11px;
@@ -307,7 +291,7 @@
 .popup-info   { -fx-background-color: transparent; }
 
 .popup-play-btn {
-    -fx-background-color: #e50914;
+    -fx-background-color: -fx-accent;
     -fx-text-fill: white;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
@@ -319,18 +303,18 @@
 
 /* FIX #1: trailer mini-btn in popup */
 .popup-trailer-btn {
-    -fx-background-color: rgba(229,9,20,0.18);
+    -fx-background-color: derive(-fx-accent, 20%);
     -fx-text-fill: white;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
     -fx-background-radius: 4px;
     -fx-padding: 5 12;
     -fx-cursor: hand;
-    -fx-border-color: rgba(229,9,20,0.50);
+    -fx-border-color: derive(-fx-accent, 20%);
     -fx-border-radius: 4px;
     -fx-border-width: 1px;
 }
-.popup-trailer-btn:hover { -fx-background-color: rgba(229,9,20,0.45); }
+.popup-trailer-btn:hover { -fx-background-color: derive(-fx-accent, 20%); }
 
 .popup-watchlist-btn {
     -fx-background-color: rgba(255,255,255,0.10);
@@ -345,9 +329,9 @@
 }
 .popup-watchlist-btn:hover { -fx-background-color: rgba(255,255,255,0.20); }
 .popup-watchlist-btn.btn-added {
-    -fx-background-color: rgba(229,9,20,0.22);
-    -fx-border-color: #e50914;
-    -fx-text-fill: #e50914;
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-border-color: -fx-accent;
+    -fx-text-fill: -fx-accent;
 }
 
 /* ── Detail page ─────────────────────────────────────────────────── */
@@ -357,12 +341,12 @@
 .detail-synopsis{ -fx-font-size: 14px; -fx-fill: white; }
 
 .badge-film {
-    -fx-background-color: rgba(229,9,20,0.25);
-    -fx-text-fill: #e50914;
+    -fx-background-color: derive(-fx-accent, 20%);
+    -fx-text-fill: -fx-accent;
     -fx-font-size: 11px;
     -fx-padding: 2 8;
     -fx-background-radius: 10px;
-    -fx-border-color: rgba(229,9,20,0.45);
+    -fx-border-color: derive(-fx-accent, 20%);
     -fx-border-radius: 10px;
     -fx-border-width: 1px;
 }
@@ -376,7 +360,7 @@
 .icon-label     { -fx-font-size: 16px; }
 
 .progress-slider .track  { -fx-background-color: #444; }
-.progress-slider .thumb  { -fx-background-color: #e50914; }
+.progress-slider .thumb  { -fx-background-color: -fx-accent; }
 .volume-slider   .track  { -fx-background-color: #444; }
 .volume-slider   .thumb  { -fx-background-color: white; }
 
@@ -399,7 +383,7 @@
     -fx-alignment: CENTER_LEFT;
 }
 .episode-row:hover    { -fx-background-color: #262626; }
-.episode-num          { -fx-text-fill: #e50914; -fx-font-weight: bold; -fx-font-size: 13px; }
+.episode-num          { -fx-text-fill: -fx-accent; -fx-font-weight: bold; -fx-font-size: 13px; }
 .episode-title        { -fx-text-fill: white;   -fx-font-weight: bold; -fx-font-size: 13px; }
 .episode-synopsis     { -fx-text-fill: #888;    -fx-font-size: 12px; }
 .episode-duration     { -fx-text-fill: #666;    -fx-font-size: 11px; }
@@ -407,7 +391,7 @@
 
 /* Comments */
 .comment-box    { -fx-background-color: #1c1c1c; -fx-background-radius: 6px; -fx-padding: 10 12; }
-.comment-author { -fx-text-fill: #e50914; -fx-font-size: 12px; -fx-font-weight: bold; }
+.comment-author { -fx-text-fill: -fx-accent; -fx-font-size: 12px; -fx-font-weight: bold; }
 .comment-body   { -fx-text-fill: #ccc;    -fx-font-size: 13px; }
 
 /*Admin */
@@ -432,7 +416,7 @@
 }
 
 .brand-nav {
-    -fx-text-fill: #e50914;
+    -fx-text-fill: -fx-accent;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
 }
@@ -447,7 +431,7 @@
 }
 
 .btn-primary {
-    -fx-background-color: #e50914;
+    -fx-background-color: -fx-accent;
 }
 .btn-primary:hover {
     -fx-background-color: #ff1e2d;
@@ -531,7 +515,7 @@
 }
 
 .table-row-cell:filled:selected {
-    -fx-background-color: #e50914;
+    -fx-background-color: -fx-accent;
 }
 
 /* ================= TABS ================= */
