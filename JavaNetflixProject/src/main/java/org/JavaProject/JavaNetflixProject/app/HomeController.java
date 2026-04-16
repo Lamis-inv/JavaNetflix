@@ -102,6 +102,11 @@ public class HomeController {
         loadAllContent();      // populates allContent cache + renders
         populateFilterOptions();
         refreshNotifBadge();
+        
+        Platform.runLater(() -> 
+        ThemeManager.setDefaultTheme(Navigator.getPrimaryStage().getScene())
+    );
+        
     }
 
     // ── Responsive Stage ──────────────────────────────────────────────────────
@@ -199,8 +204,11 @@ public class HomeController {
                 ? c.getSynopsis().substring(0, Math.min(200, c.getSynopsis().length())) + "\u2026"
                 : ""
         );
-        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank())
-            featuredCover.setImage(new Image(c.getCoverUrl(), true));
+        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
+            try {
+                featuredCover.setImage(new Image(c.getCoverUrl(), true));
+            } catch (Exception ignored) {}
+        }
     }
 
     private void startBannerSlider() {
@@ -290,8 +298,12 @@ public class HomeController {
                 return true;
             })
             .collect(Collectors.toList());
-        if (genre != null && !genre.equals("Tous genres")) {
-            ThemeManager.setThemeByGenre(genre, Navigator.getPrimaryStage().getScene());
+        Scene scene = Navigator.getPrimaryStage().getScene();
+
+        if (genre == null || genre.equals("Tous genres")) {
+            ThemeManager.setDefaultTheme(scene);
+        } else {
+            ThemeManager.setThemeByGenre(genre, scene);
         }
 
         renderContent(filtered);
@@ -345,9 +357,11 @@ public class HomeController {
         ImageView img = new ImageView();
         img.setFitWidth(160); img.setFitHeight(230);
         img.setPreserveRatio(false);
-        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank())
-            img.setImage(new Image(c.getCoverUrl(), 160, 230, false, true, true));
-
+        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
+            try {
+                img.setImage(new Image(c.getCoverUrl(), 160, 230, false, true, true));
+            } catch (Exception ignored) {}
+        }
         Label titleLbl = new Label(c.getTitle());
         titleLbl.getStyleClass().add("card-title");
         titleLbl.setWrapText(true);
@@ -446,17 +460,21 @@ public class HomeController {
     	        ex.printStackTrace();
     	        // fallback thumbnail if video fails
     	        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
+    	            try {
+    	                ImageView thumb = new ImageView(new Image(c.getCoverUrl(), 255, 148, false, true, true));
+    	                thumb.setPreserveRatio(false);
+    	                preview.getChildren().add(thumb);
+    	            } catch (Exception ignored) {}
+    	        }
+    	    }
+    	    } else if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
+    	        // Fallback: show cover image
+    	        try {
     	            ImageView thumb = new ImageView(new Image(c.getCoverUrl(), 255, 148, false, true, true));
     	            thumb.setPreserveRatio(false);
     	            preview.getChildren().add(thumb);
-    	        }
+    	        } catch (Exception ignored) {}
     	    }
-    	} else if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
-    	    // Fallback: show cover image
-    	    ImageView thumb = new ImageView(new Image(c.getCoverUrl(), 255, 148, false, true, true));
-    	    thumb.setPreserveRatio(false);
-    	    preview.getChildren().add(thumb);
-    	}
 
         // Info section
         Label titleLbl = new Label(c.getTitle());

@@ -107,7 +107,7 @@ public class UserDAO {
             while (rs.next()) list.add(new Object[]{rs.getString("day"), rs.getInt("cnt")});
         }
         return list;
-    }
+    } 
 
     private User mapUser(ResultSet rs) throws SQLException {
         User u = new User();

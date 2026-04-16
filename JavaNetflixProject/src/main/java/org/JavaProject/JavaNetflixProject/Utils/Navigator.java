@@ -30,8 +30,20 @@ public class Navigator {
         if (primaryStage == null)
             throw new IllegalStateException("Navigator.setPrimaryStage() not called");
 
-        FXMLLoader loader = new FXMLLoader(Navigator.class.getResource(fxmlPath));
-        Parent root = loader.load();
+        var url = Navigator.class.getClassLoader().getResource(fxmlPath.substring(1));
+
+        if (url == null) {
+            throw new RuntimeException("FXML NOT FOUND: " + fxmlPath);
+        }
+
+        FXMLLoader loader = new FXMLLoader(url);
+        Parent root;
+        try {
+            root = loader.load();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
 
         boolean firstLoad = primaryStage.getScene() == null;
 

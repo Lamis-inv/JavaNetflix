@@ -9,17 +9,19 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.fxml.FXMLLoader;
 
-public class Main extends Application {
 
+public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
+        
+
+
         Navigator.setPrimaryStage(primaryStage);
         primaryStage.setTitle("J-Stream");
         primaryStage.setMinWidth(900);
         primaryStage.setMinHeight(600);
         Navigator.navigateTo("/ui/LoginPage.fxml", 900, 600);
     }
-
     public static void main(String[] args) {
         launch(args);
     }

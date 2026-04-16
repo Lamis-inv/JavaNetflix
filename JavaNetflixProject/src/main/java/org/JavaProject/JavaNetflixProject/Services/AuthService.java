@@ -44,6 +44,7 @@ public class AuthService {
         user.setRole("USER");
         return userDAO.save(user);
     }
+   
 
     public void logout() {
         Session.logout();

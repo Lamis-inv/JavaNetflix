@@ -1,6 +1,16 @@
 /* ═══════════════════════════════════════════════════════════════════
-   dark-theme.css  — complete file, replace your existing one
+   dark-theme.css  — fixed version
+   KEY CHANGE: -fx-accent  →  -fx-app-accent  (looked-up color)
+   -fx-accent is a JavaFX built-in that maps to the OS highlight
+   color (usually blue) and cannot be reliably overridden via
+   setStyle(). -fx-app-accent is our own looked-up color that
+   ThemeManager.applyTheme() injects on every scene root.
    ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Looked-up color default (fallback if ThemeManager hasn't run) ── */
+.root {
+    -fx-app-accent: #ebeef2;   /* silver — overridden at runtime */
+}
 
 /* ── Root ─────────────────────────────────────────────────────────── */
 .root-pane {
@@ -50,12 +60,12 @@
 }
 
 .brand-nav, .logo {
-    -fx-text-fill: -fx-accent;
+    -fx-text-fill: -fx-app-accent;
     -fx-font-weight: bold;
 }
 .brand-nav   { -fx-font-size: 20px; -fx-font-family: 'Georgia', serif; }
 .logo        { -fx-font-size: 22px; }
-.brand-title { -fx-text-fill: -fx-accent; -fx-font-size: 36px; -fx-font-weight: bold; }
+.brand-title { -fx-text-fill: -fx-app-accent; -fx-font-size: 36px; -fx-font-weight: bold; }
 
 .username-label { -fx-text-fill: #cccccc; -fx-font-size: 13px; }
 
@@ -74,14 +84,14 @@
 
 .btn-logout {
     -fx-background-color: rgba(255,255,255,0.10);
-    -fx-text-fill: -fx-accent;
-    -fx-border-color: -fx-accent;
+    -fx-text-fill: -fx-app-accent;
+    -fx-border-color: -fx-app-accent;
 }
-.btn-logout:hover { -fx-background-color: derive(-fx-accent, -20%); }
+.btn-logout:hover { -fx-background-color: derive(-fx-app-accent, -20%); }
 
 /* Notification badge */
 .notif-badge {
-    -fx-background-color: -fx-accent;
+    -fx-background-color: -fx-app-accent;
     -fx-text-fill: white;
     -fx-font-size: 9px;
     -fx-font-weight: bold;
@@ -91,7 +101,7 @@
     -fx-alignment: center;
 }
 
-/* ── Filter bar (#2) ─────────────────────────────────────────────── */
+/* ── Filter bar ──────────────────────────────────────────────────── */
 .filter-bar {
     -fx-background-color: rgba(20,20,20,0.95);
     -fx-border-color: rgba(255,255,255,0.06);
@@ -112,7 +122,7 @@
 .combo-dark .list-cell    { -fx-background-color: #2a2a2a; -fx-text-fill: #e5e5e5; }
 .combo-dark .list-view    { -fx-background-color: #2a2a2a; -fx-border-color: #444; }
 .combo-dark .cell:hover,
-.combo-dark .list-cell:filled:hover { -fx-background-color: -fx-accent; -fx-text-fill: white; }
+.combo-dark .list-cell:filled:hover { -fx-background-color: -fx-app-accent; -fx-text-fill: white; }
 
 /* ── Auth card ───────────────────────────────────────────────────── */
 .auth-card {
@@ -141,12 +151,12 @@
 }
 .search-field:focused,
 .text-field-dark:focused,
-.text-area-dark:focused  { -fx-border-color: -fx-accent; }
+.text-area-dark:focused  { -fx-border-color: -fx-app-accent; }
 .text-area-dark .content { -fx-background-color: #2a2a2a; }
 
 /* ── Buttons ─────────────────────────────────────────────────────── */
 .btn-primary {
-    -fx-background-color: -fx-accent;
+    -fx-background-color: -fx-app-accent;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
@@ -154,7 +164,7 @@
     -fx-background-radius: 6px;
     -fx-cursor: hand;
 }
-.btn-primary:hover { -fx-background-color: derive(-fx-accent, -20%); }
+.btn-primary:hover { -fx-background-color: derive(-fx-app-accent, -20%); }
 
 .btn-secondary {
     -fx-background-color: #333;
@@ -166,22 +176,24 @@
 }
 .btn-secondary:hover { -fx-background-color: #444; }
 
-/* FIX #1: trailer button */
 .btn-trailer {
     -fx-background-color: rgba(255,255,255,0.08);
-    -fx-border-color: -fx-accent;
+    -fx-border-color: -fx-app-accent;
 }
 .btn-trailer:hover {
-    -fx-background-color: derive(-fx-accent, 20%);
-    -fx-border-color: -fx-accent;
+    -fx-background-color: derive(-fx-app-accent, 20%);
+    -fx-border-color: -fx-app-accent;
 }
 
 .btn-added { -fx-background-color: #2e7d32 !important; -fx-text-fill: white !important; }
 
 .btn-player, .btn-flag { -fx-background-color: transparent; -fx-cursor: hand; }
-.btn-player:hover, .btn-flag:hover { -fx-text-fill: -fx-accent; }
+.btn-player:hover, .btn-flag:hover { -fx-text-fill: -fx-app-accent; }
 
-/* FIX #6: Actor chips */
+.btn-danger          { -fx-background-color: #b20710; }
+.btn-danger:hover    { -fx-background-color: #d40813; }
+
+/* ── Actor chips ─────────────────────────────────────────────────── */
 .actor-chip {
     -fx-background-color: rgba(255,255,255,0.08);
     -fx-text-fill: #ccc;
@@ -194,8 +206,8 @@
     -fx-cursor: hand;
 }
 .actor-chip:hover {
-    -fx-background-color: derive(-fx-accent, 20%);
-    -fx-border-color: -fx-accent;
+    -fx-background-color: derive(-fx-app-accent, 20%);
+    -fx-border-color: -fx-app-accent;
     -fx-text-fill: white;
 }
 
@@ -226,7 +238,6 @@
 .featured-meta     { -fx-font-size: 13px; -fx-text-fill: #aaa; }
 .featured-synopsis { -fx-font-size: 14px; -fx-text-fill: #ccc; -fx-wrap-text: true; }
 
-/* FIX #4: arrows */
 .banner-nav-btn {
     -fx-background-color: rgba(0,0,0,0.55);
     -fx-text-fill: white;
@@ -239,12 +250,11 @@
     -fx-cursor: hand;
 }
 .banner-nav-btn:hover {
-    -fx-background-color: derive(-fx-accent, -10%);
+    -fx-background-color: derive(-fx-app-accent, -10%);
 }
 
-/* FIX #4: dots — now bottom-left, smaller */
 .banner-dot        { -fx-fill: rgba(255,255,255,0.28); -fx-cursor: hand; }
-.banner-dot-active { -fx-fill: -fx-accent; -fx-cursor: hand; }
+.banner-dot-active { -fx-fill: -fx-app-accent; -fx-cursor: hand; }
 
 /* ── Category section ────────────────────────────────────────────── */
 .category-section { -fx-max-width: Infinity; }
@@ -261,10 +271,9 @@
     -fx-background-radius: 6px;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 8, 0.2, 0, 3);
-    /* FIX #9: transition via CSS scale — smoother than code animation */
 }
 .content-card:hover {
-    -fx-effect: dropshadow(gaussian, -fx-accent, 16, 0.3, 0, 4);
+    -fx-effect: dropshadow(gaussian, -fx-app-accent, 16, 0.3, 0, 4);
 }
 .card-title {
     -fx-font-size: 11px;
@@ -291,7 +300,7 @@
 .popup-info   { -fx-background-color: transparent; }
 
 .popup-play-btn {
-    -fx-background-color: -fx-accent;
+    -fx-background-color: -fx-app-accent;
     -fx-text-fill: white;
     -fx-font-size: 12px;
     -fx-font-weight: bold;
@@ -299,22 +308,21 @@
     -fx-padding: 6 14;
     -fx-cursor: hand;
 }
-.popup-play-btn:hover { -fx-background-color: #f40612; }
+.popup-play-btn:hover { -fx-background-color: derive(-fx-app-accent, -20%); }
 
-/* FIX #1: trailer mini-btn in popup */
 .popup-trailer-btn {
-    -fx-background-color: derive(-fx-accent, 20%);
+    -fx-background-color: derive(-fx-app-accent, 20%);
     -fx-text-fill: white;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
     -fx-background-radius: 4px;
     -fx-padding: 5 12;
     -fx-cursor: hand;
-    -fx-border-color: derive(-fx-accent, 20%);
+    -fx-border-color: derive(-fx-app-accent, 20%);
     -fx-border-radius: 4px;
     -fx-border-width: 1px;
 }
-.popup-trailer-btn:hover { -fx-background-color: derive(-fx-accent, 20%); }
+.popup-trailer-btn:hover { -fx-background-color: derive(-fx-app-accent, 40%); }
 
 .popup-watchlist-btn {
     -fx-background-color: rgba(255,255,255,0.10);
@@ -330,8 +338,8 @@
 .popup-watchlist-btn:hover { -fx-background-color: rgba(255,255,255,0.20); }
 .popup-watchlist-btn.btn-added {
     -fx-background-color: rgba(255,255,255,0.15);
-    -fx-border-color: -fx-accent;
-    -fx-text-fill: -fx-accent;
+    -fx-border-color: -fx-app-accent;
+    -fx-text-fill: -fx-app-accent;
 }
 
 /* ── Detail page ─────────────────────────────────────────────────── */
@@ -341,30 +349,31 @@
 .detail-synopsis{ -fx-font-size: 14px; -fx-fill: white; }
 
 .badge-film {
-    -fx-background-color: derive(-fx-accent, 20%);
-    -fx-text-fill: -fx-accent;
+    -fx-background-color: derive(-fx-app-accent, 20%);
+    -fx-text-fill: black;
+    -fx-font-weight: bold;
     -fx-font-size: 11px;
     -fx-padding: 2 8;
     -fx-background-radius: 10px;
-    -fx-border-color: derive(-fx-accent, 20%);
+    -fx-border-color: derive(-fx-app-accent, 20%);
     -fx-border-radius: 10px;
     -fx-border-width: 1px;
 }
 
-.section-title  { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #ddd; }
+.section-title { -fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #ddd; }
 
-/* Player */
-.player-box     { -fx-background-color: #000; -fx-background-radius: 8px; }
-.player-controls{ -fx-background-color: rgba(0,0,0,0.75); -fx-background-radius: 0 0 8 8; }
-.time-label     { -fx-text-fill: #aaa; -fx-font-size: 12px; }
-.icon-label     { -fx-font-size: 16px; }
+/* ── Player ──────────────────────────────────────────────────────── */
+.player-box      { -fx-background-color: #000; -fx-background-radius: 8px; }
+.player-controls { -fx-background-color: rgba(0,0,0,0.75); -fx-background-radius: 0 0 8 8; }
+.time-label      { -fx-text-fill: #aaa; -fx-font-size: 12px; }
+.icon-label      { -fx-font-size: 16px; }
 
 .progress-slider .track  { -fx-background-color: #444; }
-.progress-slider .thumb  { -fx-background-color: -fx-accent; }
+.progress-slider .thumb  { -fx-background-color: -fx-app-accent; }
 .volume-slider   .track  { -fx-background-color: #444; }
 .volume-slider   .thumb  { -fx-background-color: white; }
 
-/* Countdown overlay */
+/* ── Countdown overlay ───────────────────────────────────────────── */
 .countdown-overlay {
     -fx-background-color: rgba(0,0,0,0.75);
     -fx-background-radius: 12px;
@@ -375,7 +384,7 @@
 .countdown-title  { -fx-text-fill: #aaa; -fx-font-size: 14px; }
 .countdown-number { -fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold; }
 
-/* Episode list */
+/* ── Episode list ────────────────────────────────────────────────── */
 .episode-row {
     -fx-background-color: #1c1c1c;
     -fx-background-radius: 6px;
@@ -383,194 +392,88 @@
     -fx-alignment: CENTER_LEFT;
 }
 .episode-row:hover    { -fx-background-color: #262626; }
-.episode-num          { -fx-text-fill: -fx-accent; -fx-font-weight: bold; -fx-font-size: 13px; }
+.episode-num          { -fx-text-fill: -fx-app-accent; -fx-font-weight: bold; -fx-font-size: 13px; }
 .episode-title        { -fx-text-fill: white;   -fx-font-weight: bold; -fx-font-size: 13px; }
 .episode-synopsis     { -fx-text-fill: #888;    -fx-font-size: 12px; }
 .episode-duration     { -fx-text-fill: #666;    -fx-font-size: 11px; }
 .episode-status       { -fx-text-fill: #4caf50; -fx-font-size: 12px; }
 
-/* Comments */
+/* ── Comments ────────────────────────────────────────────────────── */
 .comment-box    { -fx-background-color: #1c1c1c; -fx-background-radius: 6px; -fx-padding: 10 12; }
-.comment-author { -fx-text-fill: -fx-accent; -fx-font-size: 12px; -fx-font-weight: bold; }
-.comment-body   { -fx-text-fill: #ccc;    -fx-font-size: 13px; }
+.comment-author { -fx-text-fill: -fx-app-accent; -fx-font-size: 12px; -fx-font-weight: bold; }
+.comment-body   { -fx-text-fill: #ccc; -fx-font-size: 13px; }
 
-/*Admin */
+/* ═══════════════════════════════════════════════════════════════════
+   ADMIN / GLOBAL OVERRIDES
+   ═══════════════════════════════════════════════════════════════════ */
 
+/* ── Global text ─────────────────────────────────────────────────── */
+.label { -fx-text-fill: #e5e5e5; }
 
-
-
-
-
-
-
-
-/* ================= GLOBAL TEXT ================= */
-.label {
-    -fx-text-fill: #e5e5e5;
-}
-
-/* ================= NAVBAR ================= */
+/* ── Navbar (admin override) ─────────────────────────────────────── */
 .navbar {
     -fx-background-color: #181818;
     -fx-border-color: #2a2a2a;
 }
-
 .brand-nav {
-    -fx-text-fill: -fx-accent;
+    -fx-text-fill: -fx-app-accent;
     -fx-font-size: 20px;
     -fx-font-weight: bold;
 }
+.username-label { -fx-text-fill: white; }
 
-.username-label {
-    -fx-text-fill: white;
-}
+/* ── Buttons (admin overrides) ───────────────────────────────────── */
+.button { -fx-text-fill: white; }
 
-/* ================= BUTTONS ================= */
-.button {
-    -fx-text-fill: white;
-}
+.btn-primary             { -fx-background-color: -fx-app-accent; }
+.btn-primary:hover       { -fx-background-color: derive(-fx-app-accent, -20%); }
+.btn-secondary           { -fx-background-color: #2a2a2a; }
+.btn-secondary:hover     { -fx-background-color: #3a3a3a; }
 
-.btn-primary {
-    -fx-background-color: -fx-accent;
-}
-.btn-primary:hover {
-    -fx-background-color: #ff1e2d;
-}
-
-.btn-secondary {
-    -fx-background-color: #2a2a2a;
-}
-.btn-secondary:hover {
-    -fx-background-color: #3a3a3a;
-}
-
-.btn-danger {
-    -fx-background-color: #b20710;
-}
-.btn-danger:hover {
-    -fx-background-color: #d40813;
-}
-
-/* ================= INPUTS ================= */
+/* ── Inputs ──────────────────────────────────────────────────────── */
 .text-field-dark, .text-area-dark {
     -fx-background-color: #2a2a2a;
     -fx-text-fill: white;
     -fx-prompt-text-fill: #888;
     -fx-border-color: #444;
 }
+.text-area-dark .content { -fx-background-color: #2a2a2a; }
 
-/* IMPORTANT FIX (text area inner white) */
-.text-area-dark .content {
-    -fx-background-color: #2a2a2a;
-}
+/* ── ComboBox ────────────────────────────────────────────────────── */
+.combo-box               { -fx-background-color: #2a2a2a; -fx-mark-color: white; }
+.combo-box .list-cell    { -fx-background-color: #2a2a2a; -fx-text-fill: white; }
+.combo-box-popup .list-view  { -fx-background-color: #2a2a2a; }
+.combo-box-popup .list-cell  { -fx-text-fill: white; }
+.combo-box-popup .list-cell:hover { -fx-background-color: #444; }
 
-/* ================= COMBOBOX ================= */
-.combo-box {
-    -fx-background-color: #2a2a2a;
-    -fx-mark-color: white;
-}
+/* ── Table ───────────────────────────────────────────────────────── */
+.table-view                             { -fx-background-color: #1e1e1e; }
+.table-view .column-header-background   { -fx-background-color: #2a2a2a; }
+.table-view .column-header .label       { -fx-text-fill: white; }
+.table-cell                             { -fx-text-fill: #e5e5e5; }
+.table-row-cell                         { -fx-background-color: #1e1e1e; }
+.table-row-cell:filled:hover            { -fx-background-color: #2a2a2a; }
+.table-row-cell:filled:selected         { -fx-background-color: -fx-app-accent; }
 
-.combo-box .list-cell {
-    -fx-background-color: #2a2a2a;
-    -fx-text-fill: white;
-}
+/* ── Tabs ────────────────────────────────────────────────────────── */
+.tab-pane            { -fx-background-color: #141414; }
+.tab                 { -fx-background-color: #181818; }
+.tab .label          { -fx-text-fill: #aaa; }
+.tab:selected        { -fx-background-color: #1f1f1f; }
+.tab:selected .label { -fx-text-fill: white; }
 
-/* DROPDOWN FIX (THIS WAS WHITE!) */
-.combo-box-popup .list-view {
-    -fx-background-color: #2a2a2a;
-}
+/* ── Scroll ──────────────────────────────────────────────────────── */
+.scroll-pane { -fx-background: #141414; }
+.viewport    { -fx-background-color: transparent; }
 
-.combo-box-popup .list-cell {
-    -fx-text-fill: white;
-}
-.combo-box-popup .list-cell:hover {
-    -fx-background-color: #444;
-}
+/* ── Checkbox ────────────────────────────────────────────────────── */
+.check-box { -fx-text-fill: white; }
 
-/* ================= TABLE ================= */
-.table-view {
-    -fx-background-color: #1e1e1e;
-}
+/* ── Charts ──────────────────────────────────────────────────────── */
+.chart             { -fx-background-color: #1e1e1e; }
+.chart-title       { -fx-text-fill: white; }
+.axis-label        { -fx-text-fill: white; }
+.axis              { -fx-tick-label-fill: #ccc; }
 
-.table-view .column-header-background {
-    -fx-background-color: #2a2a2a;
-}
-
-.table-view .column-header .label {
-    -fx-text-fill: white;
-}
-
-/* 🔥 CRITICAL FIX (white text issue) */
-.table-cell {
-    -fx-text-fill: #e5e5e5;
-}
-
-/* rows */
-.table-row-cell {
-    -fx-background-color: #1e1e1e;
-}
-
-.table-row-cell:filled:hover {
-    -fx-background-color: #2a2a2a;
-}
-
-.table-row-cell:filled:selected {
-    -fx-background-color: -fx-accent;
-}
-
-/* ================= TABS ================= */
-.tab-pane {
-    -fx-background-color: #141414;
-}
-
-.tab {
-    -fx-background-color: #181818;
-}
-
-.tab .label {
-    -fx-text-fill: #aaa;
-}
-
-.tab:selected {
-    -fx-background-color: #1f1f1f;
-}
-
-.tab:selected .label {
-    -fx-text-fill: white;
-}
-
-/* ================= SCROLL ================= */
-.scroll-pane {
-    -fx-background: #141414;
-}
-
-.viewport {
-    -fx-background-color: transparent;
-}
-
-/* ================= CHECKBOX ================= */
-.check-box {
-    -fx-text-fill: white;
-}
-
-/* ================= CHARTS ================= */
-.chart {
-    -fx-background-color: #1e1e1e;
-}
-
-.chart-title {
-    -fx-text-fill: white;
-}
-
-.axis-label {
-    -fx-text-fill: white;
-}
-
-.axis {
-    -fx-tick-label-fill: #ccc;
-}
-
-/* ================= ERROR ================= */
-.error-label {
-    -fx-text-fill: #ff4c4c;
-}
+/* ── Error ───────────────────────────────────────────────────────── */
+.error-label { -fx-text-fill: #ff4c4c; }
