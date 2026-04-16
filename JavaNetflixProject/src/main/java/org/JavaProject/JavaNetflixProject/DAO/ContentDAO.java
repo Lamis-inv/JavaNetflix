@@ -206,4 +206,72 @@ public class ContentDAO {
         }
         return c;
     }
+    public List<Content> findAllSeries() throws SQLException {
+        return query("SELECT c.*, cat.name as cat_name FROM content c " +
+                "LEFT JOIN categories cat ON c.category_id=cat.id " +
+                "WHERE c.type='SERIE' ORDER BY c.title");
+    }
+    public List<Object[]> getCategoryStats() throws SQLException {
+        List<Object[]> list = new ArrayList<>();
+
+        String sql = 
+            "SELECT cat.name, COUNT(c.id)"+
+            "FROM content c"+
+            "JOIN categories cat ON c.category_id = cat.id"+
+           " GROUP BY cat.name";
+
+        try (Connection conn = ConxDB.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                list.add(new Object[]{
+                        rs.getString(1),
+                        rs.getInt(2)
+                });
+            }
+        }
+        return list;
+    }
+    public int countByType(Content.Type type) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM content WHERE type=?";
+        try (Connection c = ConxDB.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, type.name());
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1);
+        }
+        return 0;
+    }
+    public int getTotalViews() throws SQLException {
+        String sql = "SELECT SUM(view_count) FROM content";
+        try (Connection c = ConxDB.getConnection();
+             Statement st = c.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            if (rs.next()) return rs.getInt(1);
+        }
+        return 0;
+    }
+    public static int countByCategory(int categoryId) {
+        String sql = "SELECT COUNT(*) FROM films WHERE category_id = ?";
+
+        try (Connection conn = ConxDB.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, categoryId);
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
 }
