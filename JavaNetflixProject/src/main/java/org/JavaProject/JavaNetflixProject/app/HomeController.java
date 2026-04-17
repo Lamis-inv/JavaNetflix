@@ -97,6 +97,8 @@ public class HomeController {
     private StackPane   activePopup;
     private Timeline    popupHideTimer;
     private Timeline    popupShowTimer;
+    // Banner video player
+    private MediaPlayer bannerPlayer;
 
     // ── Init ──────────────────────────────────────────────────────────────────
     @FXML
@@ -312,11 +314,11 @@ public class HomeController {
     private void updateFeaturedBanner(boolean animate) {
         Content c = featuredList.get(featuredIndex);
         if (animate) {
-            FadeTransition out = new FadeTransition(Duration.millis(220), featuredBanner);
+            FadeTransition out = new FadeTransition(Duration.millis(250), featuredBanner);
             out.setFromValue(1); out.setToValue(0);
             out.setOnFinished(ev -> {
                 applyBannerContent(c);
-                FadeTransition in = new FadeTransition(Duration.millis(220), featuredBanner);
+                FadeTransition in = new FadeTransition(Duration.millis(250), featuredBanner);
                 in.setFromValue(0); in.setToValue(1);
                 in.play();
             });
@@ -336,12 +338,82 @@ public class HomeController {
         );
         featuredSynopsis.setText(
             c.getSynopsis() != null && !c.getSynopsis().isBlank()
-                ? c.getSynopsis().substring(0, Math.min(180, c.getSynopsis().length())) + "\u2026"
+                ? c.getSynopsis().substring(0, Math.min(200, c.getSynopsis().length())) + "\u2026"
                 : ""
         );
-        if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
-            try { featuredCover.setImage(new Image(c.getCoverUrl(), true)); }
-            catch (Exception ignored) {}
+
+        String trailerPath = c.getTrailerUrl();
+        boolean hasTrailer = trailerPath != null
+                          && !trailerPath.isBlank()
+                          && new File(trailerPath).exists(); // ← key check
+
+        if (hasTrailer) {
+            showVideoBanner(trailerPath);
+        } else {
+            stopBannerPlayer();
+            showImageBanner(c);
+        }
+    }
+
+    private MediaView bannerMediaView; // ← add this field at the top with other fields
+
+    private void showVideoBanner(String path) {
+        try {
+            stopBannerPlayer();
+
+            Media media = new Media(new File(path).toURI().toString());
+            bannerPlayer = new MediaPlayer(media);
+            bannerPlayer.setMute(true);
+            bannerPlayer.setAutoPlay(true);
+            bannerPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+
+            // Reuse the MediaView node — only create it once
+            if (bannerMediaView == null) {
+                bannerMediaView = new MediaView();
+                bannerMediaView.fitWidthProperty().bind(featuredBanner.widthProperty());
+                bannerMediaView.fitHeightProperty().bind(featuredBanner.heightProperty());
+                bannerMediaView.setPreserveRatio(false);
+                featuredBanner.getChildren().add(0, bannerMediaView);
+            }
+
+            bannerMediaView.setMediaPlayer(bannerPlayer);
+            bannerMediaView.setVisible(true);
+
+            // Hide static image
+            featuredCover.setVisible(false);
+            featuredCover.setManaged(false);
+
+        } catch (Exception ex) {
+            // Only log — never show alert for banner failures
+            System.err.println("Banner video failed: " + ex.getMessage());
+            stopBannerPlayer();
+            showImageBanner(null);
+        }
+    }
+
+    private void showImageBanner(Content c) {
+        // Hide video layer if it exists
+        if (bannerMediaView != null) {
+            bannerMediaView.setVisible(false);
+        }
+
+        featuredCover.setVisible(true);
+        featuredCover.setManaged(true);
+
+        if (c != null && c.getCoverUrl() != null && !c.getCoverUrl().isBlank()) {
+            try {
+                featuredCover.setImage(new Image(c.getCoverUrl(), true));
+            } catch (Exception ignored) {}
+        }
+    }
+
+    private void stopBannerPlayer() {
+        if (bannerPlayer != null) {
+            try {
+                bannerPlayer.stop();
+                bannerPlayer.dispose();
+            } catch (Exception ignored) {}
+            bannerPlayer = null;
         }
     }
 
@@ -870,6 +942,7 @@ public class HomeController {
     }
 
     @FXML public void onLogout() {
+    	stopBannerPlayer();
         hideDropdown();
         Session.logout();
         try { Navigator.navigateTo("/ui/LoginPage.fxml"); }
@@ -878,6 +951,7 @@ public class HomeController {
 
     private void openDetail(Content c) {
         dismissPopupNow();
+        stopBannerPlayer();
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/Detail.fxml"));
             Parent root = loader.load();
