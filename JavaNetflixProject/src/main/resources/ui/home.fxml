@@ -18,7 +18,7 @@
             <HBox spacing="12" alignment="CENTER_LEFT" styleClass="top-bar">
                 <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
 
-                <Label text="J-Stream" styleClass="logo"/>
+                <Label text="Notflix" styleClass="logo"/>
 
                 <TextField fx:id="searchField"
                            promptText="Rechercher..."

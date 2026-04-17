@@ -6,7 +6,7 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.JavaProject.JavaNetflixProject.app.MyListController"
             styleClass="mylist-root"
-            stylesheets="@/css/dark-theme.css"
+            stylesheets="@/css/auth-theme.css"
             prefWidth="1280" prefHeight="800">
 
     <!-- ═══ NAVBAR ═══ -->
@@ -60,12 +60,8 @@
                 </VBox>
 
                 <!-- Divider -->
-                <Pane 
-    style="-fx-background-color:rgba(255,255,255,0.05);
-           -fx-pref-height:1px;
-           -fx-min-height:1px;
-           -fx-max-height:1px;
-           -fx-margin: 0 0 36 0;"/>
+                <Pane style="-fx-background-color:rgba(255,255,255,0.05);-fx-pref-height:1px;-fx-min-height:1px;-fx-max-height:1px;"
+                      style="-fx-margin: 0 0 36 0;"/>
                 <Pane prefHeight="36"/>
 
                 <!-- ══ MY WATCHLIST ══ -->

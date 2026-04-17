@@ -6,7 +6,7 @@
 <StackPane xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.JavaProject.JavaNetflixProject.app.LoginController"
            styleClass="auth-root"
-           stylesheets="@/css/dark-theme.css"
+           stylesheets="@/css/auth-theme.css"
            prefWidth="1100" prefHeight="700">
 
     <!-- Background gradient panels -->

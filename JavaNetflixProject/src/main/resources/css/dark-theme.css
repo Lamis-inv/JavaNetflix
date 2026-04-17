@@ -1573,3 +1573,488 @@
     -fx-letter-spacing: 0.1em;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Auth THEME   */
+/* ═══════════════════════════════════════════════════════
+   NOTFLIX — auth-theme.css
+   Login, SignUp, MyList pages
+   ═══════════════════════════════════════════════════════ */
+
+/* ── ROOT ── */
+.auth-root {
+    -fx-background-color: #080810;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ── BACKGROUND OVERLAY ── */
+.auth-bg {
+    -fx-background-color: linear-gradient(to bottom right, #080810 0%, #0f0f1a 40%, #080810 100%);
+}
+
+/* ── BRAND ── */
+.brand-not {
+    -fx-text-fill: #e8000f;
+    -fx-font-size: 46px;
+    -fx-font-weight: 900;
+    -fx-effect: dropshadow(gaussian, rgba(232,0,15,0.6), 20, 0.4, 0, 0);
+}
+.brand-flix {
+    -fx-text-fill: #f0f0f0;
+    -fx-font-size: 46px;
+    -fx-font-weight: 900;
+    -fx-letter-spacing: 0.02em;
+}
+.brand-tagline {
+    -fx-text-fill: #555566;
+    -fx-font-size: 11px;
+    -fx-letter-spacing: 0.3em;
+}
+
+/* ── AUTH CARD ── */
+.auth-card {
+    -fx-background-color: rgba(14,14,22,0.95);
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 1px;
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-padding: 36 40 36 40;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 60, 0, 0, 20);
+    -fx-min-width: 420px;
+    -fx-max-width: 420px;
+}
+
+.auth-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 24px;
+    -fx-font-weight: 800;
+    -fx-letter-spacing: 0.01em;
+}
+
+.auth-subtitle {
+    -fx-text-fill: #555566;
+    -fx-font-size: 12px;
+}
+
+/* ── FIELD GROUP ── */
+.field-group {
+    -fx-background-color: transparent;
+    -fx-spacing: 6;
+}
+
+.field-label {
+    -fx-text-fill: #555566;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 0.18em;
+}
+
+.auth-field {
+    -fx-background-color: #111120;
+    -fx-text-fill: #f0f0f0;
+    -fx-prompt-text-fill: #333344;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 12 16 12 16;
+    -fx-font-size: 13px;
+    -fx-pref-height: 44px;
+}
+.auth-field:focused {
+    -fx-border-color: rgba(255,255,255,0.3);
+    -fx-background-color: rgba(255,255,255,0.04);
+}
+
+.auth-pass {
+    -fx-background-color: #111120;
+    -fx-text-fill: #f0f0f0;
+    -fx-prompt-text-fill: #333344;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 1.5px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 12 16 12 16;
+    -fx-font-size: 13px;
+    -fx-pref-height: 44px;
+}
+.auth-pass:focused {
+    -fx-border-color: rgba(255,255,255,0.3);
+    -fx-background-color: rgba(255,255,255,0.04);
+}
+
+/* ── PASSWORD STRENGTH ── */
+.strength-bar-bg {
+    -fx-background-color: #1a1a2e;
+    -fx-background-radius: 4px;
+    -fx-pref-height: 4px;
+    -fx-min-height: 4px;
+    -fx-max-height: 4px;
+}
+.strength-fill-weak   { -fx-background-color: #ff3b3b; -fx-background-radius: 4px; }
+.strength-fill-fair   { -fx-background-color: #f5c842; -fx-background-radius: 4px; }
+.strength-fill-good   { -fx-background-color: #4fa3e0; -fx-background-radius: 4px; }
+.strength-fill-strong { -fx-background-color: #22c55e; -fx-background-radius: 4px; }
+.strength-label { -fx-font-size: 10px; -fx-font-weight: 600; }
+
+/* ── ADMIN TOGGLE ── */
+.admin-toggle-area {
+    -fx-background-color: rgba(232,0,15,0.06);
+    -fx-border-color: rgba(232,0,15,0.2);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 12 14 12 14;
+    -fx-cursor: hand;
+}
+.admin-toggle-area:hover {
+    -fx-background-color: rgba(232,0,15,0.1);
+}
+.admin-toggle-label {
+    -fx-text-fill: #ff4444;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}
+.admin-toggle-sub {
+    -fx-text-fill: #553333;
+    -fx-font-size: 10px;
+}
+.admin-fields {
+    -fx-background-color: rgba(232,0,15,0.04);
+    -fx-border-color: rgba(232,0,15,0.15);
+    -fx-border-width: 0 0 0 3px;
+    -fx-padding: 12 12 12 16;
+    -fx-spacing: 10;
+}
+
+/* ── MAIN ACTION BUTTON ── */
+.btn-auth-primary {
+    -fx-background-color: #e8000f;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-background-radius: 10px;
+    -fx-border-radius: 10px;
+    -fx-padding: 13 0 13 0;
+    -fx-cursor: hand;
+    -fx-letter-spacing: 0.05em;
+    -fx-pref-height: 48px;
+    -fx-effect: dropshadow(gaussian, rgba(232,0,15,0.5), 20, 0.3, 0, 4);
+}
+.btn-auth-primary:hover {
+    -fx-background-color: #ff1a26;
+    -fx-effect: dropshadow(gaussian, rgba(232,0,15,0.7), 28, 0.4, 0, 6);
+}
+.btn-auth-primary:pressed {
+    -fx-background-color: #cc000d;
+    -fx-effect: none;
+}
+
+/* ── SECONDARY LINK ── */
+.auth-link {
+    -fx-text-fill: #444455;
+    -fx-font-size: 12px;
+    -fx-underline: false;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.auth-link:hover { -fx-text-fill: #9999bb; }
+
+.auth-link-highlight {
+    -fx-text-fill: #8888cc;
+    -fx-font-size: 12px;
+    -fx-underline: false;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.auth-link-highlight:hover { -fx-text-fill: #aaaaee; }
+
+/* ── ERROR / INFO LABELS ── */
+.error-label {
+    -fx-text-fill: #ff4444;
+    -fx-font-size: 11px;
+    -fx-wrap-text: true;
+}
+.info-label {
+    -fx-text-fill: #6666aa;
+    -fx-font-size: 11px;
+    -fx-wrap-text: true;
+}
+
+/* ── DIVIDER ── */
+.auth-divider { -fx-background-color: rgba(255,255,255,0.06); -fx-pref-height: 1px; -fx-min-height:1px; -fx-max-height:1px; }
+
+/* ── FORGOT PASSWORD POPUP ── */
+.forgot-box {
+    -fx-background-color: #111120;
+    -fx-border-color: rgba(255,255,255,0.1);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-padding: 14 16 14 16;
+    -fx-spacing: 6;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 20, 0, 0, 4);
+}
+.forgot-title { -fx-text-fill: #e0e0e0; -fx-font-size: 12px; -fx-font-weight: 700; }
+.forgot-email-masked { -fx-text-fill: #22c55e; -fx-font-size: 12px; -fx-font-family: "Courier New"; }
+.forgot-sub { -fx-text-fill: #444455; -fx-font-size: 10px; }
+
+/* ─────────────────────────────────────
+   MY LIST / CONTINUE WATCHING
+   ───────────────────────────────────── */
+
+.mylist-root {
+    -fx-background-color: #080810;
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Navbar */
+.mylist-navbar {
+    -fx-background-color: rgba(8,8,16,0.97);
+    -fx-border-color: transparent transparent rgba(255,255,255,0.06) transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 14 32 14 32;
+    -fx-spacing: 20;
+    -fx-alignment: CENTER_LEFT;
+    -fx-pref-height: 60px;
+    -fx-min-height: 60px;
+}
+.mylist-brand-not { -fx-text-fill: #e8000f; -fx-font-size: 20px; -fx-font-weight: 900; }
+.mylist-brand-flix { -fx-text-fill: #f0f0f0; -fx-font-size: 20px; -fx-font-weight: 900; }
+.mylist-nav-sep { -fx-text-fill: rgba(255,255,255,0.15); -fx-font-size: 16px; }
+.mylist-nav-title { -fx-text-fill: #e0e0e0; -fx-font-size: 14px; -fx-font-weight: 600; }
+.mylist-username { -fx-text-fill: #555566; -fx-font-size: 12px; }
+.btn-back {
+    -fx-background-color: transparent;
+    -fx-text-fill: #666677;
+    -fx-font-size: 13px;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 7 14 7 14;
+    -fx-cursor: hand;
+}
+.btn-back:hover { -fx-text-fill: #e0e0e0; -fx-border-color: rgba(255,255,255,0.2); }
+
+/* Section titles */
+.mylist-section-title {
+    -fx-text-fill: #f0f0f0;
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-letter-spacing: 0.01em;
+}
+.mylist-section-sub {
+    -fx-text-fill: #333344;
+    -fx-font-size: 10px;
+    -fx-font-weight: 700;
+    -fx-letter-spacing: 0.2em;
+}
+.mylist-count {
+    -fx-text-fill: #333344;
+    -fx-font-size: 11px;
+    -fx-background-color: #111120;
+    -fx-background-radius: 20px;
+    -fx-border-color: rgba(255,255,255,0.06);
+    -fx-border-width: 1px;
+    -fx-border-radius: 20px;
+    -fx-padding: 2 10 2 10;
+}
+
+/* Continue watching card */
+.cw-card {
+    -fx-background-color: #0e0e1a;
+    -fx-border-color: rgba(255,255,255,0.07);
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-pref-width: 260px;
+    -fx-max-width: 260px;
+    -fx-min-width: 260px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0, 0, 4);
+}
+.cw-card:hover {
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-background-color: #111122;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.7), 30, 0, 0, 8);
+}
+
+.cw-poster-wrap {
+    -fx-background-color: #1a1a2e;
+    -fx-background-radius: 12 12 0 0;
+    -fx-pref-height: 150px;
+    -fx-min-height: 150px;
+    -fx-max-height: 150px;
+}
+.cw-poster {
+    -fx-background-color: #1a1a2e;
+    -fx-background-radius: 12 12 0 0;
+}
+.cw-play-overlay {
+    -fx-background-color: rgba(0,0,0,0.45);
+    -fx-background-radius: 12 12 0 0;
+}
+.cw-play-btn {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 28px;
+    -fx-background-color: rgba(232,0,15,0.9);
+    -fx-background-radius: 50px;
+    -fx-min-width: 52px;
+    -fx-min-height: 52px;
+    -fx-max-width: 52px;
+    -fx-max-height: 52px;
+    -fx-alignment: CENTER;
+    -fx-effect: dropshadow(gaussian, rgba(232,0,15,0.7), 16, 0.4, 0, 0);
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+}
+.cw-episode-badge {
+    -fx-background-color: rgba(8,8,16,0.85);
+    -fx-text-fill: #888899;
+    -fx-font-size: 9px;
+    -fx-font-weight: 700;
+    -fx-background-radius: 5px;
+    -fx-padding: 3 7 3 7;
+    -fx-letter-spacing: 0.1em;
+}
+.cw-content-area {
+    -fx-padding: 12 14 14 14;
+    -fx-spacing: 5;
+    -fx-background-radius: 0 0 12 12;
+}
+.cw-title {
+    -fx-text-fill: #e8e8e8;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-wrap-text: true;
+    -fx-max-width: 230px;
+}
+.cw-ep-title {
+    -fx-text-fill: #555566;
+    -fx-font-size: 11px;
+    -fx-wrap-text: true;
+    -fx-max-width: 230px;
+}
+.cw-progress-bg {
+    -fx-background-color: #1a1a2e;
+    -fx-background-radius: 4px;
+    -fx-pref-height: 3px;
+    -fx-min-height: 3px;
+    -fx-max-height: 3px;
+}
+.cw-progress-fill {
+    -fx-background-color: #e8000f;
+    -fx-background-radius: 4px;
+}
+.cw-time-left {
+    -fx-text-fill: #333344;
+    -fx-font-size: 10px;
+    -fx-font-family: "Courier New";
+}
+
+/* Watchlist card (smaller) */
+.wl-card {
+    -fx-background-color: #0e0e1a;
+    -fx-border-color: rgba(255,255,255,0.07);
+    -fx-border-width: 1px;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+    -fx-pref-width: 160px;
+    -fx-max-width: 160px;
+    -fx-min-width: 160px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 14, 0, 0, 3);
+}
+.wl-card:hover {
+    -fx-border-color: rgba(255,255,255,0.18);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 22, 0, 0, 6);
+}
+.wl-poster-wrap {
+    -fx-background-color: #1a1a2e;
+    -fx-background-radius: 10 10 0 0;
+    -fx-pref-height: 220px;
+    -fx-min-height: 220px;
+    -fx-max-height: 220px;
+}
+.wl-card-info {
+    -fx-padding: 9 10 11 10;
+    -fx-spacing: 5;
+}
+.wl-card-title {
+    -fx-text-fill: #d8d8e0;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-wrap-text: true;
+    -fx-max-width: 140px;
+}
+.wl-card-meta {
+    -fx-text-fill: #333344;
+    -fx-font-size: 10px;
+}
+.badge-film-sm {
+    -fx-text-fill: #4fa3e0;
+    -fx-background-color: rgba(79,163,224,0.12);
+    -fx-background-radius: 20px;
+    -fx-border-color: rgba(79,163,224,0.2);
+    -fx-border-width: 1px;
+    -fx-border-radius: 20px;
+    -fx-padding: 1 7 1 7;
+    -fx-font-size: 9px;
+    -fx-font-weight: 700;
+}
+.badge-serie-sm {
+    -fx-text-fill: #f5c842;
+    -fx-background-color: rgba(245,200,66,0.1);
+    -fx-background-radius: 20px;
+    -fx-border-color: rgba(245,200,66,0.2);
+    -fx-border-width: 1px;
+    -fx-border-radius: 20px;
+    -fx-padding: 1 7 1 7;
+    -fx-font-size: 9px;
+    -fx-font-weight: 700;
+}
+.wl-rating {
+    -fx-text-fill: #f5c842;
+    -fx-font-size: 10px;
+}
+
+/* Empty state */
+.empty-state-icon { -fx-font-size: 48px; }
+.empty-state-title { -fx-text-fill: #e0e0e0; -fx-font-size: 18px; -fx-font-weight: 700; }
+.empty-state-sub { -fx-text-fill: #333344; -fx-font-size: 13px; }
+
+/* Scroll bar override */
+.scroll-pane { -fx-background-color: transparent; -fx-background: transparent; -fx-border-color: transparent; }
+.scroll-pane > .viewport { -fx-background-color: transparent; }
+.scroll-pane .scroll-bar:vertical { -fx-background-color: transparent; -fx-pref-width: 5px; }
+.scroll-pane .scroll-bar:vertical .track { -fx-background-color: transparent; }
+.scroll-pane .scroll-bar:vertical .thumb { -fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10px; }
+.scroll-pane .scroll-bar:horizontal { -fx-background-color: transparent; -fx-pref-height: 5px; }
+.scroll-pane .scroll-bar:horizontal .track { -fx-background-color: transparent; }
+.scroll-pane .scroll-bar:horizontal .thumb { -fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 10px; }

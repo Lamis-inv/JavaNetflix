@@ -117,6 +117,27 @@ public class DetailController {
     	    mediaView.fitHeightProperty().bind(sp.widthProperty().multiply(9.0 / 16.0));
     	}
     }
+    private int resumeTimeSec = 0;
+
+    public void setResumeTime(int seconds) {
+        this.resumeTimeSec = seconds;
+
+        // If player already loaded → seek immediately
+        if (mediaPlayer != null) {
+            mediaPlayer.setOnReady(() -> {
+                if (resumeTimeSec > 0) {
+                    mediaPlayer.seek(Duration.seconds(resumeTimeSec));
+                }
+            });
+        }
+    }
+    private int resumeEpisodeId = -1;
+    private int resumeEpisodeTime = 0;
+
+    public void setResumeEpisodeId(int episodeId, int seconds) {
+        this.resumeEpisodeId = episodeId;
+        this.resumeEpisodeTime = seconds;
+    }
 
     public void setContent(Content c) {
         this.content = c;
@@ -485,13 +506,22 @@ public class DetailController {
         episodeListBox.getChildren().clear();
         try {
             List<Episode> episodes = episodeDAO.findBySeasonId(season.getId());
+
             for (Episode ep : episodes) {
                 int uid = Session.getCurrentUser().getId();
                 ep.setWatched(watchHistoryDAO.isCompleted(uid, ep.getId()));
                 ep.setProgressSec(watchHistoryDAO.getProgressSec(uid, ep.getId()));
+
                 episodeListBox.getChildren().add(buildEpisodeRow(ep));
+
+                if (ep.getId() == resumeEpisodeId) {
+                    ep.setProgressSec(resumeEpisodeTime);
+                    Platform.runLater(() -> playEpisode(ep));
+                }
             }
-        } catch (Exception e) { showAlert("Erreur épisodes: " + e.getMessage()); }
+        } catch (Exception e) {
+            showAlert("Erreur épisodes: " + e.getMessage());
+        }
     }
 
     private HBox buildEpisodeRow(Episode ep) {
