@@ -28,6 +28,7 @@
                 <Button text="X"           onAction="#onClearSearch" styleClass="btn-icon"/>
                 <Button text="Rechercher"  onAction="#onSearch"      styleClass="btn-s"/>
 
+
                 <Region HBox.hgrow="ALWAYS"/>
 
                 <!-- History button (#7) -->
@@ -121,20 +122,27 @@
 
                     </StackPane>
 
-                    <!-- ══ FILTER BAR (#2) ══ -->
-                    <HBox fx:id="filterBar" spacing="12" alignment="CENTER_LEFT"
-                          styleClass="filter-bar">
-                        <padding><Insets top="14" right="28" bottom="14" left="28"/></padding>
-
-                        <Label text="Filtrer :" styleClass="filter-label"/>
-
-                        <ComboBox fx:id="filterType"  prefWidth="130" styleClass="combo-dark"
-                                  promptText="Type"/>
-                        <ComboBox fx:id="filterGenre" prefWidth="160" styleClass="combo-dark"
-                                  promptText="Genre"/>
-                        <ComboBox fx:id="filterYear"  prefWidth="130" styleClass="combo-dark"
-                                  promptText="Année"/>
-                    </HBox>
+                    <!-- ══ FILTER BAR ══ -->
+					<HBox fx:id="filterBar" spacing="12" alignment="CENTER_LEFT"
+					      styleClass="filter-bar">
+					    <padding><Insets top="14" right="28" bottom="14" left="28"/></padding>
+					
+					    <Label text="Filtrer :" styleClass="filter-label"/>
+					
+					    <ComboBox fx:id="filterType"  prefWidth="130" styleClass="combo-dark"
+					              promptText="Type"/>
+					    <ComboBox fx:id="filterGenre" prefWidth="160" styleClass="combo-dark"
+					              promptText="Genre"/>
+					    <ComboBox fx:id="filterYear"  prefWidth="130" styleClass="combo-dark"
+					              promptText="Année"/>
+					
+					    <!-- Push Surprise to the right -->
+					    <Region HBox.hgrow="ALWAYS"/>
+					
+					    <Button text="🎲 Surprise"
+					            onAction="#onRandomPlay"
+					            styleClass="btn-random"/>
+					</HBox>
 
                     <!-- ══ CATEGORY ROWS ══ -->
                     <VBox fx:id="categoriesContainer" spacing="28"

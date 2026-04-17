@@ -52,10 +52,9 @@ public class ContentService {
             throw new IllegalArgumentException("Le type (Film/Série) est requis.");
     }
     
- // ─────────────────────────────────────────────────────────────────────────────
- // ADD this method to your existing ContentService class
- // It searches the `casting` column — no DB change needed.
- // ─────────────────────────────────────────────────────────────────────────────
+    public Content getRandomContent() throws SQLException {
+        return contentDAO.findRandom();
+    }
 
  /**
   * Returns all content where the casting field contains actorName.

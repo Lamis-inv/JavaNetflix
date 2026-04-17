@@ -106,6 +106,14 @@ public class ContentDAO {
             ps.executeUpdate();
         }
     }
+    
+    public Content findRandom() throws SQLException {
+        String sql = "SELECT c.*, cat.name as cat_name FROM content c " +
+                     "LEFT JOIN categories cat ON c.category_id=cat.id " +
+                     "ORDER BY RAND() LIMIT 1";
+        List<Content> list = query(sql);
+        return list.isEmpty() ? null : list.get(0);
+    }
 
     public void incrementViewCount(int contentId) throws SQLException {
         String sql = "UPDATE content SET view_count = view_count + 1 WHERE id=?";

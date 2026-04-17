@@ -550,6 +550,16 @@ public class HomeController {
 
         return popup;
     }
+    
+    @FXML
+    public void onRandomPlay() {
+        try {
+            Content random = contentService.getRandomContent();
+            if (random != null) openDetail(random);
+        } catch (Exception e) {
+            showAlert("Erreur: " + e.getMessage());
+        }
+    }
 
     /**
      * FIX #1: Open YouTube trailer in a floating WebView dialog.
