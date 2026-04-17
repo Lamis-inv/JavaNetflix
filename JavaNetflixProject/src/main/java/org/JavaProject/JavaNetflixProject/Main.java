@@ -14,7 +14,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 	    Navigator.setPrimaryStage(primaryStage);
-	    primaryStage.setTitle("J-Stream");
+	    primaryStage.setTitle("NOTFLIX");
 	    primaryStage.setMinWidth(900);
 	    primaryStage.setMinHeight(600);
 	    Navigator.navigateTo("/ui/Splash.fxml", 900, 600); // ← changed from LoginPage
