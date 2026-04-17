@@ -8,15 +8,16 @@
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:controller="org.JavaProject.JavaNetflixProject.app.HomeController"
            stylesheets="@/css/dark-theme.css"
-           styleClass="root-pane">
+           styleClass="root-pane"
+           minWidth="960" minHeight="540">
 
     <!-- ══════════════════ MAIN UI ══════════════════ -->
     <BorderPane>
 
         <!-- ── TOP BAR ────────────────────────────── -->
         <top>
-            <HBox spacing="12" alignment="CENTER_LEFT" styleClass="top-bar">
-                <padding><Insets top="10" right="20" bottom="10" left="20"/></padding>
+            <HBox spacing="10" alignment="CENTER_LEFT" styleClass="top-bar">
+                <padding><Insets top="10" right="16" bottom="10" left="20"/></padding>
 
                 <Label text="Notflix" styleClass="logo"/>
 
@@ -24,68 +25,65 @@
                            promptText="Rechercher..."
                            styleClass="search-field"
                            onAction="#onSearch"
-                           prefWidth="280" maxWidth="460"/>
-                <Button text="X"           onAction="#onClearSearch" styleClass="btn-icon"/>
-                <Button text="Rechercher"  onAction="#onSearch"      styleClass="btn-s"/>
-
+                           prefWidth="240" maxWidth="380"/>
+                <Button text="✕" onAction="#onClearSearch" styleClass="btn-icon"/>
+                <Button text="Rechercher" onAction="#onSearch" styleClass="btn-s"/>
 
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <!-- History button (#7) -->
+                <!-- History button -->
                 <Button fx:id="historyBtn" text="⏱ Historique"
                         onAction="#onHistory" styleClass="btn-nav"/>
 
                 <!-- Ma Liste -->
                 <Button text="♡ Ma Liste" onAction="#onMyList" styleClass="btn-nav"/>
 
-                <!-- Notification bell (#3) -->
+                <!-- Notification bell -->
                 <StackPane>
                     <Button fx:id="notifBtn" text="🔔"
                             onAction="#onNotifications" styleClass="btn-icon"/>
-                    <!-- Red badge -->
                     <Label fx:id="notifBadge" text="0"
                            styleClass="notif-badge"
                            StackPane.alignment="TOP_RIGHT"
                            visible="false" managed="false"/>
                 </StackPane>
 
-                <Label fx:id="usernameLabel" styleClass="username-label"/>
-                <Button text="Déco" onAction="#onLogout" styleClass="btn-logout"/>
+
+                <!-- ── THREE-DOT MENU BUTTON ── -->
+                <StackPane fx:id="menuAnchor">
+                    <Button fx:id="threeDotBtn" text="⋮"
+                            styleClass="btn-three-dot"
+                            onAction="#onThreeDotMenu"/>
+                </StackPane>
+
             </HBox>
         </top>
 
         <center>
-            <!--
-                fx:id="mainScroll" so the controller can forward
-                scroll events from card rows to the main scroll.
-            -->
             <ScrollPane fx:id="mainScroll"
                         fitToWidth="true" fitToHeight="false"
                         styleClass="main-scroll"
                         hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                        pannable="true">
+                        pannable="false">
 
-                <VBox spacing="0">
+                <VBox spacing="0" minWidth="900">
 
                     <!-- ══ FEATURED BANNER ══ -->
                     <StackPane fx:id="featuredBanner"
-                               prefHeight="480"
+                               prefHeight="420"
                                maxWidth="Infinity"
                                styleClass="featured-banner"
                                VBox.vgrow="NEVER">
 
-                        <!-- Cover image — size bound in controller -->
                         <ImageView fx:id="featuredCover"
                                    preserveRatio="false"
                                    styleClass="featured-cover"
                                    StackPane.alignment="CENTER"/>
 
-                        <!-- Gradient scrim -->
                         <Pane styleClass="banner-gradient"
                               mouseTransparent="true"
                               maxWidth="Infinity" maxHeight="Infinity"/>
 
-                        <!-- FIX #4: arrow buttons consume click so banner doesn't open detail -->
                         <Button fx:id="bannerPrev" text="&#10094;"
                                 onAction="#onBannerPrev"
                                 styleClass="banner-nav-btn"
@@ -99,55 +97,49 @@
                             <StackPane.margin><Insets right="18"/></StackPane.margin>
                         </Button>
 
-                        <!--
-                            FIX #4: text block + dots together bottom-left.
-                            Dots are below the synopsis, NOT in the center of the banner.
-                        -->
-                        <VBox spacing="10"
+                        <VBox spacing="8"
                               StackPane.alignment="BOTTOM_LEFT"
                               mouseTransparent="false"
-                              maxWidth="660">
-                            <padding><Insets bottom="28" left="60"/></padding>
+                              maxWidth="600">
+                            <padding><Insets bottom="24" left="52"/></padding>
 
                             <Label fx:id="featuredTitle"    styleClass="featured-title"/>
                             <Label fx:id="featuredMeta"     styleClass="featured-meta"/>
                             <Label fx:id="featuredSynopsis" wrapText="true"
-                                   styleClass="featured-synopsis" maxWidth="540"/>
+                                   styleClass="featured-synopsis" maxWidth="500"/>
 
-                            <!-- Dots sit just below the synopsis text -->
                             <HBox fx:id="bannerDots" spacing="6" alignment="CENTER_LEFT">
-                                <padding><Insets top="6"/></padding>
+                                <padding><Insets top="4"/></padding>
                             </HBox>
                         </VBox>
 
                     </StackPane>
 
                     <!-- ══ FILTER BAR ══ -->
-					<HBox fx:id="filterBar" spacing="12" alignment="CENTER_LEFT"
-					      styleClass="filter-bar">
-					    <padding><Insets top="14" right="28" bottom="14" left="28"/></padding>
-					
-					    <Label text="Filtrer :" styleClass="filter-label"/>
-					
-					    <ComboBox fx:id="filterType"  prefWidth="130" styleClass="combo-dark"
-					              promptText="Type"/>
-					    <ComboBox fx:id="filterGenre" prefWidth="160" styleClass="combo-dark"
-					              promptText="Genre"/>
-					    <ComboBox fx:id="filterYear"  prefWidth="130" styleClass="combo-dark"
-					              promptText="Année"/>
-					
-					    <!-- Push Surprise to the right -->
-					    <Region HBox.hgrow="ALWAYS"/>
-					
-					    <Button text="🎲 Surprise"
-					            onAction="#onRandomPlay"
-					            styleClass="btn-random"/>
-					</HBox>
+                    <HBox fx:id="filterBar" spacing="10" alignment="CENTER_LEFT"
+                          styleClass="filter-bar">
+                        <padding><Insets top="12" right="24" bottom="12" left="24"/></padding>
+
+                        <Label text="Filtrer :" styleClass="filter-label"/>
+
+                        <ComboBox fx:id="filterType"  prefWidth="120" styleClass="combo-dark"
+                                  promptText="Type"/>
+                        <ComboBox fx:id="filterGenre" prefWidth="150" styleClass="combo-dark"
+                                  promptText="Genre"/>
+                        <ComboBox fx:id="filterYear"  prefWidth="120" styleClass="combo-dark"
+                                  promptText="Année"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <Button text="🎲 Surprise"
+                                onAction="#onRandomPlay"
+                                styleClass="btn-random"/>
+                    </HBox>
 
                     <!-- ══ CATEGORY ROWS ══ -->
-                    <VBox fx:id="categoriesContainer" spacing="28"
+                    <VBox fx:id="categoriesContainer" spacing="24"
                           maxWidth="Infinity" VBox.vgrow="ALWAYS">
-                        <padding><Insets top="20" right="28" bottom="48" left="28"/></padding>
+                        <padding><Insets top="20" right="24" bottom="40" left="24"/></padding>
                     </VBox>
 
                 </VBox>
@@ -156,9 +148,57 @@
 
     </BorderPane>
 
-    <!-- ══ HOVER POPUP LAYER — top of StackPane, full-size, above ScrollPane ══ -->
+    <!-- ══ HOVER POPUP LAYER ══ -->
     <Pane fx:id="hoverOverlay"
           mouseTransparent="true" pickOnBounds="false"
           maxWidth="Infinity" maxHeight="Infinity"/>
+
+    <!-- ══ THREE-DOT DROPDOWN POPUP ══ -->
+    <VBox fx:id="dropdownMenu"
+          styleClass="dropdown-menu"
+          visible="false" managed="false"
+          pickOnBounds="true"
+          StackPane.alignment="TOP_RIGHT">
+        <StackPane.margin><Insets top="54" right="12"/></StackPane.margin>
+
+        <!-- User greeting header -->
+        <VBox styleClass="dropdown-header" spacing="2">
+            <padding><Insets top="14" right="16" bottom="10" left="16"/></padding>
+            <Label fx:id="dropdownGreeting" text="Bonjour," styleClass="dropdown-greeting"/>
+            <Label fx:id="dropdownUsername" text="User" styleClass="dropdown-username"/>
+        </VBox>
+
+        <Pane styleClass="dropdown-divider"/>
+
+        <!-- Go back to dashboard (admin only, shown via code) -->
+        <Button fx:id="dropdownDashboard"
+                text="🖥  Admin Dashboard"
+                styleClass="dropdown-item dropdown-item-admin"
+                onAction="#onGoToDashboard"
+                maxWidth="Infinity"
+                visible="false" managed="false"/>
+
+        <!-- Help -->
+        <Button text="❓  Aide &amp; Support"
+                styleClass="dropdown-item"
+                onAction="#onHelp"
+                maxWidth="Infinity"/>
+
+        <Pane styleClass="dropdown-divider"/>
+
+        <!-- Delete account — danger -->
+        <Button text="🗑  Supprimer le compte"
+                styleClass="dropdown-item dropdown-item-danger"
+                onAction="#onDeleteAccount"
+                maxWidth="Infinity"/>
+
+        <!-- Logout -->
+        <Button text="⏻  Déconnexion"
+                styleClass="dropdown-item"
+                onAction="#onLogout"
+                maxWidth="Infinity"/>
+
+        <Pane prefHeight="6"/>
+    </VBox>
 
 </StackPane>

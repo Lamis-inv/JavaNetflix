@@ -2085,3 +2085,266 @@
     -fx-effect: none;
     -fx-background-color: #111111;
 }
+
+
+
+
+
+
+
+
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADDITIONS — append these rules to dark-theme.css
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── THREE-DOT BUTTON ─────────────────────────────────────────────── */
+.btn-three-dot {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-text-fill: #e5e5e5;
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-min-width: 36px;
+    -fx-min-height: 36px;
+    -fx-max-width: 36px;
+    -fx-max-height: 36px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-width: 1px;
+    -fx-cursor: hand;
+    -fx-padding: 0;
+    -fx-alignment: CENTER;
+    /* Make the three dots stack vertically */
+    -fx-letter-spacing: 0;
+    -fx-content-display: CENTER;
+}
+.btn-three-dot:hover {
+    -fx-background-color: rgba(255,255,255,0.14);
+    -fx-border-color: rgba(255,255,255,0.20);
+}
+
+/* ── DROPDOWN MENU ────────────────────────────────────────────────── */
+.dropdown-menu {
+    -fx-background-color: #111118;
+    -fx-border-color: rgba(255,255,255,0.10);
+    -fx-border-width: 1px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-min-width: 220px;
+    -fx-max-width: 220px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.85), 32, 0, 0, 8);
+    -fx-spacing: 0;
+}
+
+.dropdown-header {
+    -fx-background-color: #18181f;
+    -fx-background-radius: 12 12 0 0;
+    -fx-border-color: transparent transparent rgba(255,255,255,0.07) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.dropdown-greeting {
+    -fx-text-fill: #555566;
+    -fx-font-size: 10px;
+    -fx-font-family: "Courier New";
+    -fx-letter-spacing: 0.1em;
+}
+
+.dropdown-username {
+    -fx-text-fill: #e8e8e8;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.dropdown-divider {
+    -fx-background-color: rgba(255,255,255,0.07);
+    -fx-pref-height: 1px;
+    -fx-min-height: 1px;
+    -fx-max-height: 1px;
+}
+
+.dropdown-item {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9999aa;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 11 16 11 16;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+.dropdown-item:hover {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-text-fill: #ffffff;
+}
+
+.dropdown-item-admin {
+    -fx-text-fill: #4fa3e0;
+}
+.dropdown-item-admin:hover {
+    -fx-background-color: rgba(79,163,224,0.08);
+    -fx-text-fill: #6ab8f0;
+}
+
+.dropdown-item-danger {
+    -fx-text-fill: #cc4444;
+}
+.dropdown-item-danger:hover {
+    -fx-background-color: rgba(204,68,68,0.08);
+    -fx-text-fill: #ff5555;
+}
+
+/* ── POPUP SHARE BUTTON ───────────────────────────────────────────── */
+.popup-share-btn {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-text-fill: #c8c8c8;
+    -fx-font-size: 11px;
+    -fx-background-radius: 4px;
+    -fx-border-color: rgba(255,255,255,0.16);
+    -fx-border-radius: 4px;
+    -fx-border-width: 1px;
+    -fx-padding: 5 10 5 10;
+    -fx-cursor: hand;
+}
+.popup-share-btn:hover {
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-text-fill: #ffffff;
+}
+
+/* ── DETAIL SHARE + TRAILER BUTTONS ─────────────────────────────── */
+.btn-share {
+    -fx-background-color: rgba(255,255,255,0.08);
+    -fx-text-fill: #d0d0d0;
+    -fx-font-size: 13px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: rgba(255,255,255,0.16);
+    -fx-border-width: 1px;
+    -fx-padding: 9 18 9 18;
+    -fx-cursor: hand;
+}
+.btn-share:hover {
+    -fx-background-color: rgba(255,255,255,0.14);
+    -fx-text-fill: #ffffff;
+    -fx-border-color: rgba(255,255,255,0.28);
+}
+
+/* Fixed trailer button — not red, clean & distinct */
+.btn-trailer-fixed {
+    -fx-background-color: rgba(229,229,229,0.10);
+    -fx-text-fill: #e5e5e5;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-color: rgba(229,229,229,0.30);
+    -fx-border-width: 1.5px;
+    -fx-padding: 9 18 9 18;
+    -fx-cursor: hand;
+}
+.btn-trailer-fixed:hover {
+    -fx-background-color: rgba(229,229,229,0.18);
+    -fx-border-color: rgba(229,229,229,0.55);
+    -fx-effect: dropshadow(gaussian, rgba(229,229,229,0.15), 14, 0, 0, 0);
+}
+.btn-trailer-fixed:pressed {
+    -fx-background-color: rgba(229,229,229,0.25);
+    -fx-translate-y: 1px;
+}
+
+/* ── NOW PLAYING LABEL (navbar) ──────────────────────────────────── */
+.now-playing-label {
+    -fx-text-fill: #3a3a4e;
+    -fx-font-size: 11px;
+    -fx-font-family: "Courier New";
+    -fx-letter-spacing: 0.05em;
+    -fx-padding: 0 8 0 0;
+}
+
+/* ── NOW PLAYING BAR (above player) ─────────────────────────────── */
+.now-playing-bar {
+    -fx-background-color: #0d0d0d;
+    -fx-border-color: transparent transparent rgba(255,255,255,0.06) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.now-playing-info {
+    -fx-text-fill: #d0d0d0;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.player-shortcuts {
+    -fx-text-fill: #2a2a3a;
+    -fx-font-size: 10px;
+    -fx-font-family: "Courier New";
+}
+
+/* ── SEEK BUTTONS (+10 / -10) ────────────────────────────────────── */
+.btn-player-seek {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9999aa;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-font-family: "Courier New";
+    -fx-cursor: hand;
+    -fx-padding: 4 8 4 8;
+    -fx-background-radius: 4px;
+    -fx-border-color: transparent;
+}
+.btn-player-seek:hover {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: rgba(255,255,255,0.07);
+}
+
+/* ── ADMIN WATCH MODE BUTTON (sidebar) ──────────────────────────── */
+.btn-watch-mode {
+    -fx-background-color: rgba(79,163,224,0.08);
+    -fx-text-fill: #4fa3e0;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 10 16 10 24;
+    -fx-cursor: hand;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0;
+}
+.btn-watch-mode:hover {
+    -fx-background-color: rgba(79,163,224,0.14);
+    -fx-text-fill: #6ab8f0;
+}
+
+/* ── ADMIN HINT (signup) ─────────────────────────────────────────── */
+.admin-hint-row {
+    -fx-background-color: rgba(79,163,224,0.06);
+    -fx-border-color: rgba(79,163,224,0.18);
+    -fx-border-width: 0 0 0 3px;
+    -fx-padding: 6 10 6 12;
+    -fx-background-radius: 0 6px 6px 0;
+}
+
+/* ── EPISODE TREE — edit/delete actions ─────────────────────────── */
+.dark-treetable .tree-table-cell .btn-sm {
+    -fx-font-size: 10px;
+    -fx-padding: 3 8 3 8;
+}
+
+/* ── CONTENT CARD min-width fix (responsive) ─────────────────────── */
+.content-card {
+    -fx-min-width: 140px;
+    -fx-max-width: 175px;
+}
+
+/* ── FLOW PANE wrapping (replaces horizontal scroll) ─────────────── */
+.category-section {
+    -fx-max-width: Infinity;
+}
+
+/* ── DETAIL PAGE — min-width ─────────────────────────────────────── */
+.root-pane {
+    -fx-min-width: 860px;
+    -fx-min-height: 540px;
+}

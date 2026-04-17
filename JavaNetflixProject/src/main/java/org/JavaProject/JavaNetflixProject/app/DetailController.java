@@ -9,12 +9,13 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.media.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.scene.web.WebView;
 import javafx.stage.*;
 import javafx.util.Duration;
 
@@ -32,7 +33,11 @@ import org.JavaProject.JavaNetflixProject.Utils.Session;
 public class DetailController {
 
     // ── FXML ─────────────────────────────────────────────────────────────────
-    @FXML private Label     titleLabel, yearLabel, durationLabel, categoryLabel, ratingLabel, castingLabel;
+    @FXML private Label     titleLabel, yearLabel, durationLabel, categoryLabel,
+                            ratingLabel, castingLabel;
+    @FXML private Label     nowPlayingLabel;   // in navbar
+    @FXML private Label     nowPlayingInfo;    // inside player bar
+    @FXML private HBox      nowPlayingBar;
     @FXML private Text      synopsisText;
     @FXML private ImageView coverImage;
 
@@ -48,26 +53,21 @@ public class DetailController {
     @FXML private ComboBox<Season>  seasonCombo;
     @FXML private VBox              episodeListBox;
 
-    // Rating / comments / watchlist
+    // Rating / comments / watchlist / share
     @FXML private HBox     starsBox;
     @FXML private VBox     commentsBox;
     @FXML private TextArea commentInput;
     @FXML private Button   watchlistBtn;
+    @FXML private Button   shareBtn;
+    @FXML private Button   trailerBtn;
 
     // Countdown
     @FXML private VBox     countdownOverlay;
     @FXML private Label    countdownLabel;
     @FXML private StackPane rootStack;
 
-    // Trailer button (#1)
-    @FXML private Button trailerBtn;
-
-    // Cast row (#6) — clickable actor chips
+    // Cast row
     @FXML private FlowPane castRow;
-
-    // Unused FXML overlay — kept for FXML compatibility
-    @FXML private StackPane fullscreenOverlay;
-    @FXML private MediaView fullscreenMediaView;
 
     // ── State ─────────────────────────────────────────────────────────────────
     private Content      content;
@@ -75,8 +75,12 @@ public class DetailController {
     private int          userRating    = 0;
     private boolean      isInWatchlist = false;
     private Episode      currentEpisode;
+    private Season       currentSeason;
     private Timeline     countdownTimeline;
     private Stage        fullscreenStage;
+    private int          resumeTimeSec = 0;
+    private int          resumeEpisodeId = -1;
+    private int          resumeEpisodeTime = 0;
 
     private final ContentService   contentService   = new ContentService();
     private final SeasonDAO        seasonDAO        = new SeasonDAO();
@@ -87,52 +91,50 @@ public class DetailController {
     private final WatchHistoryDAO  watchHistoryDAO  = new WatchHistoryDAO();
 
     // ── Init ──────────────────────────────────────────────────────────────────
-
     @FXML
     public void initialize() {
         if (volumeSlider != null) volumeSlider.setValue(80);
         if (countdownOverlay != null) countdownOverlay.setVisible(false);
-        if (fullscreenOverlay != null) {
-            fullscreenOverlay.setVisible(false);
-            fullscreenOverlay.setManaged(false);
+
+        // Hide now-playing bar initially
+        if (nowPlayingBar != null) {
+            nowPlayingBar.setVisible(false);
+            nowPlayingBar.setManaged(false);
         }
+
+        // Keyboard shortcuts
         rootStack.sceneProperty().addListener((obs, o, newScene) -> {
             if (newScene != null) {
                 newScene.setOnKeyPressed(e -> {
-                    if (e.getCode() == KeyCode.ESCAPE) exitFullscreen();
-                    if (e.getCode() == KeyCode.SPACE && mediaPlayer != null) onPlayPause();
+                    if (e.getCode() == KeyCode.ESCAPE)  exitFullscreen();
+                    if (e.getCode() == KeyCode.SPACE)   { e.consume(); onPlayPause(); }
+                    if (e.getCode() == KeyCode.LEFT)    { e.consume(); seekRelative(-10); }
+                    if (e.getCode() == KeyCode.RIGHT)   { e.consume(); seekRelative(10); }
+                    if (e.getCode() == KeyCode.F)       onFullscreen();
+                    if (e.getCode() == KeyCode.M)       toggleMute();
                 });
             }
         });
 
-        // FIX #8: bind MediaView width to its parent StackPane on layout
         Platform.runLater(this::bindPlayerToParent);
     }
 
     private void bindPlayerToParent() {
-    	if (mediaView != null && mediaView.getParent() instanceof StackPane) {
-    	    StackPane sp = (StackPane) mediaView.getParent();
-
-    	    mediaView.fitWidthProperty().bind(sp.widthProperty());
-    	    mediaView.fitHeightProperty().bind(sp.widthProperty().multiply(9.0 / 16.0));
-    	}
+        if (mediaView != null && mediaView.getParent() instanceof StackPane) {
+            StackPane sp = (StackPane) mediaView.getParent();
+            mediaView.fitWidthProperty().bind(sp.widthProperty());
+            mediaView.fitHeightProperty().bind(sp.widthProperty().multiply(9.0 / 16.0));
+        }
     }
-    private int resumeTimeSec = 0;
 
     public void setResumeTime(int seconds) {
         this.resumeTimeSec = seconds;
-
-        // If player already loaded → seek immediately
         if (mediaPlayer != null) {
             mediaPlayer.setOnReady(() -> {
-                if (resumeTimeSec > 0) {
-                    mediaPlayer.seek(Duration.seconds(resumeTimeSec));
-                }
+                if (resumeTimeSec > 0) mediaPlayer.seek(Duration.seconds(resumeTimeSec));
             });
         }
     }
-    private int resumeEpisodeId = -1;
-    private int resumeEpisodeTime = 0;
 
     public void setResumeEpisodeId(int episodeId, int seconds) {
         this.resumeEpisodeId = episodeId;
@@ -146,6 +148,7 @@ public class DetailController {
         if (c.isFilm()) {
             serieBox.setVisible(false); serieBox.setManaged(false);
             filmPlayerBox.setVisible(true); filmPlayerBox.setManaged(true);
+            setNowPlayingFilm(c);
             if (c.getVideoUrl() != null && !c.getVideoUrl().isBlank())
                 loadMedia(c.getVideoUrl());
         } else {
@@ -154,7 +157,7 @@ public class DetailController {
             loadSeasons();
         }
 
-        // FIX #1: show/hide trailer button based on trailer_url
+        // Trailer button
         if (trailerBtn != null) {
             boolean hasTrailer = c.getTrailerUrl() != null && !c.getTrailerUrl().isBlank();
             trailerBtn.setVisible(hasTrailer);
@@ -165,6 +168,29 @@ public class DetailController {
         loadComments();
         setupWatchlist();
         try { contentService.incrementViews(c.getId()); } catch (Exception ignored) {}
+    }
+
+    private void setNowPlayingFilm(Content c) {
+        String info = c.getTitle();
+        if (nowPlayingLabel != null) nowPlayingLabel.setText("▶ " + info);
+        if (nowPlayingInfo != null)  nowPlayingInfo.setText(info);
+        if (nowPlayingBar != null) {
+            nowPlayingBar.setVisible(true);
+            nowPlayingBar.setManaged(true);
+        }
+    }
+
+    private void setNowPlayingEpisode(Content serie, Season season, Episode ep) {
+        String info = serie.getTitle()
+                + "  —  Saison " + season.getNumber()
+                + "  ·  Épisode " + ep.getEpisodeNum()
+                + "  \"" + ep.getTitle() + "\"";
+        if (nowPlayingLabel != null) nowPlayingLabel.setText("▶ " + info);
+        if (nowPlayingInfo != null)  nowPlayingInfo.setText(info);
+        if (nowPlayingBar != null) {
+            nowPlayingBar.setVisible(true);
+            nowPlayingBar.setManaged(true);
+        }
     }
 
     private void populateDetails() {
@@ -179,25 +205,13 @@ public class DetailController {
             try { coverImage.setImage(new Image(content.getCoverUrl(), true)); }
             catch (Exception ignored) {}
         }
-
-        // FIX #6: build clickable actor chips instead of a plain label
         buildCastChips(content.getCasting());
     }
 
-    /**
-     * FIX #6: Splits the casting string by comma and creates a clickable
-     * chip per actor. Clicking opens a search-results dialog showing all
-     * content that actor appears in (using the existing search() method —
-     * no DB change needed).
-     */
     private void buildCastChips(String casting) {
         if (castRow == null) return;
         castRow.getChildren().clear();
-        if (casting == null || casting.isBlank()) {
-            castingLabel.setText("");
-            return;
-        }
-        castingLabel.setText(""); // we replace the label with chips
+        if (casting == null || casting.isBlank()) return;
 
         List<String> actors = Arrays.stream(casting.split(","))
             .map(String::trim).filter(s -> !s.isEmpty())
@@ -211,7 +225,6 @@ public class DetailController {
         }
     }
 
-    /** Opens a modal showing all content the actor appears in */
     private void openActorSearch(String actorName) {
         Stage dialog = new Stage(StageStyle.UTILITY);
         dialog.setTitle("Filmographie : " + actorName);
@@ -223,7 +236,6 @@ public class DetailController {
         list.setStyle("-fx-background-color:#111;");
 
         try {
-            // Reuse existing ContentService.search() — searches title + casting
             List<Content> results = contentService.searchByCast(actorName);
             if (results.isEmpty()) {
                 Label empty = new Label("Aucun résultat trouvé pour " + actorName + ".");
@@ -235,12 +247,10 @@ public class DetailController {
                 row.setAlignment(Pos.CENTER_LEFT);
                 row.setPadding(new Insets(8));
                 row.setStyle("-fx-background-color:#1c1c1c;-fx-background-radius:6px;-fx-cursor:hand;");
-
                 ImageView cover = new ImageView();
-                cover.setFitWidth(44); cover.setFitHeight(62); cover.setPreserveRatio(false);
-                if (c.getCoverUrl() != null && !c.getCoverUrl().isBlank())
+                cover.setFitWidth(44); cover.setFitHeight(62);
+                if (c.getCoverUrl() != null)
                     cover.setImage(new Image(c.getCoverUrl(), 44, 62, false, true, true));
-
                 VBox info = new VBox(3);
                 Label tl = new Label(c.getTitle());
                 tl.setStyle("-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:bold;");
@@ -248,7 +258,6 @@ public class DetailController {
                 ml.setStyle("-fx-text-fill:#888;-fx-font-size:11px;");
                 info.getChildren().addAll(tl, ml);
                 HBox.setHgrow(info, Priority.ALWAYS);
-
                 row.getChildren().addAll(cover, info);
                 row.setOnMouseClicked(e -> { dialog.close(); openDetailPage(c); });
                 list.getChildren().add(row);
@@ -276,55 +285,97 @@ public class DetailController {
         } catch (IOException e) { showAlert(e.getMessage()); }
     }
 
-    // ── Trailer (#1) ──────────────────────────────────────────────────────────
+    // ── Share ─────────────────────────────────────────────────────────────────
+    @FXML
+    public void onShare() {
+        Stage dialog = new Stage(StageStyle.UTILITY);
+        dialog.setTitle("Partager — " + content.getTitle());
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setWidth(400); dialog.setHeight(220);
 
+        VBox box = new VBox(16);
+        box.setPadding(new Insets(24));
+        box.setStyle("-fx-background-color:#111;");
+
+        Label title = new Label("↗  Partager \"" + content.getTitle() + "\"");
+        title.setStyle("-fx-text-fill:#e5e5e5;-fx-font-size:15px;-fx-font-weight:bold;");
+
+        String shareUrl = "notflix://watch/" + content.getId() + "/" +
+            content.getTitle().toLowerCase().replaceAll("\\s+", "-");
+
+        HBox linkRow = new HBox(8);
+        TextField linkField = new TextField(shareUrl);
+        linkField.setEditable(false);
+        linkField.setStyle("-fx-background-color:#1a1a1a;-fx-text-fill:#888;-fx-border-color:#2a2a2a;" +
+            "-fx-border-radius:6px;-fx-background-radius:6px;-fx-padding:8 10;-fx-font-size:11px;");
+        HBox.setHgrow(linkField, Priority.ALWAYS);
+
+        Button copyBtn = new Button("Copier");
+        copyBtn.setStyle("-fx-background-color:#e5e5e5;-fx-text-fill:#000;-fx-font-weight:bold;" +
+            "-fx-background-radius:6px;-fx-padding:8 14;-fx-cursor:hand;");
+        copyBtn.setOnAction(e -> {
+            ClipboardContent cc = new ClipboardContent();
+            cc.putString(shareUrl);
+            Clipboard.getSystemClipboard().setContent(cc);
+            copyBtn.setText("✓ Copié!");
+            copyBtn.setStyle("-fx-background-color:#22c55e;-fx-text-fill:#fff;-fx-font-weight:bold;" +
+                "-fx-background-radius:6px;-fx-padding:8 14;-fx-cursor:hand;");
+            new Timeline(new KeyFrame(Duration.seconds(1.5), ev -> {
+                copyBtn.setText("Copier");
+                copyBtn.setStyle("-fx-background-color:#e5e5e5;-fx-text-fill:#000;-fx-font-weight:bold;" +
+                    "-fx-background-radius:6px;-fx-padding:8 14;-fx-cursor:hand;");
+            })).play();
+        });
+        linkRow.getChildren().addAll(linkField, copyBtn);
+
+        Label hint = new Label("Partagez ce lien avec vos amis !");
+        hint.setStyle("-fx-text-fill:#404040;-fx-font-size:11px;");
+
+        box.getChildren().addAll(title, linkRow, hint);
+        dialog.setScene(new Scene(box));
+        dialog.show();
+    }
+
+    // ── Trailer ───────────────────────────────────────────────────────────────
     @FXML
     public void onPlayTrailer() {
-        String path = content.getTrailerUrl(); // this should point to your local file
+        String path = content.getTrailerUrl();
         if (path == null || path.isBlank()) return;
-
         try {
-            // Convert file path to URI
             String uri = path.startsWith("http") ? path : new java.io.File(path).toURI().toString();
-
             Media media = new Media(uri);
             MediaPlayer trailerPlayer = new MediaPlayer(media);
-            trailerPlayer.setAutoPlay(true);   // autoplay
-            trailerPlayer.setVolume(0.8);      // optional volume
-
+            trailerPlayer.setAutoPlay(true);
+            trailerPlayer.setVolume(0.8);
             MediaView trailerView = new MediaView(trailerPlayer);
-            trailerView.setFitWidth(896);
-            trailerView.setFitHeight(504);
+            trailerView.setFitWidth(860);
+            trailerView.setFitHeight(484);
             trailerView.setPreserveRatio(true);
 
-            Button closeBtn = new Button("Fermer");
+            Button closeBtn = new Button("✕ Fermer");
             closeBtn.getStyleClass().add("btn-secondary");
 
-            VBox root = new VBox(8, trailerView, closeBtn);
+            Label trailerTitle = new Label("▶  Bande-annonce — " + content.getTitle());
+            trailerTitle.setStyle("-fx-text-fill:#e5e5e5;-fx-font-size:14px;-fx-font-weight:bold;");
+
+            VBox root = new VBox(12, trailerTitle, trailerView, closeBtn);
             root.setAlignment(Pos.CENTER);
-            root.setPadding(new Insets(10));
-            root.setStyle("-fx-background-color:#111;");
+            root.setPadding(new Insets(16));
+            root.setStyle("-fx-background-color:#000;");
 
             Stage dialog = new Stage(StageStyle.UTILITY);
             dialog.setTitle("Bande-annonce — " + content.getTitle());
             dialog.initModality(Modality.APPLICATION_MODAL);
-
-            closeBtn.setOnAction(e -> {
-                trailerPlayer.stop();
-                dialog.close();
-            });
-
+            closeBtn.setOnAction(e -> { trailerPlayer.stop(); dialog.close(); });
             dialog.setOnCloseRequest(e -> trailerPlayer.stop());
             dialog.setScene(new Scene(root));
             dialog.show();
-
         } catch (Exception ex) {
             showAlert("Impossible de lire la bande-annonce : " + ex.getMessage());
         }
     }
 
     // ── Media Player ──────────────────────────────────────────────────────────
-
     private void loadMedia(String url) {
         mediaView.setOnMouseClicked(e -> { if (e.getClickCount() == 2) onFullscreen(); });
         if (mediaPlayer != null) mediaPlayer.dispose();
@@ -337,6 +388,9 @@ public class DetailController {
             mediaPlayer.setOnEndOfMedia(this::onMediaEnd);
             volumeSlider.valueProperty().addListener((obs, o, n) ->
                 mediaPlayer.setVolume(n.doubleValue() / 100.0));
+            if (resumeTimeSec > 0) {
+                mediaPlayer.setOnReady(() -> mediaPlayer.seek(Duration.seconds(resumeTimeSec)));
+            }
         } catch (Exception e) {
             showAlert("Impossible de charger la vidéo: " + e.getMessage());
         }
@@ -348,7 +402,8 @@ public class DetailController {
         if (total != null && total.greaterThan(Duration.ZERO))
             progressSlider.setValue(current.toSeconds() / total.toSeconds() * 100);
         int sec = (int) current.toSeconds();
-        timeLabel.setText(formatTime(sec) + " / " + formatTime((int)(total != null ? total.toSeconds() : 0)));
+        timeLabel.setText(formatTime(sec) + " / " +
+            formatTime((int)(total != null ? total.toSeconds() : 0)));
     }
 
     private void onMediaEnd() {
@@ -391,6 +446,52 @@ public class DetailController {
         }
     }
 
+    @FXML public void onRewind10()  { seekRelative(-10); }
+    @FXML public void onForward10() { seekRelative(10); }
+
+    private void seekRelative(int seconds) {
+        if (mediaPlayer == null) return;
+        Duration current = mediaPlayer.getCurrentTime();
+        Duration total   = mediaPlayer.getTotalDuration();
+        if (total == null) return;
+        Duration target = current.add(Duration.seconds(seconds));
+        target = target.lessThan(Duration.ZERO) ? Duration.ZERO :
+                 target.greaterThan(total) ? total : target;
+        mediaPlayer.seek(target);
+        // Visual flash feedback
+        showSeekFeedback(seconds > 0);
+    }
+
+    private void showSeekFeedback(boolean forward) {
+        Label flash = new Label(forward ? "+10s →" : "← -10s");
+        flash.setStyle("-fx-background-color:rgba(255,255,255,0.15);-fx-text-fill:white;" +
+            "-fx-font-size:18px;-fx-font-weight:bold;-fx-background-radius:8px;-fx-padding:8 16;");
+        flash.setOpacity(0);
+
+        if (mediaView.getParent() instanceof StackPane) {
+            StackPane sp = (StackPane) mediaView.getParent();
+
+            sp.getChildren().add(flash);
+            StackPane.setAlignment(flash, forward ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+            StackPane.setMargin(flash, new Insets(0, 30, 0, 30));
+
+            FadeTransition fin = new FadeTransition(Duration.millis(120), flash);
+            fin.setToValue(1);
+
+            FadeTransition fout = new FadeTransition(Duration.millis(300), flash);
+            fout.setToValue(0);
+            fout.setDelay(Duration.millis(500));
+            fout.setOnFinished(e -> sp.getChildren().remove(flash));
+
+            new SequentialTransition(fin, fout).play();
+        }
+    }
+
+    private void toggleMute() {
+        if (mediaPlayer == null) return;
+        mediaPlayer.setMute(!mediaPlayer.isMute());
+    }
+
     @FXML public void onSeek() {
         if (mediaPlayer != null && mediaPlayer.getTotalDuration() != null)
             mediaPlayer.seek(Duration.seconds(
@@ -411,18 +512,14 @@ public class DetailController {
             Button fsPlayPause = new Button(
                 mediaPlayer.getStatus() == MediaPlayer.Status.PLAYING ? "⏸" : "▶");
             fsPlayPause.getStyleClass().add("btn-player");
+            Button fsRewind  = new Button("−10"); fsRewind.getStyleClass().add("btn-player-seek");
+            Button fsForward = new Button("+10");  fsForward.getStyleClass().add("btn-player-seek");
 
             Slider fsProgress = new Slider();
             HBox.setHgrow(fsProgress, Priority.ALWAYS);
-
-            Label fsTime = new Label("00:00 / 00:00");
-            fsTime.getStyleClass().add("time-label");
-
-            Slider fsVolume = new Slider(0, 100, volumeSlider.getValue());
-            fsVolume.setPrefWidth(100);
-
-            Button fsExit = new Button("✕ Quitter");
-            fsExit.getStyleClass().add("btn-player");
+            Label fsTime = new Label("00:00 / 00:00"); fsTime.getStyleClass().add("time-label");
+            Slider fsVolume = new Slider(0, 100, volumeSlider.getValue()); fsVolume.setPrefWidth(90);
+            Button fsExit = new Button("✕ Quitter"); fsExit.getStyleClass().add("btn-player");
             fsExit.setOnAction(e -> exitFullscreen());
 
             mediaPlayer.currentTimeProperty().addListener((obs, o, n) -> {
@@ -443,6 +540,9 @@ public class DetailController {
                     mediaPlayer.play();  fsPlayPause.setText("⏸"); playPauseBtn.setText("⏸");
                 }
             });
+            fsRewind.setOnAction(e  -> seekRelative(-10));
+            fsForward.setOnAction(e -> seekRelative(10));
+
             fsProgress.setOnMouseReleased(e -> {
                 if (mediaPlayer.getTotalDuration() != null) {
                     mediaPlayer.seek(Duration.seconds(
@@ -455,26 +555,28 @@ public class DetailController {
                 volumeSlider.setValue(n.doubleValue());
             });
 
-            HBox controls = new HBox(12, fsPlayPause, fsProgress, fsTime,
-                new Label("🔊"), fsVolume, fsExit);
+            HBox controls = new HBox(10, fsPlayPause, fsRewind, fsProgress,
+                fsForward, fsTime, new Label("🔊"), fsVolume, fsExit);
             controls.setAlignment(Pos.CENTER_LEFT);
-            controls.setStyle("-fx-background-color:rgba(0,0,0,0.7);-fx-padding:8 16 8 16;");
+            controls.setStyle("-fx-background-color:rgba(0,0,0,0.80);-fx-padding:8 16 8 16;");
 
             BorderPane fsRoot = new BorderPane();
             fsRoot.setStyle("-fx-background-color:black;");
             fsRoot.setCenter(fsView);
             fsRoot.setBottom(controls);
-            BorderPane.setAlignment(controls, Pos.CENTER);
 
             double w = Screen.getPrimary().getBounds().getWidth();
             double h = Screen.getPrimary().getBounds().getHeight();
             Scene fsScene = new Scene(fsRoot, w, h, Color.BLACK);
-            if (!rootStack.getScene().getStylesheets().isEmpty())
+            if (rootStack.getScene() != null && !rootStack.getScene().getStylesheets().isEmpty())
                 fsScene.getStylesheets().addAll(rootStack.getScene().getStylesheets());
 
             fsScene.setOnKeyPressed(e -> {
                 if (e.getCode() == KeyCode.ESCAPE) exitFullscreen();
-                if (e.getCode() == KeyCode.SPACE)  fsPlayPause.fire();
+                if (e.getCode() == KeyCode.SPACE)  { e.consume(); fsPlayPause.fire(); }
+                if (e.getCode() == KeyCode.LEFT)   { e.consume(); seekRelative(-10); }
+                if (e.getCode() == KeyCode.RIGHT)  { e.consume(); seekRelative(10); }
+                if (e.getCode() == KeyCode.M)      toggleMute();
             });
 
             fullscreenStage.setScene(fsScene);
@@ -491,14 +593,16 @@ public class DetailController {
     }
 
     // ── Seasons / Episodes ────────────────────────────────────────────────────
-
     private void loadSeasons() {
         try {
             List<Season> seasons = seasonDAO.findBySerieId(content.getId());
             seasonCombo.getItems().addAll(seasons);
             seasonCombo.getSelectionModel().selectedItemProperty().addListener(
-                (obs, o, n) -> { if (n != null) loadEpisodes(n); });
-            if (!seasons.isEmpty()) seasonCombo.getSelectionModel().selectFirst();
+                (obs, o, n) -> { if (n != null) { currentSeason = n; loadEpisodes(n); } });
+            if (!seasons.isEmpty()) {
+                currentSeason = seasons.get(0);
+                seasonCombo.getSelectionModel().selectFirst();
+            }
         } catch (Exception e) { showAlert("Erreur saisons: " + e.getMessage()); }
     }
 
@@ -506,14 +610,11 @@ public class DetailController {
         episodeListBox.getChildren().clear();
         try {
             List<Episode> episodes = episodeDAO.findBySeasonId(season.getId());
-
             for (Episode ep : episodes) {
                 int uid = Session.getCurrentUser().getId();
                 ep.setWatched(watchHistoryDAO.isCompleted(uid, ep.getId()));
                 ep.setProgressSec(watchHistoryDAO.getProgressSec(uid, ep.getId()));
-
                 episodeListBox.getChildren().add(buildEpisodeRow(ep));
-
                 if (ep.getId() == resumeEpisodeId) {
                     ep.setProgressSec(resumeEpisodeTime);
                     Platform.runLater(() -> playEpisode(ep));
@@ -534,7 +635,7 @@ public class DetailController {
         VBox info = new VBox(3);
         Label tl = new Label(ep.getTitle()); tl.getStyleClass().add("episode-title");
         Label sl = new Label(ep.getSynopsis() != null ? ep.getSynopsis() : "");
-        sl.getStyleClass().add("episode-synopsis"); sl.setWrapText(true);
+        sl.getStyleClass().add("episode-synopsis"); sl.setWrapText(true); sl.setMaxWidth(480);
         Label dl = new Label(ep.getDurationMin() + " min"); dl.getStyleClass().add("episode-duration");
         info.getChildren().addAll(tl, sl, dl);
         HBox.setHgrow(info, Priority.ALWAYS);
@@ -542,10 +643,17 @@ public class DetailController {
         Label status = new Label(ep.isWatched() ? "✅ Vu" : ep.getProgressSec() > 0 ? "▶ En cours" : "");
         status.getStyleClass().add("episode-status");
 
-        row.getChildren().addAll(num, info, status);
-        row.setOnMouseEntered(e -> { row.setScaleX(1.02); row.setScaleY(1.02); });
-        row.setOnMouseExited(e  -> { row.setScaleX(1);    row.setScaleY(1); });
-        row.setOnMouseClicked(e -> playEpisode(ep));
+        // Play icon
+        Button playIcon = new Button("▶");
+        playIcon.setStyle("-fx-background-color:transparent;-fx-text-fill:#9999aa;-fx-font-size:16px;-fx-cursor:hand;");
+        playIcon.setOnAction(e -> { e.consume(); playEpisode(ep); });
+
+        row.getChildren().addAll(num, info, status, playIcon);
+        row.setOnMouseEntered(e -> { row.setScaleX(1.015); row.setScaleY(1.015); });
+        row.setOnMouseExited(e  -> { row.setScaleX(1); row.setScaleY(1); });
+        row.setOnMouseClicked(e -> {
+            if (e.getClickCount() == 1) playEpisode(ep);
+        });
         return row;
     }
 
@@ -557,10 +665,14 @@ public class DetailController {
         if (mediaPlayer != null) mediaPlayer.dispose();
         if (fullscreenStage != null) { fullscreenStage.close(); fullscreenStage = null; }
 
+        // Show now playing info
+        if (currentSeason != null) setNowPlayingEpisode(content, currentSeason, ep);
+
         String url = ep.getVideoUrl();
         if (!url.startsWith("http")) url = new java.io.File(url).toURI().toString();
 
-        mediaPlayer = new MediaPlayer(new Media(url));
+        final String finalUrl = url;
+        mediaPlayer = new MediaPlayer(new Media(finalUrl));
         mediaView.setMediaPlayer(mediaPlayer);
         mediaPlayer.setVolume(volumeSlider.getValue() / 100.0);
         int saved = ep.getProgressSec();
@@ -570,15 +682,24 @@ public class DetailController {
         });
         mediaPlayer.currentTimeProperty().addListener((obs, o, n) -> updateProgressUI(n));
         mediaPlayer.setOnEndOfMedia(this::onMediaEnd);
+
+        // Scroll to player
+        Platform.runLater(() -> {
+            if (mainContent != null) {
+                mainContent.setVvalue(0.45);
+            }
+        });
     }
 
     private void saveProgress(Integer episodeId, int progressSec, boolean completed) {
-        try { watchHistoryDAO.saveProgress(Session.getCurrentUser().getId(),
-            content.getId(), episodeId, progressSec, completed); }
-        catch (Exception ignored) {}
+        try {
+            watchHistoryDAO.saveProgress(Session.getCurrentUser().getId(),
+                content.getId(), episodeId, progressSec, completed);
+        } catch (Exception ignored) {}
     }
 
     // ── Rating ────────────────────────────────────────────────────────────────
+    @FXML private ScrollPane mainContent;
 
     private void setupRating() {
         starsBox.getChildren().clear();
@@ -588,14 +709,13 @@ public class DetailController {
         for (int i = 1; i <= 5; i++) {
             final int star = i;
             Label lbl = new Label(i <= userRating ? "★" : "☆");
-            lbl.getStyleClass().add("star");
-            lbl.setStyle("-fx-font-size:28px;-fx-text-fill:" + (i <= userRating ? "#f5c518" : "#888") + ";-fx-cursor:hand;");
+            lbl.setStyle("-fx-font-size:26px;-fx-text-fill:" + (i <= userRating ? "#f5c518" : "#555") + ";-fx-cursor:hand;");
             lbl.setOnMouseClicked(e -> onRate(star));
             lbl.setOnMouseEntered(e -> {
                 for (int j = 0; j < starsBox.getChildren().size(); j++) {
                     Label s = (Label) starsBox.getChildren().get(j);
                     s.setText(j < star ? "★" : "☆");
-                    s.setStyle("-fx-font-size:28px;-fx-text-fill:" + (j < star ? "#f5c518" : "#888") + ";-fx-cursor:hand;");
+                    s.setStyle("-fx-font-size:26px;-fx-text-fill:" + (j < star ? "#f5c518" : "#555") + ";-fx-cursor:hand;");
                 }
             });
             starsBox.getChildren().add(lbl);
@@ -618,16 +738,16 @@ public class DetailController {
         for (int j = 0; j < starsBox.getChildren().size(); j++) {
             Label s = (Label) starsBox.getChildren().get(j);
             s.setText(j < userRating ? "★" : "☆");
-            s.setStyle("-fx-font-size:28px;-fx-text-fill:" + (j < userRating ? "#f5c518" : "#888") + ";-fx-cursor:hand;");
+            s.setStyle("-fx-font-size:26px;-fx-text-fill:" + (j < userRating ? "#f5c518" : "#555") + ";-fx-cursor:hand;");
         }
     }
 
     // ── Comments ──────────────────────────────────────────────────────────────
-
     private void loadComments() {
         commentsBox.getChildren().clear();
         try {
-            for (Comment c : commentDAO.findByContentId(content.getId())) {
+            for (org.JavaProject.JavaNetflixProject.Entities.Comment c :
+                    commentDAO.findByContentId(content.getId())) {
                 VBox cb = new VBox(4); cb.getStyleClass().add("comment-box");
                 Label author = new Label(c.getUserName() + " • " +
                     (c.getCreatedAt() != null ? c.getCreatedAt().toLocalDate() : ""));
@@ -635,7 +755,10 @@ public class DetailController {
                 Label body = new Label(c.getBody());
                 body.setWrapText(true); body.getStyleClass().add("comment-body");
                 Button flag = new Button("🚩"); flag.getStyleClass().add("btn-flag");
-                flag.setOnAction(e -> { try { commentDAO.flag(c.getId()); loadComments(); } catch (Exception ignored) {} });
+                flag.setOnAction(e -> {
+                    try { commentDAO.flag(c.getId()); loadComments(); }
+                    catch (Exception ignored) {}
+                });
                 cb.getChildren().addAll(author, body, flag);
                 commentsBox.getChildren().add(cb);
             }
@@ -645,7 +768,8 @@ public class DetailController {
     @FXML public void onPostComment() {
         String text = commentInput.getText().trim();
         if (text.isEmpty()) return;
-        Comment c = new Comment();
+        org.JavaProject.JavaNetflixProject.Entities.Comment c =
+            new org.JavaProject.JavaNetflixProject.Entities.Comment();
         c.setUserId(Session.getCurrentUser().getId());
         c.setContentId(content.getId());
         c.setBody(text);
@@ -654,17 +778,18 @@ public class DetailController {
     }
 
     // ── Watchlist ──────────────────────────────────────────────────────────────
-
     private void setupWatchlist() {
-        try { isInWatchlist = watchlistDAO.isInWatchlist(Session.getCurrentUser().getId(), content.getId()); updateWatchlistBtn(); }
-        catch (Exception ignored) {}
+        try {
+            isInWatchlist = watchlistDAO.isInWatchlist(Session.getCurrentUser().getId(), content.getId());
+            updateWatchlistBtn();
+        } catch (Exception ignored) {}
     }
 
     @FXML public void onToggleWatchlist() {
         try {
             int uid = Session.getCurrentUser().getId();
             if (isInWatchlist) { watchlistDAO.remove(uid, content.getId()); isInWatchlist = false; }
-            else               { watchlistDAO.add(uid, content.getId());    isInWatchlist = true;  }
+            else               { watchlistDAO.add(uid, content.getId());    isInWatchlist = true; }
             updateWatchlistBtn();
         } catch (Exception e) { showAlert("Erreur: " + e.getMessage()); }
     }
@@ -676,12 +801,12 @@ public class DetailController {
     }
 
     // ── Back ──────────────────────────────────────────────────────────────────
-
     @FXML public void onBack() {
         if (fullscreenStage != null) { fullscreenStage.close(); fullscreenStage = null; }
         if (mediaPlayer != null) {
             if (currentEpisode != null)
-                saveProgress(currentEpisode.getId(), (int) mediaPlayer.getCurrentTime().toSeconds(), false);
+                saveProgress(currentEpisode.getId(),
+                    (int) mediaPlayer.getCurrentTime().toSeconds(), false);
             mediaPlayer.dispose();
         }
         try { Navigator.navigateTo("/ui/home.fxml"); }
@@ -689,7 +814,6 @@ public class DetailController {
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
-
     private String formatTime(int s) { return String.format("%02d:%02d", s / 60, s % 60); }
     private void showAlert(String msg) { new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK).showAndWait(); }
 }

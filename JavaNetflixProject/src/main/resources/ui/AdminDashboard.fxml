@@ -4,11 +4,15 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.chart.*?>
 <?import javafx.geometry.*?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.Label?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.JavaProject.JavaNetflixProject.app.AdminDashboardController"
             stylesheets="@/css/dark-theme.css"
-            prefWidth="1280" prefHeight="800">
+            prefWidth="1280" prefHeight="800"
+            minWidth="1024" minHeight="600">
 
     <!-- ═══════════════════ LEFT SIDEBAR ═══════════════════ -->
     <left>
@@ -41,7 +45,6 @@
             <Pane styleClass="sidebar-divider" maxHeight="1" minHeight="1"/>
             <Pane prefHeight="8"/>
 
-            <!-- Nav: Overview -->
             <Label text="OVERVIEW" styleClass="nav-section-label"/>
             <VBox styleClass="nav-group">
                 <Button fx:id="navDashboard" text="  Dashboard" styleClass="nav-btn,nav-btn-active"
@@ -51,7 +54,6 @@
             </VBox>
 
             <Pane prefHeight="6"/>
-            <!-- Nav: Content -->
             <Label text="CONTENT" styleClass="nav-section-label"/>
             <VBox styleClass="nav-group">
                 <Button fx:id="navFilms" text="  Films" styleClass="nav-btn"
@@ -63,7 +65,6 @@
             </VBox>
 
             <Pane prefHeight="6"/>
-            <!-- Nav: Community -->
             <Label text="COMMUNITY" styleClass="nav-section-label"/>
             <VBox styleClass="nav-group">
                 <Button fx:id="navUsers" text="  Users" styleClass="nav-btn"
@@ -81,11 +82,13 @@
             <Pane VBox.vgrow="ALWAYS"/>
             <Pane styleClass="sidebar-divider" maxHeight="1" minHeight="1"/>
 
-            <!-- Clock -->
-            <Label fx:id="clockLabel" text="" styleClass="section-subtitle"
-                   style="-fx-padding:8 0 4 24;-fx-font-family:'Courier New';"/>
+            <!-- ── Watch Mode button ── -->
+            <Button text="  ▶  Mode Spectateur" styleClass="btn-watch-mode"
+                    onAction="#handleWatchMode" maxWidth="Infinity"/>
 
-            <!-- Logout -->
+            <Label fx:id="clockLabel" text="" styleClass="section-subtitle"
+                   style="-fx-padding:6 0 4 24;-fx-font-family:'Courier New';"/>
+
             <Button text="  ⏻  Sign Out" styleClass="logout-btn"
                     onAction="#handleLogout" maxWidth="Infinity"/>
         </VBox>
@@ -122,16 +125,16 @@
             <!-- Content Stack -->
             <StackPane fx:id="contentStack" VBox.vgrow="ALWAYS">
 
-                <!-- ══════════ DASHBOARD ══════════ -->
+                <!-- ══ DASHBOARD ══ -->
                 <ScrollPane fx:id="dashboardPane" styleClass="content-scroll" fitToWidth="true">
                     <VBox spacing="22">
                         <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
 
-                        <!-- Page header -->
                         <HBox alignment="CENTER_LEFT">
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
                                 <Label text="Vue d'ensemble" styleClass="section-title"/>
-                                <Label text="Bienvenue — voici ce qui se passe sur Notflix" styleClass="section-subtitle"/>
+                                <Label text="Bienvenue — voici ce qui se passe sur Notflix"
+                                       styleClass="section-subtitle"/>
                             </VBox>
                             <Button text="↺  Actualiser" styleClass="btn-secondary" onAction="#refreshAll"/>
                         </HBox>
@@ -191,7 +194,7 @@
                                     <Label text="Loading…" styleClass="chart-loading"/>
                                 </StackPane>
                             </VBox>
-                            <VBox styleClass="chart-card" prefWidth="340" spacing="12">
+                            <VBox styleClass="chart-card" prefWidth="320" spacing="12">
                                 <HBox alignment="CENTER_LEFT">
                                     <Label text="Films by Category" styleClass="card-title" HBox.hgrow="ALWAYS"/>
                                     <Label text="DIST." styleClass="card-tag"/>
@@ -213,7 +216,7 @@
                                     <Label text="Loading…" styleClass="chart-loading"/>
                                 </StackPane>
                             </VBox>
-                            <VBox styleClass="chart-card" prefWidth="300" spacing="12">
+                            <VBox styleClass="chart-card" prefWidth="290" spacing="12">
                                 <Label text="Recent Activity" styleClass="card-title"/>
                                 <ScrollPane fitToWidth="true" prefHeight="200" styleClass="activity-scroll">
                                     <VBox fx:id="activityFeed" spacing="0"/>
@@ -227,28 +230,25 @@
                                 <Label text="Recently Added" styleClass="card-title" HBox.hgrow="ALWAYS"/>
                                 <Button text="View All" styleClass="btn-ghost" onAction="#showFilms"/>
                             </HBox>
-                            <TableView fx:id="recentContentTable"
-           prefHeight="240"
-           styleClass="dark-table">
-
-    <columns>
-        <TableColumn fx:id="colRCTitle" text="TITLE" prefWidth="280"/>
-        <TableColumn fx:id="colRCType" text="TYPE" prefWidth="100"/>
-        <TableColumn fx:id="colRCGenre" text="GENRE" prefWidth="140"/>
-        <TableColumn fx:id="colRCViews" text="VIEWS" prefWidth="100"/>
-        <TableColumn fx:id="colRCRating" text="RATING" prefWidth="100"/>
-    </columns>
-
-    <placeholder>
-        <Label text="Loading content…" styleClass="table-empty"/>
-    </placeholder>
-
-</TableView>
+                            <TableView fx:id="recentContentTable" prefHeight="220"
+                                       styleClass="dark-table"
+                                       >
+                                <columns>
+                                    <TableColumn fx:id="colRCTitle" text="TITLE" prefWidth="280"/>
+                                    <TableColumn fx:id="colRCType" text="TYPE" prefWidth="90"/>
+                                    <TableColumn fx:id="colRCGenre" text="GENRE" prefWidth="130"/>
+                                    <TableColumn fx:id="colRCViews" text="VIEWS" prefWidth="90"/>
+                                    <TableColumn fx:id="colRCRating" text="RATING" prefWidth="90"/>
+                                </columns>
+                                <placeholder>
+                                    <Label text="Loading content…" styleClass="table-empty"/>
+                                </placeholder>
+                            </TableView>
                         </VBox>
                     </VBox>
                 </ScrollPane>
 
-                <!-- ══════════ FILMS ══════════ -->
+                <!-- ══ FILMS ══ -->
                 <VBox fx:id="filmsPane" styleClass="content-pane" spacing="18" visible="false">
                     <HBox alignment="CENTER_LEFT" spacing="14">
                         <VBox HBox.hgrow="ALWAYS" spacing="4">
@@ -259,25 +259,25 @@
                                    styleClass="search-field-inline" prefWidth="200"
                                    onKeyReleased="#filterFilms"/>
                         <ComboBox fx:id="filmGenreFilter" promptText="All Genres"
-                                  styleClass="combo-dark" prefWidth="160" onAction="#filterFilms"/>
+                                  styleClass="combo-dark" prefWidth="150" onAction="#filterFilms"/>
                         <Button text="＋  Add Film" styleClass="btn-primary" onAction="#showAddContentDialog"/>
                     </HBox>
                     <TableView fx:id="filmsTable" VBox.vgrow="ALWAYS" styleClass="dark-table"
-                               >
+                             >
                         <columns>
-                            <TableColumn fx:id="colFilmTitle" text="TITLE" prefWidth="240"/>
-                            <TableColumn fx:id="colFilmCategory" text="CATEGORY" prefWidth="130"/>
-                            <TableColumn fx:id="colFilmYear" text="YEAR" prefWidth="70"/>
-                            <TableColumn fx:id="colFilmViews" text="VIEWS" prefWidth="90"/>
-                            <TableColumn fx:id="colFilmRating" text="RATING" prefWidth="90"/>
-                            <TableColumn fx:id="colFilmFeatured" text="FEATURED" prefWidth="90"/>
-                            <TableColumn fx:id="colFilmActions" text="ACTIONS" prefWidth="160"/>
+                            <TableColumn fx:id="colFilmTitle" text="TITLE" prefWidth="220"/>
+                            <TableColumn fx:id="colFilmCategory" text="CATEGORY" prefWidth="120"/>
+                            <TableColumn fx:id="colFilmYear" text="YEAR" prefWidth="65"/>
+                            <TableColumn fx:id="colFilmViews" text="VIEWS" prefWidth="85"/>
+                            <TableColumn fx:id="colFilmRating" text="RATING" prefWidth="80"/>
+                            <TableColumn fx:id="colFilmFeatured" text="FEATURED" prefWidth="85"/>
+                            <TableColumn fx:id="colFilmActions" text="ACTIONS" prefWidth="140"/>
                         </columns>
                         <placeholder><Label text="No films found." styleClass="table-empty"/></placeholder>
                     </TableView>
                 </VBox>
 
-                <!-- ══════════ SERIES ══════════ -->
+                <!-- ══ SERIES ══ -->
                 <VBox fx:id="seriesPane" styleClass="content-pane" spacing="18" visible="false">
                     <HBox alignment="CENTER_LEFT" spacing="14">
                         <VBox HBox.hgrow="ALWAYS" spacing="4">
@@ -285,10 +285,10 @@
                             <Label fx:id="seriesCountLabel" text="" styleClass="section-subtitle"/>
                         </VBox>
                         <Button text="＋  New Series" styleClass="btn-primary" onAction="#showAddSeriesDialog"/>
-                        <Button text="＋  Add Season" styleClass="btn-secondary" onAction="#showAddSeasonDialog"/>
-                        <Button text="＋  Add Episode" styleClass="btn-secondary" onAction="#showAddEpisodeDialog"/>
+                        <Button text="＋  Season" styleClass="btn-secondary" onAction="#showAddSeasonDialog"/>
+                        <Button text="＋  Episode" styleClass="btn-secondary" onAction="#showAddEpisodeDialog"/>
                     </HBox>
-                    <SplitPane VBox.vgrow="ALWAYS" dividerPositions="0.38" styleClass="dark-split">
+                    <SplitPane VBox.vgrow="ALWAYS" dividerPositions="0.36" styleClass="dark-split">
                         <VBox styleClass="split-left" spacing="10">
                             <Label text="SERIES LIST" styleClass="split-section-label"/>
                             <ListView fx:id="seriesList" VBox.vgrow="ALWAYS" styleClass="dark-list"/>
@@ -298,20 +298,24 @@
                                 <Label text="SEASONS &amp; EPISODES" styleClass="split-section-label" HBox.hgrow="ALWAYS"/>
                                 <Label fx:id="selectedSeriesLabel" text="Select a series ←" styleClass="split-selection-hint"/>
                             </HBox>
-                            <TreeTableView fx:id="episodesTree" VBox.vgrow="ALWAYS" styleClass="dark-treetable"
-                                           >
+                            <TreeTableView fx:id="episodesTree" VBox.vgrow="ALWAYS"
+                                           styleClass="dark-treetable"
+                                          >
                                 <columns>
-                                    <TreeTableColumn fx:id="colEpTitle" text="EPISODE / SEASON" prefWidth="260"/>
-                                    <TreeTableColumn fx:id="colEpNum" text="N°" prefWidth="50"/>
-                                    <TreeTableColumn fx:id="colEpDuration" text="DURATION" prefWidth="100"/>
+                                    <TreeTableColumn fx:id="colEpTitle" text="EPISODE / SEASON" prefWidth="240"/>
+                                    <TreeTableColumn fx:id="colEpNum" text="N°" prefWidth="45"/>
+                                    <TreeTableColumn fx:id="colEpDuration" text="DURATION" prefWidth="90"/>
+                                    <TreeTableColumn fx:id="colEpActions" text="ACTIONS" prefWidth="130"/>
                                 </columns>
-                                <placeholder><Label text="Select a series to see its structure." styleClass="table-empty"/></placeholder>
+                                <placeholder>
+                                    <Label text="Select a series to see its structure." styleClass="table-empty"/>
+                                </placeholder>
                             </TreeTableView>
                         </VBox>
                     </SplitPane>
                 </VBox>
 
-                <!-- ══════════ CATEGORIES ══════════ -->
+                <!-- ══ CATEGORIES ══ -->
                 <VBox fx:id="categoriesPane" styleClass="content-pane" spacing="18" visible="false">
                     <HBox alignment="CENTER_LEFT" spacing="14">
                         <VBox HBox.hgrow="ALWAYS" spacing="4">
@@ -322,25 +326,25 @@
                     </HBox>
                     <HBox spacing="16" VBox.vgrow="ALWAYS">
                         <TableView fx:id="categoriesTable" HBox.hgrow="ALWAYS" styleClass="dark-table"
-                                 >
+                                   >
                             <columns>
-                                <TableColumn fx:id="colCatId" text="ID" prefWidth="60"/>
+                                <TableColumn fx:id="colCatId" text="ID" prefWidth="55"/>
                                 <TableColumn fx:id="colCatName" text="NAME" prefWidth="200"/>
-                                <TableColumn fx:id="colCatFilms" text="FILMS" prefWidth="80"/>
-                                <TableColumn fx:id="colCatActions" text="ACTIONS" prefWidth="160"/>
+                                <TableColumn fx:id="colCatFilms" text="FILMS" prefWidth="75"/>
+                                <TableColumn fx:id="colCatActions" text="ACTIONS" prefWidth="150"/>
                             </columns>
                             <placeholder><Label text="No categories found." styleClass="table-empty"/></placeholder>
                         </TableView>
-                        <VBox styleClass="chart-card" prefWidth="300" spacing="14">
+                        <VBox styleClass="chart-card" prefWidth="280" spacing="14">
                             <Label text="Distribution" styleClass="card-title"/>
-                            <StackPane fx:id="catMiniChartContainer" prefHeight="240" styleClass="chart-placeholder">
+                            <StackPane fx:id="catMiniChartContainer" prefHeight="220" styleClass="chart-placeholder">
                                 <Label text="Loading…" styleClass="chart-loading"/>
                             </StackPane>
                         </VBox>
                     </HBox>
                 </VBox>
 
-                <!-- ══════════ USERS ══════════ -->
+                <!-- ══ USERS ══ -->
                 <VBox fx:id="usersPane" styleClass="content-pane" spacing="18" visible="false">
                     <HBox alignment="CENTER_LEFT" spacing="14">
                         <VBox HBox.hgrow="ALWAYS" spacing="4">
@@ -348,25 +352,25 @@
                             <Label fx:id="userCountLabel" text="" styleClass="section-subtitle"/>
                         </VBox>
                         <TextField fx:id="userSearchField" promptText="Search by name or email…"
-                                   styleClass="search-field-inline" prefWidth="240"
+                                   styleClass="search-field-inline" prefWidth="230"
                                    onKeyReleased="#filterUsers"/>
                         <ComboBox fx:id="userRoleFilter" promptText="All Roles"
-                                  styleClass="combo-dark" prefWidth="140" onAction="#filterUsers"/>
+                                  styleClass="combo-dark" prefWidth="130" onAction="#filterUsers"/>
                     </HBox>
                     <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" styleClass="dark-table"
                               >
                         <columns>
-                            <TableColumn fx:id="colUserName" text="NAME" prefWidth="180"/>
-                            <TableColumn fx:id="colUserEmail" text="EMAIL" prefWidth="220"/>
-                            <TableColumn fx:id="colUserRole" text="ROLE" prefWidth="100"/>
-                            <TableColumn fx:id="colUserJoined" text="JOINED" prefWidth="140"/>
-                            <TableColumn fx:id="colUserActions" text="ACTIONS" prefWidth="200"/>
+                            <TableColumn fx:id="colUserName" text="NAME" prefWidth="170"/>
+                            <TableColumn fx:id="colUserEmail" text="EMAIL" prefWidth="210"/>
+                            <TableColumn fx:id="colUserRole" text="ROLE" prefWidth="90"/>
+                            <TableColumn fx:id="colUserJoined" text="JOINED" prefWidth="130"/>
+                            <TableColumn fx:id="colUserActions" text="ACTIONS" prefWidth="180"/>
                         </columns>
                         <placeholder><Label text="No users found." styleClass="table-empty"/></placeholder>
                     </TableView>
                 </VBox>
 
-                <!-- ══════════ COMMENTS ══════════ -->
+                <!-- ══ COMMENTS ══ -->
                 <VBox fx:id="commentsPane" styleClass="content-pane" spacing="18" visible="false">
                     <HBox alignment="CENTER_LEFT" spacing="14">
                         <VBox HBox.hgrow="ALWAYS" spacing="4">
@@ -374,25 +378,25 @@
                             <Label fx:id="commentCountLabel" text="" styleClass="section-subtitle"/>
                         </VBox>
                         <TextField fx:id="commentSearchField" promptText="Search comments…"
-                                   styleClass="search-field-inline" prefWidth="220"
+                                   styleClass="search-field-inline" prefWidth="210"
                                    onKeyReleased="#filterComments"/>
                         <ComboBox fx:id="commentFilterCombo" promptText="All Comments"
-                                  styleClass="combo-dark" prefWidth="160" onAction="#filterComments"/>
+                                  styleClass="combo-dark" prefWidth="150" onAction="#filterComments"/>
                     </HBox>
                     <TableView fx:id="commentsTable" VBox.vgrow="ALWAYS" styleClass="dark-table"
-                            		>
+                               >
                         <columns>
-                            <TableColumn fx:id="colComUser" text="USER" prefWidth="160"/>
-                            <TableColumn fx:id="colComBody" text="COMMENT" prefWidth="340"/>
-                            <TableColumn fx:id="colComDate" text="DATE" prefWidth="150"/>
-                            <TableColumn fx:id="colComFlagged" text="STATUS" prefWidth="100"/>
-                            <TableColumn fx:id="colComActions" text="ACTIONS" prefWidth="180"/>
+                            <TableColumn fx:id="colComUser" text="USER" prefWidth="150"/>
+                            <TableColumn fx:id="colComBody" text="COMMENT" prefWidth="320"/>
+                            <TableColumn fx:id="colComDate" text="DATE" prefWidth="140"/>
+                            <TableColumn fx:id="colComFlagged" text="STATUS" prefWidth="90"/>
+                            <TableColumn fx:id="colComActions" text="ACTIONS" prefWidth="160"/>
                         </columns>
                         <placeholder><Label text="No comments found." styleClass="table-empty"/></placeholder>
                     </TableView>
                 </VBox>
 
-                <!-- ══════════ FLAGGED ══════════ -->
+                <!-- ══ FLAGGED ══ -->
                 <VBox fx:id="flaggedPane" styleClass="content-pane" spacing="18" visible="false">
                     <HBox alignment="CENTER_LEFT" spacing="14">
                         <VBox HBox.hgrow="ALWAYS" spacing="4">
@@ -405,25 +409,28 @@
                     <TableView fx:id="flaggedTable" VBox.vgrow="ALWAYS" styleClass="dark-table"
                               >
                         <columns>
-                            <TableColumn fx:id="colFlagUser" text="USER" prefWidth="160"/>
-                            <TableColumn fx:id="colFlagBody" text="COMMENT" prefWidth="380"/>
-                            <TableColumn fx:id="colFlagDate" text="DATE" prefWidth="160"/>
-                            <TableColumn fx:id="colFlagActions" text="ACTIONS" prefWidth="200"/>
+                            <TableColumn fx:id="colFlagUser" text="USER" prefWidth="150"/>
+                            <TableColumn fx:id="colFlagBody" text="COMMENT" prefWidth="360"/>
+                            <TableColumn fx:id="colFlagDate" text="DATE" prefWidth="150"/>
+                            <TableColumn fx:id="colFlagActions" text="ACTIONS" prefWidth="180"/>
                         </columns>
-                        <placeholder><Label text="No flagged content. All clear! ✓" styleClass="table-empty-good"/></placeholder>
+                        <placeholder>
+                            <Label text="No flagged content. All clear! ✓" styleClass="table-empty-good"/>
+                        </placeholder>
                     </TableView>
                 </VBox>
 
-                <!-- ══════════ ANALYTICS ══════════ -->
-                <ScrollPane fx:id="analyticsPane" styleClass="content-scroll" fitToWidth="true" visible="false">
+                <!-- ══ ANALYTICS ══ -->
+                <ScrollPane fx:id="analyticsPane" styleClass="content-scroll"
+                            fitToWidth="true" visible="false">
                     <VBox spacing="22">
                         <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
 
                         <HBox alignment="CENTER_LEFT">
-                            <Label text="Analytics &amp; Business Intelligence" styleClass="section-title" HBox.hgrow="ALWAYS"/>
+                            <Label text="Analytics &amp; Business Intelligence"
+                                   styleClass="section-title" HBox.hgrow="ALWAYS"/>
                         </HBox>
 
-                        <!-- Mini KPI row -->
                         <HBox spacing="16">
                             <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS" spacing="4">
                                 <Label text="FILMS" styleClass="kpi-label"/>
@@ -450,13 +457,13 @@
                         <HBox spacing="16">
                             <VBox styleClass="chart-card" HBox.hgrow="ALWAYS" spacing="12">
                                 <Label text="Top 5 Most Viewed Films" styleClass="card-title"/>
-                                <StackPane fx:id="analyticsTop5" prefHeight="320" styleClass="chart-placeholder">
+                                <StackPane fx:id="analyticsTop5" prefHeight="300" styleClass="chart-placeholder">
                                     <Label text="Loading…" styleClass="chart-loading"/>
                                 </StackPane>
                             </VBox>
-                            <VBox styleClass="chart-card" prefWidth="360" spacing="12">
+                            <VBox styleClass="chart-card" prefWidth="340" spacing="12">
                                 <Label text="Films by Category" styleClass="card-title"/>
-                                <StackPane fx:id="analyticsPie" prefHeight="320" styleClass="chart-placeholder">
+                                <StackPane fx:id="analyticsPie" prefHeight="300" styleClass="chart-placeholder">
                                     <Label text="Loading…" styleClass="chart-loading"/>
                                 </StackPane>
                             </VBox>
@@ -464,7 +471,7 @@
 
                         <VBox styleClass="chart-card" spacing="12">
                             <Label text="User Registrations — Last 7 Days" styleClass="card-title"/>
-                            <StackPane fx:id="analyticsReg" prefHeight="280" styleClass="chart-placeholder">
+                            <StackPane fx:id="analyticsReg" prefHeight="260" styleClass="chart-placeholder">
                                 <Label text="Loading…" styleClass="chart-loading"/>
                             </StackPane>
                         </VBox>

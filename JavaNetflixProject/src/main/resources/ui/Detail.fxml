@@ -6,21 +6,21 @@
 <?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 
-<!--
-    FIX #8: No prefWidth/prefHeight on root.
-    BorderPane fills the Stage; everything inside uses grow constraints.
--->
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.JavaProject.JavaNetflixProject.app.DetailController"
             styleClass="root-pane"
-            stylesheets="@/css/dark-theme.css">
+            stylesheets="@/css/dark-theme.css"
+            minWidth="860" minHeight="540">
 
     <!-- NAVBAR -->
     <top>
         <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="16">
             <padding><Insets top="12" bottom="12" left="24" right="24"/></padding>
             <Button text="← Retour" onAction="#onBack" styleClass="btn-nav"/>
-            <Label text="J-STREAM" styleClass="brand-nav"/>
+            <Label text="NOTFLIX" styleClass="brand-nav"/>
+            <!-- Now playing label -->
+            <Label fx:id="nowPlayingLabel" text="" styleClass="now-playing-label"
+                   HBox.hgrow="ALWAYS" alignment="CENTER_RIGHT"/>
         </HBox>
     </top>
 
@@ -29,18 +29,19 @@
 
             <ScrollPane fx:id="mainContent" fitToWidth="true" styleClass="main-scroll">
                 <VBox spacing="24">
-                    <padding><Insets top="24" bottom="40" left="60" right="60"/></padding>
+                    <padding><Insets top="24" bottom="40" left="52" right="52"/></padding>
 
                     <!-- HEADER -->
-                    <HBox spacing="32">
+                    <HBox spacing="28">
                         <ImageView fx:id="coverImage"
-                                   fitWidth="200" fitHeight="300"
-                                   preserveRatio="true"/>
+                                   fitWidth="190" fitHeight="285"
+                                   preserveRatio="true"
+                                   style="-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.8),20,0,0,4);-fx-background-radius:8px;"/>
 
                         <VBox spacing="10" HBox.hgrow="ALWAYS">
                             <Label fx:id="titleLabel" styleClass="detail-title" wrapText="true"/>
 
-                            <HBox spacing="14">
+                            <HBox spacing="12">
                                 <Label fx:id="yearLabel"     styleClass="detail-meta"/>
                                 <Label fx:id="durationLabel" styleClass="detail-meta"/>
                                 <Label fx:id="categoryLabel" styleClass="badge-film"/>
@@ -48,37 +49,52 @@
                             </HBox>
 
                             <Text fx:id="synopsisText" styleClass="detail-synopsis"
-                                  wrappingWidth="560" style="-fx-fill:white;"/>
+                                  wrappingWidth="520" style="-fx-fill:white;"/>
 
-                            <!-- FIX #6: cast chips row + plain label fallback -->
+                            <!-- Cast chips -->
                             <Label fx:id="castingLabel" styleClass="detail-casting"
                                    wrapText="true" managed="false" visible="false"/>
-                            <FlowPane fx:id="castRow"
-          hgap="6"
-          vgap="6"
-          prefWrapLength="560"/>
+                            <FlowPane fx:id="castRow" hgap="6" vgap="6" prefWrapLength="520"/>
 
                             <!-- Rating -->
                             <VBox spacing="4">
-                                <Label text="Votre note :" styleClass="section-title"/>
+                                <Label text="Votre note :" styleClass="section-title"
+                                       style="-fx-font-size:13px;"/>
                                 <HBox fx:id="starsBox" spacing="4"/>
                             </VBox>
 
-                            <!-- Action buttons row -->
-                            <HBox spacing="10">
+                            <!-- Action buttons -->
+                            <HBox spacing="10" alignment="CENTER_LEFT">
                                 <Button fx:id="watchlistBtn" text="+ Ma liste"
                                         onAction="#onToggleWatchlist" styleClass="btn-secondary"/>
-                                <!-- FIX #1: Trailer button — hidden when no URL -->
-                                <Button fx:id="trailerBtn" text="▶ Bande-annonce"
+                                <!-- Bande-annonce — properly styled -->
+                                <Button fx:id="trailerBtn" text="▶  Bande-annonce"
                                         onAction="#onPlayTrailer"
-                                        styleClass="btn-trailer"
+                                        styleClass="btn-trailer-fixed"
                                         visible="false" managed="false"/>
+                                <!-- Share button -->
+                                <Button fx:id="shareBtn" text="↗  Partager"
+                                        onAction="#onShare"
+                                        styleClass="btn-share"/>
                             </HBox>
                         </VBox>
                     </HBox>
 
-                    <!-- PLAYER — FIX #8: no hardcoded fitWidth/fitHeight; bound in controller -->
-                    <VBox fx:id="filmPlayerBox" spacing="10" styleClass="player-box">
+                    <!-- PLAYER -->
+                    <VBox fx:id="filmPlayerBox" spacing="0" styleClass="player-box">
+
+                        <!-- Now Playing info bar -->
+                        <HBox fx:id="nowPlayingBar" styleClass="now-playing-bar"
+                              alignment="CENTER_LEFT" spacing="12">
+                            <padding><Insets top="10" right="16" bottom="10" left="16"/></padding>
+                            <Label text="▶" style="-fx-text-fill:#e5e5e5;-fx-font-size:12px;"/>
+                            <Label fx:id="nowPlayingInfo" text="" styleClass="now-playing-info"
+                                   HBox.hgrow="ALWAYS"/>
+                            <!-- Keyboard shortcut hints -->
+                            <Label text="[Space] Pause  [←] -10s  [→] +10s  [F] Plein écran"
+                                   styleClass="player-shortcuts"/>
+                        </HBox>
+
                         <StackPane>
                             <MediaView fx:id="mediaView" preserveRatio="true"/>
 
@@ -92,25 +108,33 @@
                         </StackPane>
 
                         <!-- Player controls -->
-                        <HBox spacing="12" alignment="CENTER_LEFT" styleClass="player-controls">
-                            <padding><Insets top="8" bottom="8" left="16" right="16"/></padding>
+                        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="player-controls">
+                            <padding><Insets top="8" bottom="8" left="14" right="14"/></padding>
                             <Button fx:id="playPauseBtn" text="▶" onAction="#onPlayPause"
                                     styleClass="btn-player"/>
+                            <!-- -10s -->
+                            <Button text="−10" onAction="#onRewind10" styleClass="btn-player-seek"/>
                             <Slider fx:id="progressSlider" HBox.hgrow="ALWAYS"
                                     onMouseReleased="#onSeek" styleClass="progress-slider"/>
+                            <!-- +10s -->
+                            <Button text="+10" onAction="#onForward10" styleClass="btn-player-seek"/>
                             <Label fx:id="timeLabel" text="00:00 / 00:00" styleClass="time-label"/>
                             <Label text="🔊" styleClass="icon-label"/>
-                            <Slider fx:id="volumeSlider" prefWidth="100" styleClass="volume-slider"/>
-                            <Button text="⛶" onAction="#onFullscreen" styleClass="btn-player"/>
+                            <Slider fx:id="volumeSlider" prefWidth="90" styleClass="volume-slider"/>
+                            <Button text="⛶" onAction="#onFullscreen" styleClass="btn-player">
+							    <tooltip>
+							        <Tooltip text="Plein écran (F)"/>
+							    </tooltip>
+							</Button>
                         </HBox>
                     </VBox>
 
                     <!-- SERIES SECTION -->
-                    <VBox fx:id="serieBox" spacing="16">
+                    <VBox fx:id="serieBox" spacing="14">
                         <Label text="Épisodes" styleClass="section-title"/>
                         <HBox spacing="12" alignment="CENTER_LEFT">
                             <Label text="Saison :" styleClass="field-label"/>
-                            <ComboBox fx:id="seasonCombo" prefWidth="200" styleClass="combo-dark"/>
+                            <ComboBox fx:id="seasonCombo" prefWidth="180" styleClass="combo-dark"/>
                         </HBox>
                         <VBox fx:id="episodeListBox" spacing="8"/>
                     </VBox>

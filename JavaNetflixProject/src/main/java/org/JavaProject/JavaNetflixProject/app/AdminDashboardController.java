@@ -5,15 +5,19 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.*;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -67,6 +71,7 @@ public class AdminDashboardController implements Initializable {
     @FXML private TreeTableView<EpisodeItem> episodesTree;
     @FXML private TreeTableColumn<EpisodeItem, String> colEpTitle, colEpNum, colEpDuration;
     @FXML private Label selectedSeriesLabel, seriesCountLabel;
+    @FXML private TreeTableColumn<EpisodeItem, Void> colEpActions;
 
     // ── Categories ──
     @FXML private TableView<Category> categoriesTable;
@@ -388,7 +393,157 @@ public class AdminDashboardController implements Initializable {
                 }
             }
         });
+        colEpActions.setCellFactory(col -> new TreeTableCell<>() {
+            private final Button editBtn = new Button("✏ Edit");
+            private final Button delBtn  = new Button("🗑");
+            private final HBox   box     = new HBox(6, editBtn, delBtn);
+            {
+                editBtn.getStyleClass().addAll("btn-secondary", "btn-sm");
+                delBtn.getStyleClass().addAll("btn-danger", "btn-sm");
+                editBtn.setOnAction(e -> {
+                    EpisodeItem item = getTreeTableRow().getItem();
+                    if (item != null && !item.isSeason()) editEpisode(item);
+                });
+                delBtn.setOnAction(e -> {
+                    EpisodeItem item = getTreeTableRow().getItem();
+                    if (item != null && !item.isSeason()) deleteEpisode(item);
+                });
+            }
+            @Override protected void updateItem(Void v, boolean empty) {
+                super.updateItem(v, empty);
+                if (empty) { setGraphic(null); return; }
+                EpisodeItem item = getTreeTableRow().getItem();
+                setGraphic(item != null && !item.isSeason() ? box : null);
+            }
+        });	
     }
+        @FXML
+        private void handleWatchMode() {
+            if (!confirm("Mode Spectateur",
+                    "Passer en mode spectateur ?",
+                    "Vous serez redirigé vers la page d'accueil. Un bouton vous permettra de revenir.")) return;
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/home.fxml"));
+                Parent homeRoot = loader.load();
+                injectAdminReturnButton(homeRoot);
+                Stage stage = Navigator.getPrimaryStage();
+                stage.setScene(new Scene(homeRoot, stage.getWidth(), stage.getHeight()));
+                stage.setTitle("Notflix — Mode Spectateur");
+            } catch (Exception e) {
+                showError("Navigation Error", e.getMessage());
+            }
+        }
+
+        private void injectAdminReturnButton(Parent homeRoot) {
+            if (homeRoot instanceof StackPane) {
+                StackPane sp = (StackPane) homeRoot;
+
+                Button returnBtn = new Button("🖥  Retour Dashboard");
+                returnBtn.setStyle(
+                    "-fx-background-color:rgba(20,20,28,0.92);" +
+                    "-fx-text-fill:#e5e5e5;" +
+                    "-fx-font-size:12px;" +
+                    "-fx-font-weight:bold;" +
+                    "-fx-background-radius:8px;" +
+                    "-fx-border-color:rgba(255,255,255,0.12);" +
+                    "-fx-border-width:1px;" +
+                    "-fx-border-radius:8px;" +
+                    "-fx-padding:8 16 8 16;" +
+                    "-fx-cursor:hand;" +
+                    "-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.7),16,0,0,4);"
+                );
+
+                StackPane.setAlignment(returnBtn, javafx.geometry.Pos.BOTTOM_CENTER);
+                StackPane.setMargin(returnBtn, new javafx.geometry.Insets(0, 0, 24, 0));
+
+                returnBtn.setOnAction(e -> {
+                    try {
+                        FXMLLoader l = new FXMLLoader(getClass().getResource("/ui/AdminDashboard.fxml"));
+                        Parent dashRoot = l.load();
+                        Stage stage = Navigator.getPrimaryStage();
+                        stage.setScene(new Scene(dashRoot, stage.getWidth(), stage.getHeight()));
+                        stage.setTitle("Notflix Admin");
+                        stage.setMaximized(true);
+                    } catch (Exception ex) { ex.printStackTrace(); }
+                });
+
+                sp.getChildren().add(returnBtn);
+            }
+        }
+
+        private void editEpisode(EpisodeItem item) {
+            Dialog<Episode> dlg = new Dialog<>();
+            dlg.setTitle("Edit Episode");
+            dlg.getDialogPane().getStylesheets().add(getClass().getResource("/css/dark-theme.css").toExternalForm());
+            dlg.getDialogPane().getStyleClass().add("dialog-pane");
+            dlg.getDialogPane().setPrefWidth(500);
+
+            GridPane grid = new GridPane();
+            grid.setHgap(12); grid.setVgap(10);
+            grid.setPadding(new Insets(4, 0, 4, 0));
+
+            TextField tfTitle = styledField("Title");
+            TextField tfNum   = styledField("Episode Number");
+            TextField tfDur   = styledField("Duration (min)");
+            TextField tfVideo = styledField("Video URL");
+            TextArea  taSyn   = new TextArea(); 
+            taSyn.setPromptText("Synopsis…");
+            taSyn.setPrefRowCount(2); 
+            taSyn.getStyleClass().add("text-area-dark");
+
+            tfNum.setText(item.getNum());
+            tfDur.setText(item.getDuration());
+
+            addRow(grid, 0, "Title *", tfTitle);
+            addRow(grid, 1, "Episode #", tfNum);
+            addRow(grid, 2, "Duration (min)", tfDur);
+            addRow(grid, 3, "Video URL", tfVideo);
+            addRowFull(grid, 4, "Synopsis", taSyn);
+
+            dlg.getDialogPane().setContent(grid);
+            dlg.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+            ((Button) dlg.getDialogPane().lookupButton(ButtonType.OK)).getStyleClass().add("btn-primary");
+
+            dlg.setResultConverter(bt -> {
+                if (bt != ButtonType.OK) return null;
+                Episode ep = new Episode();
+                ep.setId(item.getId());
+                ep.setTitle(tfTitle.getText().trim());
+                try { ep.setEpisodeNum(Integer.parseInt(tfNum.getText().trim())); } catch (Exception ignored) {}
+                try { ep.setDurationMin(Integer.parseInt(tfDur.getText().trim())); } catch (Exception ignored) {}
+                ep.setVideoUrl(tfVideo.getText().trim());
+                ep.setSynopsis(taSyn.getText().trim());
+                return ep;
+            });
+
+            dlg.showAndWait().ifPresent(ep -> {
+                if (ep == null) return;
+                new Thread(() -> {
+                    try {
+                        episodeDAO.update(ep);
+                        Platform.runLater(() -> showToast("Episode updated!", true));
+                    } catch (Exception ex) {
+                        Platform.runLater(() -> showError("Error", ex.getMessage()));
+                    }
+                }).start();
+            });
+        }
+
+        private void deleteEpisode(EpisodeItem item) {
+            if (!confirm("Delete Episode", "Delete episode " + item.getLabel() + "?", "")) return;
+            new Thread(() -> {
+                try {
+                    episodeDAO.delete(item.getId());
+                    Platform.runLater(() -> {
+                        Content selected = seriesList.getSelectionModel().getSelectedItem();
+                        if (selected != null) loadSeriesTree(selected);
+                        showToast("Episode deleted.", false);
+                    });
+                } catch (Exception ex) {
+                    Platform.runLater(() -> showError("Error", ex.getMessage()));
+                }
+            }).start();
+        }
 
     // ═══════════════════════════════════════════════════════
     // SERIES LIST CELL
