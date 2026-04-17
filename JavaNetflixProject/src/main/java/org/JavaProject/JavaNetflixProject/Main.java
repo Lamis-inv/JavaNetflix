@@ -14,14 +14,11 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 	    Navigator.setPrimaryStage(primaryStage);
-	    primaryStage.setTitle("Notflix");
+	    primaryStage.setTitle("J-Stream");
 	    primaryStage.setMinWidth(900);
 	    primaryStage.setMinHeight(600);
-
-	    // Start with intro instead of login
-	    Navigator.navigateTo("/ui/Intro.fxml", 900, 600);
+	    Navigator.navigateTo("/ui/Splash.fxml", 900, 600); // ← changed from LoginPage
 	}
-
     public static void main(String[] args) {
         launch(args);
     }
