@@ -182,8 +182,8 @@ public class DetailController {
 
     private void setNowPlayingEpisode(Content serie, Season season, Episode ep) {
         String info = serie.getTitle()
-                + "  —  Saison " + season.getNumber()
-                + "  ·  Épisode " + ep.getEpisodeNum()
+                + "  —  Season " + season.getNumber()
+                + "  ·  Episode " + ep.getEpisodeNum()
                 + "  \"" + ep.getTitle() + "\"";
         if (nowPlayingLabel != null) nowPlayingLabel.setText("▶ " + info);
         if (nowPlayingInfo != null)  nowPlayingInfo.setText(info);
@@ -227,7 +227,7 @@ public class DetailController {
 
     private void openActorSearch(String actorName) {
         Stage dialog = new Stage(StageStyle.UTILITY);
-        dialog.setTitle("Filmographie : " + actorName);
+        dialog.setTitle("Filmography : " + actorName);
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setWidth(560); dialog.setHeight(480);
 
@@ -238,7 +238,7 @@ public class DetailController {
         try {
             List<Content> results = contentService.searchByCast(actorName);
             if (results.isEmpty()) {
-                Label empty = new Label("Aucun résultat trouvé pour " + actorName + ".");
+                Label empty = new Label("No results found for " + actorName + ".");
                 empty.setStyle("-fx-text-fill:#888;-fx-font-size:13px;");
                 list.getChildren().add(empty);
             }
@@ -263,7 +263,7 @@ public class DetailController {
                 list.getChildren().add(row);
             }
         } catch (Exception e) {
-            list.getChildren().add(new Label("Erreur: " + e.getMessage()));
+            list.getChildren().add(new Label("Error: " + e.getMessage()));
         }
 
         ScrollPane sp = new ScrollPane(list);
@@ -289,7 +289,7 @@ public class DetailController {
     @FXML
     public void onShare() {
         Stage dialog = new Stage(StageStyle.UTILITY);
-        dialog.setTitle("Partager — " + content.getTitle());
+        dialog.setTitle("Share — " + content.getTitle());
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setWidth(400); dialog.setHeight(220);
 
@@ -297,7 +297,7 @@ public class DetailController {
         box.setPadding(new Insets(24));
         box.setStyle("-fx-background-color:#111;");
 
-        Label title = new Label("↗  Partager \"" + content.getTitle() + "\"");
+        Label title = new Label("↗  Share \"" + content.getTitle() + "\"");
         title.setStyle("-fx-text-fill:#e5e5e5;-fx-font-size:15px;-fx-font-weight:bold;");
 
         String shareUrl = "notflix://watch/" + content.getId() + "/" +
@@ -310,25 +310,25 @@ public class DetailController {
             "-fx-border-radius:6px;-fx-background-radius:6px;-fx-padding:8 10;-fx-font-size:11px;");
         HBox.setHgrow(linkField, Priority.ALWAYS);
 
-        Button copyBtn = new Button("Copier");
+        Button copyBtn = new Button("Copy");
         copyBtn.setStyle("-fx-background-color:#e5e5e5;-fx-text-fill:#000;-fx-font-weight:bold;" +
             "-fx-background-radius:6px;-fx-padding:8 14;-fx-cursor:hand;");
         copyBtn.setOnAction(e -> {
             ClipboardContent cc = new ClipboardContent();
             cc.putString(shareUrl);
             Clipboard.getSystemClipboard().setContent(cc);
-            copyBtn.setText("✓ Copié!");
+            copyBtn.setText("✓ Copied!");
             copyBtn.setStyle("-fx-background-color:#22c55e;-fx-text-fill:#fff;-fx-font-weight:bold;" +
                 "-fx-background-radius:6px;-fx-padding:8 14;-fx-cursor:hand;");
             new Timeline(new KeyFrame(Duration.seconds(1.5), ev -> {
-                copyBtn.setText("Copier");
+                copyBtn.setText("Copy");
                 copyBtn.setStyle("-fx-background-color:#e5e5e5;-fx-text-fill:#000;-fx-font-weight:bold;" +
                     "-fx-background-radius:6px;-fx-padding:8 14;-fx-cursor:hand;");
             })).play();
         });
         linkRow.getChildren().addAll(linkField, copyBtn);
 
-        Label hint = new Label("Partagez ce lien avec vos amis !");
+        Label hint = new Label("Share this link with friends !");
         hint.setStyle("-fx-text-fill:#404040;-fx-font-size:11px;");
 
         box.getChildren().addAll(title, linkRow, hint);
@@ -352,10 +352,10 @@ public class DetailController {
             trailerView.setFitHeight(484);
             trailerView.setPreserveRatio(true);
 
-            Button closeBtn = new Button("✕ Fermer");
+            Button closeBtn = new Button("✕ Close");
             closeBtn.getStyleClass().add("btn-secondary");
 
-            Label trailerTitle = new Label("▶  Bande-annonce — " + content.getTitle());
+            Label trailerTitle = new Label("▶  Trailer — " + content.getTitle());
             trailerTitle.setStyle("-fx-text-fill:#e5e5e5;-fx-font-size:14px;-fx-font-weight:bold;");
 
             VBox root = new VBox(12, trailerTitle, trailerView, closeBtn);
@@ -371,7 +371,7 @@ public class DetailController {
             dialog.setScene(new Scene(root));
             dialog.show();
         } catch (Exception ex) {
-            showAlert("Impossible de lire la bande-annonce : " + ex.getMessage());
+            showAlert("Cannot play trailer : " + ex.getMessage());
         }
     }
 
@@ -392,7 +392,7 @@ public class DetailController {
                 mediaPlayer.setOnReady(() -> mediaPlayer.seek(Duration.seconds(resumeTimeSec)));
             }
         } catch (Exception e) {
-            showAlert("Impossible de charger la vidéo: " + e.getMessage());
+            showAlert("Cannot play video: " + e.getMessage());
         }
     }
 
@@ -422,10 +422,10 @@ public class DetailController {
         if (countdownTimeline != null) countdownTimeline.stop();
         countdownOverlay.setVisible(true);
         int[] count = {10};
-        countdownLabel.setText("Prochain épisode dans " + count[0] + "s");
+        countdownLabel.setText("Next episode in " + count[0] + "s");
         countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
             count[0]--;
-            countdownLabel.setText("Prochain épisode dans " + count[0] + "s");
+            countdownLabel.setText("Next episode in " + count[0] + "s");
             if (count[0] <= 0) { countdownOverlay.setVisible(false); playEpisode(next); }
         }));
         countdownTimeline.setCycleCount(10);
@@ -519,7 +519,7 @@ public class DetailController {
             HBox.setHgrow(fsProgress, Priority.ALWAYS);
             Label fsTime = new Label("00:00 / 00:00"); fsTime.getStyleClass().add("time-label");
             Slider fsVolume = new Slider(0, 100, volumeSlider.getValue()); fsVolume.setPrefWidth(90);
-            Button fsExit = new Button("✕ Quitter"); fsExit.getStyleClass().add("btn-player");
+            Button fsExit = new Button("✕ Leave"); fsExit.getStyleClass().add("btn-player");
             fsExit.setOnAction(e -> exitFullscreen());
 
             mediaPlayer.currentTimeProperty().addListener((obs, o, n) -> {
@@ -603,7 +603,7 @@ public class DetailController {
                 currentSeason = seasons.get(0);
                 seasonCombo.getSelectionModel().selectFirst();
             }
-        } catch (Exception e) { showAlert("Erreur saisons: " + e.getMessage()); }
+        } catch (Exception e) { showAlert("Error seasons: " + e.getMessage()); }
     }
 
     private void loadEpisodes(Season season) {
@@ -621,7 +621,7 @@ public class DetailController {
                 }
             }
         } catch (Exception e) {
-            showAlert("Erreur épisodes: " + e.getMessage());
+            showAlert("Error episodes: " + e.getMessage());
         }
     }
 
@@ -640,7 +640,7 @@ public class DetailController {
         info.getChildren().addAll(tl, sl, dl);
         HBox.setHgrow(info, Priority.ALWAYS);
 
-        Label status = new Label(ep.isWatched() ? "✅ Vu" : ep.getProgressSec() > 0 ? "▶ En cours" : "");
+        Label status = new Label(ep.isWatched() ? "✅ Watched" : ep.getProgressSec() > 0 ? "▶ In progress" : "");
         status.getStyleClass().add("episode-status");
 
         // Play icon
@@ -730,7 +730,7 @@ public class DetailController {
             contentService.refreshAvgRating(content.getId());
             Content updated = contentService.getById(content.getId());
             ratingLabel.setText("\u2605 " + String.format("%.1f", updated.getAvgRating()));
-        } catch (Exception e) { showAlert("Erreur: " + e.getMessage()); }
+        } catch (Exception e) { showAlert("Error: " + e.getMessage()); }
         refreshStars();
     }
 
@@ -762,7 +762,7 @@ public class DetailController {
                 cb.getChildren().addAll(author, body, flag);
                 commentsBox.getChildren().add(cb);
             }
-        } catch (Exception e) { showAlert("Erreur commentaires: " + e.getMessage()); }
+        } catch (Exception e) { showAlert("Error Comments: " + e.getMessage()); }
     }
 
     @FXML public void onPostComment() {
@@ -774,7 +774,7 @@ public class DetailController {
         c.setContentId(content.getId());
         c.setBody(text);
         try { commentDAO.save(c); commentInput.clear(); loadComments(); }
-        catch (Exception e) { showAlert("Erreur: " + e.getMessage()); }
+        catch (Exception e) { showAlert("Error: " + e.getMessage()); }
     }
 
     // ── Watchlist ──────────────────────────────────────────────────────────────
@@ -791,11 +791,11 @@ public class DetailController {
             if (isInWatchlist) { watchlistDAO.remove(uid, content.getId()); isInWatchlist = false; }
             else               { watchlistDAO.add(uid, content.getId());    isInWatchlist = true; }
             updateWatchlistBtn();
-        } catch (Exception e) { showAlert("Erreur: " + e.getMessage()); }
+        } catch (Exception e) { showAlert("Error: " + e.getMessage()); }
     }
 
     private void updateWatchlistBtn() {
-        watchlistBtn.setText(isInWatchlist ? "✓ Ma liste" : "+ Ma liste");
+        watchlistBtn.setText(isInWatchlist ? "✓ My list" : "+ Ma liste");
         watchlistBtn.getStyleClass().removeAll("btn-added");
         if (isInWatchlist) watchlistBtn.getStyleClass().add("btn-added");
     }

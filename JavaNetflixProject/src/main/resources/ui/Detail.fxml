@@ -16,7 +16,7 @@
     <top>
         <HBox styleClass="navbar" alignment="CENTER_LEFT" spacing="16">
             <padding><Insets top="12" bottom="12" left="24" right="24"/></padding>
-            <Button text="← Retour" onAction="#onBack" styleClass="btn-nav"/>
+            <Button text="← Back" onAction="#onBack" styleClass="btn-nav"/>
             <Label text="NOTFLIX" styleClass="brand-nav"/>
             <!-- Now playing label -->
             <Label fx:id="nowPlayingLabel" text="" styleClass="now-playing-label"
@@ -58,22 +58,22 @@
 
                             <!-- Rating -->
                             <VBox spacing="4">
-                                <Label text="Votre note :" styleClass="section-title"
+                                <Label text="Your Rating :" styleClass="section-title"
                                        style="-fx-font-size:13px;"/>
                                 <HBox fx:id="starsBox" spacing="4"/>
                             </VBox>
 
                             <!-- Action buttons -->
                             <HBox spacing="10" alignment="CENTER_LEFT">
-                                <Button fx:id="watchlistBtn" text="+ Ma liste"
+                                <Button fx:id="watchlistBtn" text="+ My list"
                                         onAction="#onToggleWatchlist" styleClass="btn-secondary"/>
                                 <!-- Bande-annonce — properly styled -->
-                                <Button fx:id="trailerBtn" text="▶  Bande-annonce"
+                                <Button fx:id="trailerBtn" text="▶  Trailer"
                                         onAction="#onPlayTrailer"
                                         styleClass="btn-trailer-fixed"
                                         visible="false" managed="false"/>
                                 <!-- Share button -->
-                                <Button fx:id="shareBtn" text="↗  Partager"
+                                <Button fx:id="shareBtn" text="↗  Share"
                                         onAction="#onShare"
                                         styleClass="btn-share"/>
                             </HBox>
@@ -91,7 +91,7 @@
                             <Label fx:id="nowPlayingInfo" text="" styleClass="now-playing-info"
                                    HBox.hgrow="ALWAYS"/>
                             <!-- Keyboard shortcut hints -->
-                            <Label text="[Space] Pause  [←] -10s  [→] +10s  [F] Plein écran"
+                            <Label text="[Space] Pause  [←] -10s  [→] +10s  [F] Full screen"
                                    styleClass="player-shortcuts"/>
                         </HBox>
 
@@ -100,9 +100,9 @@
 
                             <VBox fx:id="countdownOverlay" alignment="CENTER" spacing="12"
                                   styleClass="countdown-overlay">
-                                <Label text="Épisode suivant" styleClass="countdown-title"/>
+                                <Label text="Next Episode" styleClass="countdown-title"/>
                                 <Label fx:id="countdownLabel" styleClass="countdown-number"/>
-                                <Button text="Annuler" onAction="#onCancelCountdown"
+                                <Button text="Cancel" onAction="#onCancelCountdown"
                                         styleClass="btn-secondary"/>
                             </VBox>
                         </StackPane>
@@ -123,7 +123,7 @@
                             <Slider fx:id="volumeSlider" prefWidth="90" styleClass="volume-slider"/>
                             <Button text="⛶" onAction="#onFullscreen" styleClass="btn-player">
 							    <tooltip>
-							        <Tooltip text="Plein écran (F)"/>
+							        <Tooltip text="Full screen (F)"/>
 							    </tooltip>
 							</Button>
                         </HBox>
@@ -131,9 +131,9 @@
 
                     <!-- SERIES SECTION -->
                     <VBox fx:id="serieBox" spacing="14">
-                        <Label text="Épisodes" styleClass="section-title"/>
+                        <Label text="Episodes" styleClass="section-title"/>
                         <HBox spacing="12" alignment="CENTER_LEFT">
-                            <Label text="Saison :" styleClass="field-label"/>
+                            <Label text="Season :" styleClass="field-label"/>
                             <ComboBox fx:id="seasonCombo" prefWidth="180" styleClass="combo-dark"/>
                         </HBox>
                         <VBox fx:id="episodeListBox" spacing="8"/>
@@ -141,11 +141,11 @@
 
                     <!-- COMMENTS -->
                     <VBox spacing="12">
-                        <Label text="💬 Commentaires" styleClass="section-title"/>
+                        <Label text="💬 Comments" styleClass="section-title"/>
                         <HBox spacing="10">
-                            <TextArea fx:id="commentInput" promptText="Partagez votre avis..."
+                            <TextArea fx:id="commentInput" promptText="Share your thoughts..."
                                       prefRowCount="3" HBox.hgrow="ALWAYS" styleClass="text-area-dark"/>
-                            <Button text="Publier" onAction="#onPostComment" styleClass="btn-primary"/>
+                            <Button text="Post" onAction="#onPostComment" styleClass="btn-primary"/>
                         </HBox>
                         <VBox fx:id="commentsBox" spacing="10"/>
                     </VBox>
