@@ -13,8 +13,6 @@
     <HBox maxWidth="Infinity" maxHeight="Infinity">
         <Region HBox.hgrow="ALWAYS"
                 style="-fx-background-color: linear-gradient(to right, #080810 0%, #0c0c18 100%);"/>
-        <Region prefWidth="420" maxWidth="420"
-                style="-fx-background-color: linear-gradient(to left, #0a0a14 0%, transparent 100%);"/>
     </HBox>
 
     <!-- Decorative glow blobs -->
