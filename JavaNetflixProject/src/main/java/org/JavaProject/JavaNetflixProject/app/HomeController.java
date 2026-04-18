@@ -99,6 +99,20 @@ public class HomeController {
     private Timeline    popupShowTimer;
     // Banner video player
     private MediaPlayer bannerPlayer;
+    
+    @FXML private ComboBox<String> filterMood;
+ // Mood → category name substrings to match
+    private static final java.util.Map<String, List<String>> MOOD_MAP = new java.util.LinkedHashMap<>();
+    static {
+        MOOD_MAP.put("😢 Triste",        List.of("Drame", "Romance"));
+        MOOD_MAP.put("😂 Bonne humeur",  List.of("Comédie", "Animation"));
+        MOOD_MAP.put("😱 Frissons",      List.of("Horreur", "Thriller"));
+        MOOD_MAP.put("🚀 Adrénaline",    List.of("Action", "Aventure", "Science-Fiction"));
+        MOOD_MAP.put("🧠 Réflexion",     List.of("Documentaire", "Drame"));
+        MOOD_MAP.put("💕 Romantique",    List.of("Romance", "Comédie"));
+        MOOD_MAP.put("👨‍👩‍👧 En famille",   List.of("Animation", "Aventure", "Comédie"));
+        MOOD_MAP.put("🌌 Dépaysement",   List.of("Science-Fiction", "Aventure", "Animation"));
+    }
 
     // ── Init ──────────────────────────────────────────────────────────────────
     @FXML
@@ -479,34 +493,52 @@ public class HomeController {
         filterType.setOnAction(e -> applyFilters());
         filterGenre.setOnAction(e -> applyFilters());
         filterYear.setOnAction(e -> applyFilters());
+        
+     // Mood filter
+        filterMood.getItems().add("Toutes humeurs");
+        filterMood.getItems().addAll(MOOD_MAP.keySet());
+        filterMood.getSelectionModel().selectFirst();
+        filterMood.setOnAction(e -> applyFilters());
     }
 
     private void applyFilters() {
         String type  = filterType.getValue();
         String genre = filterGenre.getValue();
         String year  = filterYear.getValue();
+        String mood  = filterMood.getValue();
+
+        List<String> moodCategories = (mood != null && !mood.equals("Toutes humeurs"))
+            ? MOOD_MAP.get(mood) : null;
 
         List<Content> filtered = allContent.stream()
             .filter(c -> {
-                if ("Films".equals(type) && !c.isFilm()) return false;
-                if ("Séries".equals(type) && c.isFilm()) return false;
+                if ("Films".equals(type)  && !c.isFilm()) return false;
+                if ("Séries".equals(type) &&  c.isFilm()) return false;
                 if (genre != null && !"Tous genres".equals(genre)
                     && (c.getCategory() == null || !genre.equals(c.getCategory().getName())))
                     return false;
                 if (year != null && !"Toutes années".equals(year)
                     && !year.equals(String.valueOf(c.getReleaseYear())))
                     return false;
+                if (moodCategories != null
+                    && (c.getCategory() == null
+                        || moodCategories.stream().noneMatch(
+                            mc -> c.getCategory().getName().toLowerCase()
+                                    .contains(mc.toLowerCase()))))
+                    return false;
                 return true;
             })
             .collect(Collectors.toList());
 
         Scene scene = Navigator.getPrimaryStage().getScene();
-        if (genre == null || genre.equals("Tous genres")) ThemeManager.setDefaultTheme(scene);
-        else ThemeManager.setThemeByGenre(genre, scene);
+        if (genre == null || genre.equals("Tous genres")) {
+            ThemeManager.setDefaultTheme(scene);
+        } else {
+            ThemeManager.setThemeByGenre(genre, scene);
+        }
 
         renderContent(filtered);
     }
-
     /**
      * Renders content as wrapped FlowPane rows per category — NO horizontal scrollbars.
      * Cards wrap to next line on resize.

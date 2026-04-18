@@ -19,6 +19,8 @@ public class LoginController {
     @FXML private Hyperlink     forgotLink;
     @FXML private VBox          forgotBox;
     @FXML private Label         maskedEmailLabel;
+    @FXML
+    private javafx.scene.layout.Pane glowLayer;
 
     private final AuthService authService = new AuthService();
     private boolean forgotShown = false;

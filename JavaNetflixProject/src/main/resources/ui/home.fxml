@@ -129,6 +129,9 @@
                         <ComboBox fx:id="filterYear"  prefWidth="120" styleClass="combo-dark"
                                   promptText="Année"/>
 
+						<!-- Mood filter — new -->
+					    <ComboBox fx:id="filterMood" prefWidth="140" styleClass="combo-mood"
+					              promptText="🎭 Humeur"/>
                         <Region HBox.hgrow="ALWAYS"/>
 
                         <Button text="🎲 Surprise"

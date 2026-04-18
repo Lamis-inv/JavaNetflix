@@ -8,7 +8,7 @@
            styleClass="auth-root"
            stylesheets="@/css/dark-theme.css"
            prefWidth="1100" prefHeight="700">
-
+           
     <!-- Background gradient panels -->
     <HBox maxWidth="Infinity" maxHeight="Infinity">
         <Region HBox.hgrow="ALWAYS"
