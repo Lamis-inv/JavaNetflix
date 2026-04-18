@@ -22,21 +22,21 @@
                 <Label text="Notflix" styleClass="logo"/>
 
                 <TextField fx:id="searchField"
-                           promptText="Rechercher..."
+                           promptText="Search..."
                            styleClass="search-field"
                            onAction="#onSearch"
                            prefWidth="240" maxWidth="380"/>
                 <Button text="✕" onAction="#onClearSearch" styleClass="btn-icon"/>
-                <Button text="Rechercher" onAction="#onSearch" styleClass="btn-s"/>
+                <Button text="Search" onAction="#onSearch" styleClass="btn-s"/>
 
                 <Region HBox.hgrow="ALWAYS"/>
 
                 <!-- History button -->
-                <Button fx:id="historyBtn" text="⏱ Historique"
+                <Button fx:id="historyBtn" text="⏱ History"
                         onAction="#onHistory" styleClass="btn-nav"/>
 
                 <!-- Ma Liste -->
-                <Button text="♡ Ma Liste" onAction="#onMyList" styleClass="btn-nav"/>
+                <Button text="♡ My List" onAction="#onMyList" styleClass="btn-nav"/>
 
                 <!-- Notification bell -->
                 <StackPane>
@@ -127,11 +127,11 @@
                         <ComboBox fx:id="filterGenre" prefWidth="150" styleClass="combo-dark"
                                   promptText="Genre"/>
                         <ComboBox fx:id="filterYear"  prefWidth="120" styleClass="combo-dark"
-                                  promptText="Année"/>
+                                  promptText="Year"/>
 
 						<!-- Mood filter — new -->
 					    <ComboBox fx:id="filterMood" prefWidth="140" styleClass="combo-mood"
-					              promptText="🎭 Humeur"/>
+					              promptText="🎭 Mood"/>
                         <Region HBox.hgrow="ALWAYS"/>
 
                         <Button text="🎲 Surprise"
@@ -182,7 +182,7 @@
                 visible="false" managed="false"/>
 
         <!-- Help -->
-        <Button text="❓  Aide &amp; Support"
+        <Button text="❓  Help &amp; Support"
                 styleClass="dropdown-item"
                 onAction="#onHelp"
                 maxWidth="Infinity"/>
@@ -190,13 +190,13 @@
         <Pane styleClass="dropdown-divider"/>
 
         <!-- Delete account — danger -->
-        <Button text="🗑  Supprimer le compte"
+        <Button text="🗑  Delete my account"
                 styleClass="dropdown-item dropdown-item-danger"
                 onAction="#onDeleteAccount"
                 maxWidth="Infinity"/>
 
         <!-- Logout -->
-        <Button text="⏻  Déconnexion"
+        <Button text="⏻  Log Out"
                 styleClass="dropdown-item"
                 onAction="#onLogout"
                 maxWidth="Infinity"/>

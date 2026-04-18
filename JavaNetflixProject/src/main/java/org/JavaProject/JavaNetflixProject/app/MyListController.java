@@ -7,7 +7,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
 import java.io.IOException;
@@ -32,10 +31,13 @@ public class MyListController {
     @FXML private VBox      wlEmpty;
 
     private final WatchlistDAO    watchlistDAO    = new WatchlistDAO();
-    private final WatchHistoryDAO watchHistoryDAO = new WatchHistoryDAO();
+    @SuppressWarnings("unused")
+	private final WatchHistoryDAO watchHistoryDAO = new WatchHistoryDAO();
     private final ContentService  contentService  = new ContentService();
-    private final EpisodeDAO      episodeDAO      = new EpisodeDAO();
-    private final SeasonDAO       seasonDAO       = new SeasonDAO();
+    @SuppressWarnings("unused")
+	private final EpisodeDAO      episodeDAO      = new EpisodeDAO();
+    @SuppressWarnings("unused")
+	private final SeasonDAO       seasonDAO       = new SeasonDAO();
 
     @FXML
     public void initialize() {
@@ -256,14 +258,12 @@ public class MyListController {
 			try {
 				continueWatching(item);
 			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
         playBtn.setOnAction(e -> { e.consume(); try {
 			continueWatching(item);
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		} });
 

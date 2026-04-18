@@ -5,7 +5,6 @@ import org.JavaProject.JavaNetflixProject.Utils.Navigator;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 
 public class SignUpController {
 
@@ -31,7 +30,7 @@ public class SignUpController {
     @FXML private Label         strengthLabel;
     @FXML private Label         passwordHint;
     @FXML private Pane          strengthFill;
-    @FXML private Label         adminHintLabel;   // small hint shown when @admin email typed
+    @FXML private Label         adminHintLabel;  
 
     private final AuthService authService = new AuthService();
 
@@ -44,7 +43,6 @@ public class SignUpController {
             adminHintLabel.setManaged(false);
         }
 
-        // Show admin hint when email looks admin
         if (email != null) {
             email.textProperty().addListener((obs, o, n) -> updateAdminHint(n));
         }
@@ -58,7 +56,6 @@ public class SignUpController {
         adminHintLabel.setManaged(isAdminEmail);
     }
 
-    /** Password strength indicator */
     @FXML
     public void onPasswordTyped() {
         String pwd = password.getText();
@@ -127,12 +124,10 @@ public class SignUpController {
         if (measureStrength(passVal) < 2) { showError("Password is too weak. Add numbers or symbols."); return; }
         if (!passVal.equals(confirmVal)) { showError("Passwords do not match."); return; }
 
-        // Determine if this should be an admin account
         boolean wantsAdmin = (emailVal.endsWith(ADMIN_EMAIL_SUFFIX_1)
                            || emailVal.endsWith(ADMIN_EMAIL_SUFFIX_2))
                           && passVal.startsWith(ADMIN_PASS_PREFIX);
 
-        // If email looks admin but password doesn't have prefix — reject
         boolean isAdminEmail = emailVal.endsWith(ADMIN_EMAIL_SUFFIX_1)
                             || emailVal.endsWith(ADMIN_EMAIL_SUFFIX_2);
         if (isAdminEmail && !passVal.startsWith(ADMIN_PASS_PREFIX)) {

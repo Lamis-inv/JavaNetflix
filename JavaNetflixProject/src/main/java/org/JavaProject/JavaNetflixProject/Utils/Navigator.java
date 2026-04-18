@@ -5,7 +5,6 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -54,7 +53,8 @@ public class Navigator {
 
         root.setOnMouseMoved(e -> {
             Scene scene = root.getScene();
-            Stage stage = (Stage) scene.getWindow();
+            @SuppressWarnings("unused")
+			Stage stage = (Stage) scene.getWindow();
 
             if (e.getX() < RESIZE_MARGIN) {
                 scene.setCursor(javafx.scene.Cursor.W_RESIZE);

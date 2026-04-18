@@ -21,7 +21,6 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.net.URL;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -384,7 +383,8 @@ public class AdminDashboardController implements Initializable {
             @Override protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || item == null) { setText(null); setStyle(""); return; }
-                EpisodeItem node = getTreeTableRow().getItem();
+                @SuppressWarnings("deprecation")
+				EpisodeItem node = getTreeTableRow().getItem();
                 setText(item);
                 if (node != null && node.isSeason()) {
                     setStyle("-fx-font-weight:bold;-fx-text-fill:#e8e8e8;");
@@ -401,34 +401,37 @@ public class AdminDashboardController implements Initializable {
                 editBtn.getStyleClass().addAll("btn-secondary", "btn-sm");
                 delBtn.getStyleClass().addAll("btn-danger", "btn-sm");
                 editBtn.setOnAction(e -> {
-                    EpisodeItem item = getTreeTableRow().getItem();
+                    @SuppressWarnings("deprecation")
+					EpisodeItem item = getTreeTableRow().getItem();
                     if (item != null && !item.isSeason()) editEpisode(item);
                 });
                 delBtn.setOnAction(e -> {
-                    EpisodeItem item = getTreeTableRow().getItem();
+                    @SuppressWarnings("deprecation")
+					EpisodeItem item = getTreeTableRow().getItem();
                     if (item != null && !item.isSeason()) deleteEpisode(item);
                 });
             }
             @Override protected void updateItem(Void v, boolean empty) {
                 super.updateItem(v, empty);
                 if (empty) { setGraphic(null); return; }
-                EpisodeItem item = getTreeTableRow().getItem();
+                @SuppressWarnings("deprecation")
+				EpisodeItem item = getTreeTableRow().getItem();
                 setGraphic(item != null && !item.isSeason() ? box : null);
             }
         });	
     }
         @FXML
         private void handleWatchMode() {
-            if (!confirm("Mode Spectateur",
-                    "Passer en mode spectateur ?",
-                    "Vous serez redirigé vers la page d'accueil. Un bouton vous permettra de revenir.")) return;
+            if (!confirm("Watch Mode",
+                    "Switch to watch mode?",
+                    "You will be redirected to the home page. A button will allow you to return.")) return;
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/home.fxml"));
                 Parent homeRoot = loader.load();
                 injectAdminReturnButton(homeRoot);
                 Stage stage = Navigator.getPrimaryStage();
                 stage.setScene(new Scene(homeRoot, stage.getWidth(), stage.getHeight()));
-                stage.setTitle("Notflix — Mode Spectateur");
+                stage.setTitle("Notflix — Watch Mode");
             } catch (Exception e) {
                 showError("Navigation Error", e.getMessage());
             }
@@ -438,7 +441,7 @@ public class AdminDashboardController implements Initializable {
             if (homeRoot instanceof StackPane) {
                 StackPane sp = (StackPane) homeRoot;
 
-                Button returnBtn = new Button("🖥  Retour Dashboard");
+                Button returnBtn = new Button("🖥  Return To Dashboard");
                 returnBtn.setStyle(
                     "-fx-background-color:rgba(20,20,28,0.92);" +
                     "-fx-text-fill:#e5e5e5;" +

@@ -83,9 +83,7 @@ public class LoginController {
         catch (Exception e) { showError(e.getMessage()); }
     }
 
-    // ── Helpers ──
 
-    /** Masks an email: "weirdo@gmail.com" → "w****o@gmail.com" */
     private String maskEmail(String email) {
         int at = email.indexOf('@');
         if (at <= 0) return email;

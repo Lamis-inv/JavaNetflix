@@ -83,7 +83,7 @@
             <Pane styleClass="sidebar-divider" maxHeight="1" minHeight="1"/>
 
             <!-- ── Watch Mode button ── -->
-            <Button text="  ▶  Mode Spectateur" styleClass="btn-watch-mode"
+            <Button text="  ▶  Watch Mode" styleClass="btn-watch-mode"
                     onAction="#handleWatchMode" maxWidth="Infinity"/>
 
             <Label fx:id="clockLabel" text="" styleClass="section-subtitle"
@@ -132,11 +132,11 @@
 
                         <HBox alignment="CENTER_LEFT">
                             <VBox spacing="4" HBox.hgrow="ALWAYS">
-                                <Label text="Vue d'ensemble" styleClass="section-title"/>
-                                <Label text="Bienvenue — voici ce qui se passe sur Notflix"
+                                <Label text="Overview" styleClass="section-title"/>
+                                <Label text="Welcome — here’s what’s happening on Notflix"
                                        styleClass="section-subtitle"/>
                             </VBox>
-                            <Button text="↺  Actualiser" styleClass="btn-secondary" onAction="#refreshAll"/>
+                            <Button text="↺  Refresh" styleClass="btn-secondary" onAction="#refreshAll"/>
                         </HBox>
 
                         <!-- KPI Row -->

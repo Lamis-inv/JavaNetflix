@@ -104,14 +104,14 @@ public class HomeController {
  // Mood → category name substrings to match
     private static final java.util.Map<String, List<String>> MOOD_MAP = new java.util.LinkedHashMap<>();
     static {
-        MOOD_MAP.put("😢 Triste",        List.of("Drame", "Romance"));
-        MOOD_MAP.put("😂 Bonne humeur",  List.of("Comédie", "Animation"));
-        MOOD_MAP.put("😱 Frissons",      List.of("Horreur", "Thriller"));
-        MOOD_MAP.put("🚀 Adrénaline",    List.of("Action", "Aventure", "Science-Fiction"));
-        MOOD_MAP.put("🧠 Réflexion",     List.of("Documentaire", "Drame"));
-        MOOD_MAP.put("💕 Romantique",    List.of("Romance", "Comédie"));
-        MOOD_MAP.put("👨‍👩‍👧 En famille",   List.of("Animation", "Aventure", "Comédie"));
-        MOOD_MAP.put("🌌 Dépaysement",   List.of("Science-Fiction", "Aventure", "Animation"));
+    	MOOD_MAP.put("😢 Sad",        List.of("Drama", "Romance"));
+    	MOOD_MAP.put("😂 Happy mood",  List.of("Comedy", "Animation"));
+    	MOOD_MAP.put("😱 Chills",      List.of("Horror", "Thriller"));
+    	MOOD_MAP.put("🚀 Adrenaline",    List.of("Action", "Adventure", "Science Fiction"));
+    	MOOD_MAP.put("🧠 Thoughtful",     List.of("Documentary", "Drama"));
+    	MOOD_MAP.put("💕 Romantic",    List.of("Romance", "Comedy"));
+    	MOOD_MAP.put("👨‍👩‍👧 Family", List.of("Animation", "Adventure", "Comedy"));
+    	MOOD_MAP.put("🌌 Escape / Otherworldly",   List.of("Science Fiction", "Adventure", "Animation"));
     }
 
     // ── Init ──────────────────────────────────────────────────────────────────
@@ -120,7 +120,7 @@ public class HomeController {
         var user = Session.getCurrentUser();
 
         // Setup dropdown greeting
-        dropdownGreeting.setText("Bonjour,");
+        dropdownGreeting.setText("Hello ,");
         dropdownUsername.setText(user.getNom());
 
         // Show dashboard button only for admins
@@ -236,7 +236,7 @@ public class HomeController {
     public void onHelp() {
         hideDropdown();
         Stage dialog = new Stage(StageStyle.UTILITY);
-        dialog.setTitle("Aide & Support");
+        dialog.setTitle("Help & Support");
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setWidth(440);
         dialog.setHeight(360);
@@ -245,16 +245,16 @@ public class HomeController {
         box.setPadding(new Insets(28));
         box.setStyle("-fx-background-color:#0a0a0a;");
 
-        Label title = new Label("❓  Aide & Support");
+        Label title = new Label("❓  Help & Support");
         title.setStyle("-fx-text-fill:#e5e5e5;-fx-font-size:18px;-fx-font-weight:bold;");
 
         String[][] items = {
-            {"🔍 Recherche", "Utilisez la barre de recherche pour trouver films et séries."},
-            {"♡ Ma Liste", "Ajoutez des contenus à votre liste personnelle."},
-            {"⏱ Historique", "Retrouvez tout ce que vous avez regardé."},
-            {"🎲 Surprise", "Laissez Notflix choisir pour vous !"},
-            {"🔔 Notifications", "Soyez informé des nouvelles sorties."}
-        };
+        	    {"🔍 Search", "Use the search bar to find movies and series."},
+        	    {"♡ My List", "Add content to your personal list."},
+        	    {"⏱ History", "Find everything you have watched."},
+        	    {"🎲 Surprise", "Let Notflix choose for you!"},
+        	    {"🔔 Notifications", "Stay informed about new releases."}
+        	};
 
         for (String[] item : items) {
             VBox row = new VBox(3);
@@ -278,9 +278,9 @@ public class HomeController {
     public void onDeleteAccount() {
         hideDropdown();
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Supprimer le compte");
-        confirm.setHeaderText("Supprimer définitivement votre compte ?");
-        confirm.setContentText("Cette action est irréversible. Toutes vos données seront perdues.");
+        confirm.setTitle("Delete my account");
+        confirm.setHeaderText("Permanently delete your account?");
+        confirm.setContentText("This action is irreversible. All your data will be lost.");
         confirm.getDialogPane().setStyle("-fx-background-color:#111;");
 
         confirm.showAndWait().ifPresent(bt -> {
@@ -291,7 +291,7 @@ public class HomeController {
                     Session.logout();
                     Navigator.navigateTo("/ui/LoginPage.fxml", 1100, 700);
                 } catch (Exception e) {
-                    showAlert("Erreur lors de la suppression: " + e.getMessage());
+                	showAlert("Error while deleting: " + e.getMessage());
                 }
             }
         });
@@ -359,7 +359,7 @@ public class HomeController {
         String trailerPath = c.getTrailerUrl();
         boolean hasTrailer = trailerPath != null
                           && !trailerPath.isBlank()
-                          && new File(trailerPath).exists(); // ← key check
+                          && new File(trailerPath).exists(); 
 
         if (hasTrailer) {
             showVideoBanner(trailerPath);
@@ -369,7 +369,7 @@ public class HomeController {
         }
     }
 
-    private MediaView bannerMediaView; // ← add this field at the top with other fields
+    private MediaView bannerMediaView; 
 
     private void showVideoBanner(String path) {
         try {
@@ -470,7 +470,7 @@ public class HomeController {
     }
 
     private void populateFilterOptions() {
-        filterType.getItems().setAll("Tous", "Films", "Séries");
+        filterType.getItems().setAll("All", "Films", "Series");
         filterType.getSelectionModel().selectFirst();
 
         List<String> years = allContent.stream()
@@ -478,14 +478,14 @@ public class HomeController {
             .filter(y -> !"0".equals(y))
             .distinct().sorted(java.util.Comparator.reverseOrder())
             .collect(Collectors.toList());
-        years.add(0, "Toutes années");
+        years.add(0, "All years");
         filterYear.getItems().setAll(years);
         filterYear.getSelectionModel().selectFirst();
 
         try {
             List<String> genres = contentService.getAllCategories()
                 .stream().map(Category::getName).collect(Collectors.toList());
-            genres.add(0, "Tous genres");
+            genres.add(0, "All genres");
             filterGenre.getItems().setAll(genres);
             filterGenre.getSelectionModel().selectFirst();
         } catch (Exception ignored) {}
@@ -495,7 +495,7 @@ public class HomeController {
         filterYear.setOnAction(e -> applyFilters());
         
      // Mood filter
-        filterMood.getItems().add("Toutes humeurs");
+        filterMood.getItems().add("All moods");
         filterMood.getItems().addAll(MOOD_MAP.keySet());
         filterMood.getSelectionModel().selectFirst();
         filterMood.setOnAction(e -> applyFilters());
@@ -507,17 +507,17 @@ public class HomeController {
         String year  = filterYear.getValue();
         String mood  = filterMood.getValue();
 
-        List<String> moodCategories = (mood != null && !mood.equals("Toutes humeurs"))
+        List<String> moodCategories = (mood != null && !mood.equals("All moods"))
             ? MOOD_MAP.get(mood) : null;
 
         List<Content> filtered = allContent.stream()
             .filter(c -> {
                 if ("Films".equals(type)  && !c.isFilm()) return false;
-                if ("Séries".equals(type) &&  c.isFilm()) return false;
-                if (genre != null && !"Tous genres".equals(genre)
+                if ("Series".equals(type) &&  c.isFilm()) return false;
+                if (genre != null && !"All genres".equals(genre)
                     && (c.getCategory() == null || !genre.equals(c.getCategory().getName())))
                     return false;
-                if (year != null && !"Toutes années".equals(year)
+                if (year != null && !"All years".equals(year)
                     && !year.equals(String.valueOf(c.getReleaseYear())))
                     return false;
                 if (moodCategories != null
@@ -531,7 +531,7 @@ public class HomeController {
             .collect(Collectors.toList());
 
         Scene scene = Navigator.getPrimaryStage().getScene();
-        if (genre == null || genre.equals("Tous genres")) {
+        if (genre == null || genre.equals("All genres")) {
             ThemeManager.setDefaultTheme(scene);
         } else {
             ThemeManager.setThemeByGenre(genre, scene);
@@ -539,16 +539,13 @@ public class HomeController {
 
         renderContent(filtered);
     }
-    /**
-     * Renders content as wrapped FlowPane rows per category — NO horizontal scrollbars.
-     * Cards wrap to next line on resize.
-     */
+    
     private void renderContent(List<Content> items) {
         categoriesContainer.getChildren().clear();
 
         java.util.Map<String, List<Content>> byCategory = new java.util.LinkedHashMap<>();
         for (Content c : items) {
-            String key = c.getCategory() != null ? c.getCategory().getName() : "Autres";
+            String key = c.getCategory() != null ? c.getCategory().getName() : "Others";
             byCategory.computeIfAbsent(key, k -> new ArrayList<>()).add(c);
         }
 
@@ -697,7 +694,7 @@ public class HomeController {
         try { inList[0] = new WatchlistDAO().isInWatchlist(Session.getCurrentUser().getId(), c.getId()); }
         catch (Exception ignored) {}
 
-        Button wlBtn = new Button(inList[0] ? "\u2713 Ma liste" : "+ Ma liste");
+        Button wlBtn = new Button(inList[0] ? "\u2713 My List" : "+ My List");
         wlBtn.getStyleClass().add("popup-watchlist-btn");
         if (inList[0]) wlBtn.getStyleClass().add("btn-added");
         wlBtn.setOnAction(e -> {
@@ -707,20 +704,20 @@ public class HomeController {
                 int uid = Session.getCurrentUser().getId();
                 if (inList[0]) {
                     dao.remove(uid, c.getId()); inList[0] = false;
-                    wlBtn.setText("+ Ma liste"); wlBtn.getStyleClass().remove("btn-added");
+                    wlBtn.setText("+ My List"); wlBtn.getStyleClass().remove("btn-added");
                 } else {
                     dao.add(uid, c.getId()); inList[0] = true;
-                    wlBtn.setText("\u2713 Ma liste"); wlBtn.getStyleClass().add("btn-added");
+                    wlBtn.setText("\u2713 My List"); wlBtn.getStyleClass().add("btn-added");
                 }
             } catch (Exception ignored) {}
         });
 
-        Button playBtn = new Button("\u25B6 Voir");
+        Button playBtn = new Button("\u25B6 Watch");
         playBtn.getStyleClass().add("popup-play-btn");
         playBtn.setOnAction(e -> { e.consume(); openDetail(c); });
 
         // ── SHARE BUTTON ──
-        Button shareBtn = new Button("↗ Partager");
+        Button shareBtn = new Button("↗ Share");
         shareBtn.getStyleClass().add("popup-share-btn");
         shareBtn.setOnAction(e -> {
             e.consume();
@@ -757,7 +754,7 @@ public class HomeController {
     // ── Share content ─────────────────────────────────────────────────────────
     private void shareContent(Content c) {
         Stage dialog = new Stage(StageStyle.UTILITY);
-        dialog.setTitle("Partager — " + c.getTitle());
+        dialog.setTitle("Share — " + c.getTitle());
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setWidth(380);
         dialog.setHeight(220);
@@ -766,7 +763,7 @@ public class HomeController {
         box.setPadding(new Insets(24));
         box.setStyle("-fx-background-color:#111;");
 
-        Label title = new Label("↗  Partager \"" + c.getTitle() + "\"");
+        Label title = new Label("↗  Share \"" + c.getTitle() + "\"");
         title.setStyle("-fx-text-fill:#e5e5e5;-fx-font-size:15px;-fx-font-weight:bold;");
 
         // Share link (simulated deep link)
@@ -779,23 +776,23 @@ public class HomeController {
         linkField.setStyle("-fx-background-color:#1a1a1a;-fx-text-fill:#888;-fx-border-color:#2a2a2a;-fx-border-radius:6px;-fx-background-radius:6px;-fx-padding:8 10;-fx-font-size:11px;");
         HBox.setHgrow(linkField, Priority.ALWAYS);
 
-        Button copyBtn = new Button("Copier");
+        Button copyBtn = new Button("Copy");
         copyBtn.setStyle("-fx-background-color:#e5e5e5;-fx-text-fill:#000;-fx-font-weight:bold;-fx-background-radius:6px;-fx-padding:8 14;-fx-cursor:hand;");
         copyBtn.setOnAction(e -> {
             ClipboardContent cc = new ClipboardContent();
             cc.putString(shareUrl);
             Clipboard.getSystemClipboard().setContent(cc);
-            copyBtn.setText("✓ Copié!");
+            copyBtn.setText("✓ Copied!");
             copyBtn.setStyle("-fx-background-color:#22c55e;-fx-text-fill:#fff;-fx-font-weight:bold;-fx-background-radius:6px;-fx-padding:8 14;-fx-cursor:hand;");
             new Timeline(new KeyFrame(Duration.seconds(1.5), ev -> {
-                copyBtn.setText("Copier");
+                copyBtn.setText("Copy");
                 copyBtn.setStyle("-fx-background-color:#e5e5e5;-fx-text-fill:#000;-fx-font-weight:bold;-fx-background-radius:6px;-fx-padding:8 14;-fx-cursor:hand;");
             })).play();
         });
 
         linkRow.getChildren().addAll(linkField, copyBtn);
 
-        Label hint = new Label("Partagez ce lien avec vos amis pour qu'ils regardent aussi !");
+        Label hint = new Label("Share this link with your friends so they can watch too!");
         hint.setStyle("-fx-text-fill:#404040;-fx-font-size:11px;");
         hint.setWrapText(true);
 
@@ -863,7 +860,7 @@ public class HomeController {
         try {
             List<NotificationDAO.Notification> notifs = notifDAO.getRecent();
             if (notifs.isEmpty()) {
-                Label empty = new Label("Aucune notification récente.");
+                Label empty = new Label("No recent notifications.");
                 empty.setStyle("-fx-text-fill:#888;-fx-font-size:13px;");
                 list.getChildren().add(empty);
             }
@@ -876,7 +873,7 @@ public class HomeController {
                 cover.setFitWidth(40); cover.setFitHeight(56);
                 if (n.coverUrl != null && !n.coverUrl.isBlank())
                     cover.setImage(new Image(n.coverUrl, 40, 56, false, true, true));
-                Label text = new Label("Nouveau " + (n.isFilm ? "film" : "série") + " : " + n.title);
+                Label text = new Label("New " + (n.isFilm ? "film" : "serie") + " : " + n.title);
                 text.setStyle("-fx-text-fill:#eee;-fx-font-size:12px;");
                 text.setWrapText(true);
                 row.getChildren().addAll(cover, text);
@@ -897,7 +894,7 @@ public class HomeController {
     @FXML
     public void onHistory() {
         Stage dialog = new Stage(StageStyle.UTILITY);
-        dialog.setTitle("Historique");
+        dialog.setTitle("History");
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setWidth(600); dialog.setHeight(520);
 
@@ -908,7 +905,7 @@ public class HomeController {
         try {
             List<Content> history = watchHistoryDAO.getHistory(Session.getCurrentUser().getId());
             if (history.isEmpty()) {
-                Label empty = new Label("Vous n'avez encore rien regardé.");
+                Label empty = new Label("You haven’t watched anything yet :(");
                 empty.setStyle("-fx-text-fill:#888;-fx-font-size:13px;");
                 list.getChildren().add(empty);
             }
@@ -953,7 +950,7 @@ public class HomeController {
         try {
             List<Content> results = contentService.search(kw);
             categoriesContainer.getChildren().clear();
-            Label title = new Label("Résultats pour : \"" + kw + "\"");
+            Label title = new Label("Result : \"" + kw + "\"");
             title.getStyleClass().add("category-title");
             FlowPane flow = new FlowPane();
             flow.setHgap(14); flow.setVgap(14);

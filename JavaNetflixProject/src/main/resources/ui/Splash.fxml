@@ -3,7 +3,7 @@
 <?import javafx.scene.control.Label?>
 
 <StackPane fx:id="splashRoot"
-           xmlns:fx="http://javafx.com/fxml"
+           xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="org.JavaProject.JavaNetflixProject.app.SplashController"
            style="-fx-background-color: #000000;"
            prefWidth="900" prefHeight="600">

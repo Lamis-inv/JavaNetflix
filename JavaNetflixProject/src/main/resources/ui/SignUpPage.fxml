@@ -56,23 +56,23 @@
 
                     <!-- Header -->
                     <VBox spacing="6" style="-fx-padding:0 0 22 0;">
-                        <Label text="Créer un compte" styleClass="auth-title"/>
-                        <Label text="Commencez à regarder en quelques secondes"
+                        <Label text="Create an account" styleClass="auth-title"/>
+                        <Label text="Start watching in seconds"
                                styleClass="auth-subtitle"/>
                     </VBox>
 
                     <!-- Name -->
                     <VBox spacing="6" style="-fx-padding:0 0 14 0;">
-                        <Label text="NOM D'UTILISATEUR" styleClass="field-label"/>
+                        <Label text="USERNAME" styleClass="field-label"/>
                         <TextField fx:id="username" styleClass="auth-field"
-                                   promptText="ex. Michael Scott" maxWidth="Infinity"/>
+                                   promptText="ex. Michael Jackson" maxWidth="Infinity"/>
                     </VBox>
 
                     <!-- Email -->
                     <VBox spacing="6" style="-fx-padding:0 0 6 0;">
-                        <Label text="ADRESSE EMAIL" styleClass="field-label"/>
+                        <Label text="EMAIL ADDRESS" styleClass="field-label"/>
                         <TextField fx:id="email" styleClass="auth-field"
-                                   promptText="votre@email.com"
+                                   promptText="your@email.com"
                                    maxWidth="Infinity"/>
                     </VBox>
 
@@ -80,9 +80,9 @@
 
                     <!-- Password -->
                     <VBox spacing="6" style="-fx-padding:0 0 6 0;">
-                        <Label text="MOT DE PASSE" styleClass="field-label"/>
+                        <Label text="PASSWORD" styleClass="field-label"/>
                         <PasswordField fx:id="password" styleClass="auth-pass"
-                                       promptText="Min 8 caractères, 1 chiffre, 1 symbole"
+                                       promptText="Min 8 characters, 1 number, 1 symbol"
                                        onKeyReleased="#onPasswordTyped" maxWidth="Infinity"/>
                     </VBox>
 
@@ -98,13 +98,13 @@
                                    styleClass="strength-label" style="-fx-min-width:62px;"/>
                         </HBox>
                         <Label fx:id="passwordHint"
-                               text="Utilisez 8+ caractères avec chiffres et symboles."
+                               text="Use 8+ characters with numbers and symbols."
                                style="-fx-text-fill:#333344;-fx-font-size:10px;"/>
                     </VBox>
 
                     <!-- Confirm Password -->
                     <VBox spacing="6" style="-fx-padding:0 0 22 0;">
-                        <Label text="CONFIRMER LE MOT DE PASSE" styleClass="field-label"/>
+                        <Label text="CONFIRM PASSWORD" styleClass="field-label"/>
                         <PasswordField fx:id="confirmpassword" styleClass="auth-pass"
                                        promptText="••••••••" maxWidth="Infinity"/>
                     </VBox>
@@ -114,22 +114,22 @@
                            style="-fx-padding:0 0 12 0;" visible="false" managed="false"/>
 
                     <!-- Register button -->
-                    <Button text="Créer le compte →" styleClass="btn-auth-primary"
+                    <Button text="Create account →" styleClass="btn-auth-primary"
                             onAction="#onRegister" maxWidth="Infinity"/>
 
                     <!-- Divider -->
                     <HBox alignment="CENTER" spacing="12" style="-fx-padding:18 0 18 0;">
                         <Pane styleClass="auth-divider" HBox.hgrow="ALWAYS"/>
-                        <Label text="OU"
+                        <Label text="OR"
                                style="-fx-text-fill:#222233;-fx-font-size:10px;-fx-font-weight:700;-fx-letter-spacing:0.2em;"/>
                         <Pane styleClass="auth-divider" HBox.hgrow="ALWAYS"/>
                     </HBox>
 
                     <!-- Login link -->
                     <HBox alignment="CENTER" spacing="6">
-                        <Label text="Déjà un compte ?"
+                        <Label text="Already have an account?"
                                style="-fx-text-fill:#333344;-fx-font-size:12px;"/>
-                        <Hyperlink fx:id="loginLink" text="Se connecter"
+                        <Hyperlink fx:id="loginLink" text="Sign in"
                                    styleClass="auth-link-highlight"
                                    onAction="#goToLogin"/>
                     </HBox>
